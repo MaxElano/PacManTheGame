@@ -3,6 +3,7 @@
 module Types where
 
 import Prelude
+import GHC.Natural (Natural)
 
 type Board = [Row]
 type Row   = [Field]
@@ -18,3 +19,24 @@ instance Show FieldType where
     show PowerUp = "PowerUp"
     show Cherry = "Cherry"
     show Empty = "Empty"
+
+data PlayState = PlayState { board       :: Board
+			        	    ,score       :: Score
+	      	                ,pacman      :: PacMan
+                            ,ghostMode   :: GhostMode
+				            ,ghostRed    :: Ghost
+				            ,ghostPink   :: Ghost
+				            ,ghostCyan   :: Ghost
+				            ,ghostOrange :: Ghost
+	    			       }
+
+newtype Score = Score Natural
+
+data GhostMode = Chase | Scatter | Frightened
+
+data PacMan = PacMan { location           :: PacManLocation
+                      ,previousOrentation :: OldOrientation
+			          ,orientation        :: NewOrientation
+ 		              ,lives              :: Lives
+                      ,speed              :: Speed
+			         }
