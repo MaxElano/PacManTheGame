@@ -5,19 +5,7 @@ module LevelLoader where
 import Prelude
 import System.IO
 import Language.Haskell.TH (safe)
-
-type Board = [Row]
-type Row   = [Field]
-data Field = MkField (Int,Int) FieldType
-instance Show Field where 
-    show (MkField (x,y) s) = "(" ++ show x ++ "," ++ show y ++ ")" ++ show s
-data FieldType = Wall | Pellet | PowerUp | Cherry | Empty
-instance Show FieldType where 
-    show Wall = "Wall"
-    show Pellet = "Pellet"
-    show PowerUp = "PowerUp"
-    show Cherry = "Cherry"
-    show Empty = "Empty"
+import Types
 
 printLevel :: FilePath -> IO()
 printLevel fp = do c <- loadLevel fp
