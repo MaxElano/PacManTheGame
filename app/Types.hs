@@ -4,6 +4,7 @@ module Types where
 
 import Prelude
 import GHC.Natural (Natural)
+import Text.XHtml (base)
 
 type Board = [Row]
 type Row   = [Field]
@@ -21,22 +22,37 @@ instance Show FieldType where
     show Empty = "Empty"
 
 data PlayState = PlayState { board       :: Board
-			        	    ,score       :: Score
-	      	                ,pacman      :: PacMan
+                            ,score       :: Score
+                            ,pacman      :: PacMan
                             ,ghostMode   :: GhostMode
-				            ,ghostRed    :: Ghost
-				            ,ghostPink   :: Ghost
-				            ,ghostCyan   :: Ghost
-				            ,ghostOrange :: Ghost
-	    			       }
+                            ,ghostRed    :: Ghost
+                            ,ghostPink   :: Ghost
+                            ,ghostCyan   :: Ghost
+                            ,ghostOrange :: Ghost
+                           }
 
 newtype Score = Score Natural
 
 data GhostMode = Chase | Scatter | Frightened
 
-data PacMan = PacMan { location           :: PacManLocation
-                      ,previousOrentation :: OldOrientation
-			          ,orientation        :: NewOrientation
- 		              ,lives              :: Lives
+data PacMan = PacMan { location           :: Location
+                      ,previousOrentation :: Orientation
+                      ,lives              :: Lives
                       ,speed              :: Speed
-			         }
+                     }
+
+data Location = Location (Float,Float) Orientation
+data Orientation = Up | Down | Left | Right
+newtype Lives = Lives Natural
+newtype Speed = Speed Natural
+
+data Ghost = Ghost { location    :: Location 
+                    ,targetField :: TargetField
+                    ,speed       :: Speed
+                    ,baseField   :: BaseField
+                    ,mustReverse :: MustReverse
+}
+
+type MustReverse = Bool
+type BaseField = Field
+type TargetField = Field
