@@ -21,6 +21,8 @@ instance Show FieldType where
     show Cherry = "Cherry"
     show Empty = "Empty"
 
+type FieldCoordinate = (Int, Int)
+
 data PlayState = PlayState { board       :: Board
                             ,score       :: Score
                             ,pacman      :: PacMan
@@ -31,7 +33,7 @@ data PlayState = PlayState { board       :: Board
                             ,ghostOrange :: Ghost
                            }
 
-newtype Score = Score Natural
+newtype Score = MkScore Natural
 
 data GhostMode = Chase | Scatter | Frightened
 
@@ -41,10 +43,10 @@ data PacMan = PacMan { location           :: Location
                       ,speed              :: Speed
                      }
 
-data Location = Location (Float,Float) Orientation
+data Location = MkLocation (Float,Float) Orientation
 data Orientation = Up | Down | Left | Right
-newtype Lives = Lives Natural
-newtype Speed = Speed Natural
+newtype Lives = MkLives Natural
+newtype Speed = MkSpeed Natural
 
 data Ghost = Ghost { location    :: Location 
                     ,targetField :: TargetField
