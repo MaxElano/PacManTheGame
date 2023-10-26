@@ -2,21 +2,27 @@ module Types where
 
 import Prelude
 import GHC.Natural (Natural)
+import LevelLoader
 
 data InfoToShow = ShowNothing
                 | ShowANumber Int
                 | ShowAChar   Char
+                | ShowABoard  IO Board
 
 nO_SECS_BETWEEN_CYCLES :: Float
 nO_SECS_BETWEEN_CYCLES = 5
 
 data GameState = GameState {
                    infoToShow  :: InfoToShow
-                 , elapsedTime :: Float
+                  ,elapsedTime :: Float
+                  --,board :: IO Board
                  }
 
+-- initialState :: GameState
+-- initialState = GameState ShowNothing 0
+
 initialState :: GameState
-initialState = GameState ShowNothing 0
+initialState = GameState (ShowABoard loadLevel "Level1.txt")
 
 
 
@@ -27,35 +33,33 @@ initialState = GameState ShowNothing 0
 
 
 
+type Board = [Row]
+type Row   = [Field]
+data Field = MkField (Int,Int) FieldType
+instance Show Field where 
+    show :: Field -> String
+    show (MkField (x,y) s) = "(" ++ show x ++ "," ++ show y ++ ")" ++ show s
 
+instance Eq Field where
+    (==) :: Field -> Field -> Bool
+    MkField pos fieldType == MkField pos' fieldType' = pos == pos' && fieldType == fieldType'
 
--- type Board = [Row]
--- type Row   = [Field]
--- data Field = MkField (Int,Int) FieldType
--- instance Show Field where 
---     show :: Field -> String
---     show (MkField (x,y) s) = "(" ++ show x ++ "," ++ show y ++ ")" ++ show s
+data FieldType = Wall | Pellet | PowerUp | Cherry | Empty
+instance Show FieldType where 
+    show :: FieldType -> String
+    show Wall = "Wall"
+    show Pellet = "Pellet"
+    show PowerUp = "PowerUp"
+    show Cherry = "Cherry"
+    show Empty = "Empty"
 
--- instance Eq Field where
---     (==) :: Field -> Field -> Bool
---     MkField pos fieldType == MkField pos' fieldType' = pos == pos' && fieldType == fieldType'
-
--- data FieldType = Wall | Pellet | PowerUp | Cherry | Empty
--- instance Show FieldType where 
---     show :: FieldType -> String
---     show Wall = "Wall"
---     show Pellet = "Pellet"
---     show PowerUp = "PowerUp"
---     show Cherry = "Cherry"
---     show Empty = "Empty"
-
--- instance Eq FieldType where
---     (==) :: FieldType -> FieldType -> Bool
---     Wall == Wall = True
---     Pellet == Pellet = True
---     PowerUp == PowerUp = True
---     Cherry == Cherry = True
---     Empty == Empty = True
+instance Eq FieldType where
+    (==) :: FieldType -> FieldType -> Bool
+    Wall == Wall = True
+    Pellet == Pellet = True
+    PowerUp == PowerUp = True
+    Cherry == Cherry = True
+    Empty == Empty = True
 
 -- type CurrentField = Field
 -- type GhostLocation = Field

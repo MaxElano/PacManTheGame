@@ -13,3 +13,4 @@ drawPure gstate = case infoToShow gstate of
   ShowNothing   -> blank
   ShowANumber n -> color green (text (show n))
   ShowAChar   c -> color green (text [c])
+  ShowABoard  b -> color green (text (show "9"))
