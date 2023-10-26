@@ -1,11 +1,11 @@
-module PacMan where
-import Types
-import Data.Binary.Get (label)
+module Entity where
+import Types as T
+--import Data.Binary.Get (label)
 
 move ::  Location -> Speed -> Location
 move l                        0 = l
-move (MkLocation (x,y) Up)    s = y - s
-move (MkLocation (x,y) Right) s = x + s
-move (MkLocation (x,y) Down)  s = y + s
-move (MkLocation (x,y) Left)  s = x - s
+move (Location (x,y) T.Up)    s = Location (x,y - s) T.Up
+move (Location (x,y) T.Right) s = Location (x,y - s) T.Up
+move (Location (x,y) T.Down)  s = Location (x,y - s) T.Up
+move (Location (x,y) T.Left)  s = Location (x,y - s) T.Up
 

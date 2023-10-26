@@ -1,10 +1,8 @@
-{-# language CPP #-}
-
 module Board where
 
 import Prelude
 import System.IO
-import Language.Haskell.TH (safe)
+--import Language.Haskell.TH (safe)
 import Data.Foldable (minimumBy)
 import Data.Ord (comparing)
 import Types

@@ -4,7 +4,7 @@ module LevelLoader where
 
 import Prelude
 import System.IO
-import Language.Haskell.TH (safe)
+--import Language.Haskell.TH (safe)
 import Types
 
 printLevel :: FilePath -> IO()

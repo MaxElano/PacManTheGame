@@ -1,13 +1,14 @@
+{-# LANGUAGE InstanceSigs #-}
 module Types where
 
 import Prelude
 import GHC.Natural (Natural)
-import LevelLoader
+--import LevelLoader (loadLevel)
 
 data InfoToShow = ShowNothing
                 | ShowANumber Int
                 | ShowAChar   Char
-                | ShowABoard  IO Board
+                | ShowABoard  (IO Board)
 
 nO_SECS_BETWEEN_CYCLES :: Float
 nO_SECS_BETWEEN_CYCLES = 5
@@ -22,7 +23,7 @@ data GameState = GameState {
 -- initialState = GameState ShowNothing 0
 
 initialState :: GameState
-initialState = GameState (ShowABoard loadLevel "Level1.txt")
+initialState = GameState (ShowAChar 'c') 0
 
 
 
@@ -64,7 +65,7 @@ instance Eq FieldType where
 -- type CurrentField = Field
 -- type GhostLocation = Field
 -- type PacManLocation = Field
--- type IsNotWall = Bool
+type IsNotWall = Bool
 
 -- data PlayState = PlayState { infoToShow  :: InfoToShow
 --                             ,board       :: Board
@@ -87,13 +88,13 @@ instance Eq FieldType where
 --                       ,speed              :: Speed
 --                      }
 
--- data Location = Location (Float,Float) Orientation
+data Location = Location (Float,Float) Orientation
 
 -- instance Show Location where
 --     show :: Location -> String
 --     show (Location (f,f') o) = "(" ++ show f ++ "," ++ show f' ++ ")" ++ show o
 
--- data Orientation = Up | Down | Left | Right
+data Orientation = Up | Down | Left | Right
 
 -- instance Show Orientation where
 --     show :: Orientation -> String
@@ -102,8 +103,9 @@ instance Eq FieldType where
 --     show Types.Left = "Left"
 --     show Types.Right = "Right"
 
--- newtype Lives = Lives Natural
--- newtype Speed = Speed Natural
+
+newtype Lives = Lives Natural
+type Speed = Float
 
 -- data Ghost = Ghost { glocation    :: Location 
 --                     ,targetField :: TargetField
