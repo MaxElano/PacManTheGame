@@ -48,7 +48,7 @@ data GhostMode = Chase | Scatter | Frightened
 --------------------------Board--------------------------
 type Board = [Row]
 type Row   = [Field]
-data Field = MkField (Int,Int) FieldType
+data Field = MkField FieldCoordinate FieldType
 instance Show Field where 
     show :: Field -> String
     show (MkField (x,y) s) = "(" ++ show x ++ "," ++ show y ++ ")" ++ show s
@@ -77,6 +77,10 @@ instance Eq FieldType where
 type CurrentField = Field
 type IsNotWall = Bool
 
+type FieldCoordinate = (Int, Int)
+
+fieldSize :: Int
+fieldSize = 8
 --------------------------Entity--------------------------
 type Speed = Float
 
@@ -116,4 +120,4 @@ data GhostType = Red | Pink | Cyan | Orange
 
 type MustReverse = Bool
 type BaseField = Field
-type TargetField = Field
+type TargetField = FieldCoordinate
