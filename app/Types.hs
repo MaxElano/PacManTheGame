@@ -30,10 +30,22 @@ initialState = GameState (ShowAChar 'c') 0
 
 
 
+--------------------------Game--------------------------
+-- data PlayState = PlayState { infoToShow  :: InfoToShow
+--                             ,board       :: Board
+--                             ,score       :: Score
+--                             ,pacman      :: PacMan
+--                             ,ghostMode   :: GhostMode
+--                             ,ghostRed    :: Ghost
+--                             ,ghostPink   :: Ghost
+--                             ,ghostCyan   :: Ghost
+--                             ,ghostOrange :: Ghost
+--                            }
 
+newtype Score = Score Natural
+data GhostMode = Chase | Scatter | Frightened
 
-
-
+--------------------------Board--------------------------
 type Board = [Row]
 type Row   = [Field]
 data Field = MkField (Int,Int) FieldType
@@ -62,58 +74,46 @@ instance Eq FieldType where
     Cherry == Cherry = True
     Empty == Empty = True
 
--- type CurrentField = Field
--- type GhostLocation = Field
--- type PacManLocation = Field
+type CurrentField = Field
 type IsNotWall = Bool
 
--- data PlayState = PlayState { infoToShow  :: InfoToShow
---                             ,board       :: Board
---                             ,score       :: Score
---                             ,pacman      :: PacMan
---                             ,ghostMode   :: GhostMode
---                             ,ghostRed    :: Ghost
---                             ,ghostPink   :: Ghost
---                             ,ghostCyan   :: Ghost
---                             ,ghostOrange :: Ghost
---                            }
-
--- newtype Score = Score Natural
-
--- data GhostMode = Chase | Scatter | Frightened
-
--- data PacMan = PacMan { location           :: Location
---                       ,previousOrentation :: Orientation
---                       ,lives              :: Lives
---                       ,speed              :: Speed
---                      }
-
-data Location = Location (Float,Float) Orientation
-
--- instance Show Location where
---     show :: Location -> String
---     show (Location (f,f') o) = "(" ++ show f ++ "," ++ show f' ++ ")" ++ show o
-
-data Orientation = Up | Down | Left | Right
-
--- instance Show Orientation where
---     show :: Orientation -> String
---     show Up = "Up"
---     show Down = "Down"
---     show Types.Left = "Left"
---     show Types.Right = "Right"
-
-
-newtype Lives = Lives Natural
+--------------------------Entity--------------------------
 type Speed = Float
 
--- data Ghost = Ghost { glocation    :: Location 
---                     ,targetField :: TargetField
---                     ,gspeed       :: Speed
---                     ,baseField   :: BaseField
---                     ,mustReverse :: MustReverse
---                    }
+data Location = Location (Float,Float) Orientation
+instance Show Location where
+    show :: Location -> String
+    show (Location (f,f') o) = "(" ++ show f ++ "," ++ show f' ++ ")" ++ show o
 
--- type MustReverse = Bool
--- type BaseField = Field
--- type TargetField = Field
+data Orientation = Up | Down | Left | Right
+instance Show Orientation where
+    show :: Orientation -> String
+    show Up = "Up"
+    show Down = "Down"
+    show Types.Left = "Left"
+    show Types.Right = "Right"
+
+--------------------------PacMan--------------------------
+data PacMan = PacMan { pacmanLocation     :: Location
+                      ,lives              :: Lives
+                      ,pacmanSpeed        :: Speed
+                     }
+
+type PacManLocation = Field
+newtype Lives = Lives Natural
+
+--------------------------Ghost--------------------------
+data Ghost = Ghost { ghostLocation :: Location 
+                    ,targetField   :: TargetField
+                    ,ghostSpeed    :: Speed
+                    ,baseField     :: BaseField
+                    ,mustReverse   :: MustReverse
+                    ,ghostType     :: GhostType
+                   }
+
+type GhostLocation = Field
+data GhostType = Red | Pink | Cyan | Orange
+
+type MustReverse = Bool
+type BaseField = Field
+type TargetField = Field
