@@ -12,7 +12,7 @@ import Types
       FieldType(Wall),
       Field(..),
       Row,
-      Board )
+      Board, FieldCord )
 
 locationToField :: Location -> Board -> Field
 locationToField l = findField l . findRow l
@@ -41,3 +41,4 @@ fieldReplace (f:fs) f1@(MkField pos _) newType =
     if f == f1
         then MkField pos newType:fs
         else f:fieldReplace fs f1 newType
+

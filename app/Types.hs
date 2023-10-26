@@ -48,7 +48,7 @@ data GhostMode = Chase | Scatter | Frightened
 --------------------------Board--------------------------
 type Board = [Row]
 type Row   = [Field]
-data Field = MkField FieldCoordinate FieldType
+data Field = MkField FieldCord FieldType
 instance Show Field where 
     show :: Field -> String
     show (MkField (x,y) s) = "(" ++ show x ++ "," ++ show y ++ ")" ++ show s
@@ -77,17 +77,19 @@ instance Eq FieldType where
 type CurrentField = Field
 type IsNotWall = Bool
 
-type FieldCoordinate = (Int, Int)
+type FieldCord = (Int, Int)
 
 fieldSize :: Int
 fieldSize = 8
 --------------------------Entity--------------------------
 type Speed = Float
 
-data Location = Location (Float,Float) Orientation
+data Location = Location LocationCord Orientation
 instance Show Location where
     show :: Location -> String
     show (Location (f,f') o) = "(" ++ show f ++ "," ++ show f' ++ ")" ++ show o
+
+type LocationCord = (Float, Float)
 
 data Orientation = Up | Down | Left | Right
 instance Show Orientation where
@@ -103,12 +105,12 @@ data PacMan = PacMan { pacmanLocation     :: Location
                       ,pacmanSpeed        :: Speed
                      }
 
-type PacManLocation = Field
+type PacManLocation = Location
 newtype Lives = Lives Natural
 
 --------------------------Ghost--------------------------
 data Ghost = Ghost { ghostLocation :: Location 
-                    ,targetField   :: TargetField
+                    ,targetField   :: TargetFieldCord
                     ,ghostSpeed    :: Speed
                     ,baseField     :: BaseField
                     ,mustReverse   :: MustReverse
@@ -120,4 +122,4 @@ data GhostType = Red | Pink | Cyan | Orange
 
 type MustReverse = Bool
 type BaseField = Field
-type TargetField = FieldCoordinate
+type TargetFieldCord = FieldCord

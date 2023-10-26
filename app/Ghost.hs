@@ -1,20 +1,37 @@
 module Ghost where
-import Types
+import Types as T
 import Entity
-moveGhost :: Board -> GhostLocation -> Speed -> GhostLocation
-moveGhost b l :: 
+import Board
 
-findOrientation :: Board -> CurrentField -> TargetField -> OldOrientation -> MustReverse -> NewOrientation
+-- moveGhost :: Board -> GhostLocation -> Speed -> GhostLocation
+-- moveGhost b l :: 
 
-findTargetField :: PlayState -> GhostType -> TargetField
+-- findOrientation :: Board -> CurrentField -> TargetFieldCord -> OldOrientation -> MustReverse -> NewOrientation
 
-findRandomTargetField :: Board -> CurrentField -> OldOrientation -> TargetField
+-- findTargetField :: PlayState -> GhostType -> TargetFieldCord
 
-findTargetFieldRed :: PacManLocation -> TargetField
-findTargetFieldRed = locationToField
+-- findRandomTargetField :: Board -> CurrentField -> OldOrientation -> TargetFieldCord
 
-findTargetFieldPink :: PacManLocation -> Orientation -> TargetField
+--TargetField is PacMan's location -> field
+findTargetFieldRed :: PacManLocation -> TargetFieldCord
+findTargetFieldRed (Location p _) = locationCordToFieldCord p
 
-findTargetFieldBlue :: PacManLocation -> Orientation -> GhostLocation -> TargetField
+--TargetField is 4 fields ahead of PacMan
+findTargetFieldPink :: PacManLocation -> TargetFieldCord
+findTargetFieldPink (Location (x,y) T.Up)    = locationCordToFieldCord
+findTargetFieldPink (Location (x,y) T.Right) = (x + 4, y)
+findTargetFieldPink (Location (x,y) T.Down)  = (x, y + 4)
+findTargetFieldPink (Location (x,y) T.Left)  = (x - 4, y)
 
-findTargetOrange :: PacManLocation -> GhostLocation -> BaseField -> TargetField
+--TargetField is the field mirrored to the red ghost from 2 ahead of PacMan
+findTargetFieldBlue :: PacManLocation -> GhostLocation -> TargetFieldCord
+findTargetFieldBlue (Location p o)  (Location g _) = newCord(p o)
+    where
+        newCord :: FieldCord -> Orientation -> FieldCord
+        newCord (x,y) T.Up    = (px,py - 2)
+        newCord (x,y) T.Right = (px + 2,py)
+        newCord (x,y) T.Down  = (px,py + 2)
+        newCord (x,y) T.Left  = (px - 2,py)
+
+
+-- findTargetOrange :: PacManLocation -> GhostLocation -> BaseField -> TargetFieldCord
