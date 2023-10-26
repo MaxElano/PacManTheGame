@@ -1,5 +1,3 @@
-{-# language CPP #-}
-
 module PacMan where
 import Types
 import Data.Binary.Get (label)

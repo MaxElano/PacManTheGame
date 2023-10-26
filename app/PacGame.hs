@@ -18,5 +18,3 @@ getNextFieldLocation (x,y) Up = y - 1
 getNextFieldLocation (x,y) Right = x + 1
 getNextFieldLocation (x,y) Down = y + 1
 getNextFieldLocation (x,y) Left = x - 1
-
-getField :: Board -> FieldCoordinate

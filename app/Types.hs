@@ -6,6 +6,10 @@ import Prelude
 import GHC.Natural (Natural)
 import Text.XHtml (base)
 
+data InfoToShow = ShowNothing
+                | ShowANumber Int
+                | ShowAChar   Char
+
 type Board = [Row]
 type Row   = [Field]
 data Field = MkField (Int,Int) FieldType
@@ -39,7 +43,8 @@ type GhostLocation = Field
 type PacManLocation = Field
 type IsNotWall = Bool
 
-data PlayState = PlayState { board       :: Board
+data PlayState = PlayState { infoToShow  :: InfoToShow
+                            ,board       :: Board
                             ,score       :: Score
                             ,pacman      :: PacMan
                             ,ghostMode   :: GhostMode
