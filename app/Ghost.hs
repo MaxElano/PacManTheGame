@@ -8,7 +8,15 @@ import Board
 
 -- findOrientation :: Board -> CurrentField -> TargetFieldCord -> OldOrientation -> MustReverse -> NewOrientation
 
--- findTargetField :: PlayState -> GhostType -> TargetFieldCord
+findTargetField :: GhostType -> GameState -> TargetFieldCord
+findTargetField Red    (GameState {pacman   = (PacMan {pacmanLocation = pl})}) = findTargetFieldRed pl
+findTargetField Pink   (GameState {pacman   = (PacMan {pacmanLocation = pl})}) = findTargetFieldPink pl
+findTargetField Cyan   (GameState {pacman   = (PacMan {pacmanLocation = pl})
+                                  ,ghostRed = (Ghost {ghostLocation = gl})})   = findTargetFieldCyan pl gl
+findTargetField Orange (GameState {pacman   = (PacMan {pacmanLocation = pl}), 
+                                   ghostOrange = (Ghost {ghostLocation = gl 
+                                                        ,baseField = bf})})    = findTargetFieldOrange pl gl bf
+
 
 -- findRandomTargetField :: Board -> CurrentField -> OldOrientation -> TargetFieldCord
 
@@ -18,20 +26,17 @@ findTargetFieldRed (Location p _) = locationCordToFieldCord p
 
 --TargetField is 4 fields ahead of PacMan
 findTargetFieldPink :: PacManLocation -> TargetFieldCord
-findTargetFieldPink (Location (x,y) T.Up)    = locationCordToFieldCord
-findTargetFieldPink (Location (x,y) T.Right) = (x + 4, y)
-findTargetFieldPink (Location (x,y) T.Down)  = (x, y + 4)
-findTargetFieldPink (Location (x,y) T.Left)  = (x - 4, y)
+findTargetFieldPink (Location p o)    = findFieldCordAhead (locationCordToFieldCord p) o 4
 
---TargetField is the field mirrored to the red ghost from 2 ahead of PacMan
-findTargetFieldBlue :: PacManLocation -> GhostLocation -> TargetFieldCord
-findTargetFieldBlue (Location p o)  (Location g _) = newCord(p o)
-    where
-        newCord :: FieldCord -> Orientation -> FieldCord
-        newCord (x,y) T.Up    = (px,py - 2)
-        newCord (x,y) T.Right = (px + 2,py)
-        newCord (x,y) T.Down  = (px,py + 2)
-        newCord (x,y) T.Left  = (px - 2,py)
+--TargetField is the field mirrored to the red ghost's location from 2 ahead of PacMan
+findTargetFieldCyan :: PacManLocation -> GhostLocation -> TargetFieldCord
+findTargetFieldCyan (Location p o) (Location g _) = let nc = findFieldCordAhead (locationCordToFieldCord p) o 2 
+                                                    in 2 * nc - locationCordToFieldCord g
 
-
--- findTargetOrange :: PacManLocation -> GhostLocation -> BaseField -> TargetFieldCord
+--Uses it's own location and pacman's location, if within 8 range -> back to base, otherwise use red algorithm
+findTargetFieldOrange :: PacManLocation -> GhostLocation -> BaseField -> TargetFieldCord
+findTargetFieldOrange pl@(Location (px, py) o) (Location (gx, gy) _) bf | distance > 8 = findTargetFieldRed pl
+                                                                        | otherwise    = bf
+    where 
+        distance :: LocationCord -> LocationCord -> Float
+        distance (px, py) (gx, gy) = sqrt (abs((px - gx) * (px - gx) + (py - gy) * (py - gy)))

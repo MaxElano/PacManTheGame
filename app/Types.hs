@@ -13,11 +13,11 @@ data InfoToShow = ShowNothing
 nO_SECS_BETWEEN_CYCLES :: Float
 nO_SECS_BETWEEN_CYCLES = 5
 
-data GameState = GameState {
-                   infoToShow  :: InfoToShow
-                  ,elapsedTime :: Float
-                  --,board :: IO Board
-                 }
+-- data GameState = GameState {
+--                    infoToShow  :: InfoToShow
+--                   ,elapsedTime :: Float
+--                   --,board :: IO Board
+--                  }
 
 -- initialState :: GameState
 -- initialState = GameState ShowNothing 0
@@ -31,16 +31,17 @@ initialState = GameState (ShowAChar 'c') 0
 
 
 --------------------------Game--------------------------
--- data PlayState = PlayState { infoToShow  :: InfoToShow
---                             ,board       :: Board
---                             ,score       :: Score
---                             ,pacman      :: PacMan
---                             ,ghostMode   :: GhostMode
---                             ,ghostRed    :: Ghost
---                             ,ghostPink   :: Ghost
---                             ,ghostCyan   :: Ghost
---                             ,ghostOrange :: Ghost
---                            }
+data GameState = GameState { infoToShow  :: InfoToShow
+                            ,board       :: Board
+                            ,score       :: Score
+                            ,pacman      :: PacMan
+                            ,ghostMode   :: GhostMode
+                            ,ghostRed    :: Ghost
+                            ,ghostPink   :: Ghost
+                            ,ghostCyan   :: Ghost
+                            ,ghostOrange :: Ghost
+                            ,elapsedTime :: Float
+                           }
 
 newtype Score = Score Natural
 data GhostMode = Chase | Scatter | Frightened
@@ -117,9 +118,9 @@ data Ghost = Ghost { ghostLocation :: Location
                     ,ghostType     :: GhostType
                    }
 
-type GhostLocation = Field
+type GhostLocation = Location
 data GhostType = Red | Pink | Cyan | Orange
 
 type MustReverse = Bool
-type BaseField = Field
+type BaseField = TargetFieldCord
 type TargetFieldCord = FieldCord
