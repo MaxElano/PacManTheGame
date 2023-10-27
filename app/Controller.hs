@@ -14,7 +14,7 @@ step :: Float -> GameState -> IO GameState
 step secs gstate
    | elapsedTime gstate + secs > nO_SECS_BETWEEN_CYCLES
    = -- We show a new random number
-        return $ GameState (ShowABoard (loadLevel "Level1.txt")) 0
+        return $ (GameState {infoToShow = ShowABoard (loadLevel "Level1.txt")}) 0
   | otherwise
   = -- Just update the elapsed time
     return $ gstate { elapsedTime = elapsedTime gstate + secs }

@@ -5,15 +5,21 @@ import System.IO
 --import Language.Haskell.TH (safe)
 import Data.Foldable (minimumBy)
 import Data.Ord (comparing)
-import Types
+import Types as T
     ( Orientation,
       Location(..),
       IsNotWall,
       FieldType(Wall),
       Field(..),
       Row,
+<<<<<<< HEAD
       Board,
       fieldSize )
+=======
+      Board, 
+      FieldCord, 
+      Orientation(..))
+>>>>>>> 870d7f1c290119e4f4b391ffbda35b9519baac0a
 
 locationToField :: Location -> Board -> MaybeField
 locationToField (Location lcords _) b = let fcords = lCordToFCord lcords in (searchRow fcords =<< b)
@@ -51,3 +57,9 @@ fieldReplace (f:fs) f1@(MkField pos _) newType =
     if f == f1
         then MkField pos newType:fs
         else f:fieldReplace fs f1 newType
+
+findFieldCordAhead :: FieldCord -> Orientation -> Int -> FieldCord
+findFieldCordAhead (x,y) T.Up    i = (x,y - i)
+findFieldCordAhead (x,y) T.Right i = (x + i,y)
+findFieldCordAhead (x,y) T.Down  i = (x,y + i)
+findFieldCordAhead (x,y) T.Left  i = (x - i,y)
