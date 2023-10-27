@@ -50,7 +50,7 @@ distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (np
 
 --Chooses random Orientation for the ghost, used in Frightened mode
 chooseRandomDirection :: [Orientation] -> Orientation
-chooseRandomDirection xs = case getStdRandom (randomR (0,length xs)) of
+chooseRandomDirection xs = let pureGen = mkStdGen 137 in uniformRM (1, 6) pureGen of
                             0 -> xs !! 0
                             1 -> xs !! 1
                             2 -> xs !! 2
