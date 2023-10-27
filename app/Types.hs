@@ -13,11 +13,11 @@ data InfoToShow = ShowNothing
 nO_SECS_BETWEEN_CYCLES :: Float
 nO_SECS_BETWEEN_CYCLES = 5
 
--- data GameState = GameState {
---                    infoToShow  :: InfoToShow
---                   ,elapsedTime :: Float
---                   --,board :: IO Board
---                  }
+data GameState = GameState {
+                   infoToShow  :: InfoToShow
+                  ,elapsedTime :: Float
+                  --,board :: IO Board
+                 }
 
 -- initialState :: GameState
 -- initialState = GameState ShowNothing 0
@@ -31,17 +31,16 @@ initialState = GameState (ShowAChar 'c') 0
 
 
 --------------------------Game--------------------------
-data GameState = GameState { infoToShow  :: InfoToShow
-                            ,board       :: Board
-                            ,score       :: Score
-                            ,pacman      :: PacMan
-                            ,ghostMode   :: GhostMode
-                            ,ghostRed    :: Ghost
-                            ,ghostPink   :: Ghost
-                            ,ghostCyan   :: Ghost
-                            ,ghostOrange :: Ghost
-                            ,elapsedTime :: Float
-                           }
+-- data PlayState = PlayState { infoToShow  :: InfoToShow
+--                             ,board       :: Board
+--                             ,score       :: Score
+--                             ,pacman      :: PacMan
+--                             ,ghostMode   :: GhostMode
+--                             ,ghostRed    :: Ghost
+--                             ,ghostPink   :: Ghost
+--                             ,ghostCyan   :: Ghost
+--                             ,ghostOrange :: Ghost
+--                            }
 
 newtype Score = Score Natural
 data GhostMode = Chase | Scatter | Frightened
@@ -75,21 +74,21 @@ instance Eq FieldType where
     Cherry == Cherry = True
     Empty == Empty = True
 
+type CurrentField = Field
 type IsNotWall = Bool
 
 type FieldCord = (Int, Int)
+type LocationCord = (Float, Float)
 
 fieldSize :: Int
 fieldSize = 8
 --------------------------Entity--------------------------
 type Speed = Float
 
-data Location = Location LocationCord Orientation
+data Location = Location (Float,Float) Orientation
 instance Show Location where
     show :: Location -> String
     show (Location (f,f') o) = "(" ++ show f ++ "," ++ show f' ++ ")" ++ show o
-
-type LocationCord = (Float, Float)
 
 data Orientation = Up | Down | Left | Right
 instance Show Orientation where
@@ -105,22 +104,21 @@ data PacMan = PacMan { pacmanLocation     :: Location
                       ,pacmanSpeed        :: Speed
                      }
 
-type PacManLocation = Location
+type PacManLocation = Field
 newtype Lives = Lives Natural
 
 --------------------------Ghost--------------------------
 data Ghost = Ghost { ghostLocation :: Location 
-                    ,targetField   :: TargetFieldCord
+                    ,targetField   :: TargetField
                     ,ghostSpeed    :: Speed
                     ,baseField     :: BaseField
                     ,mustReverse   :: MustReverse
                     ,ghostType     :: GhostType
                    }
 
-type GhostLocation = Location
+type GhostLocation = Field
 data GhostType = Red | Pink | Cyan | Orange
 
 type MustReverse = Bool
-type BaseField = TargetFieldCord
-type TargetFieldCord = FieldCord
-type CurrentField = FieldCord
+type BaseField = Field
+type TargetField = FieldCord
