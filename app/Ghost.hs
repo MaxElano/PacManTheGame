@@ -4,6 +4,8 @@ import Entity
 import Board
 import System.Random
 
+
+--Change to entire gamestate
 moveGhost :: Board -> GhostLocation -> TargetFieldCord -> MustReverse -> Speed -> GhostLocation
 moveGhost b l@(Location c _) t m = moveEntity (Location c (findOrientation b l t m))
     where
@@ -50,11 +52,7 @@ distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (np
 
 --Chooses random Orientation for the ghost, used in Frightened mode
 chooseRandomDirection :: [Orientation] -> Orientation
-chooseRandomDirection xs = let pureGen = mkStdGen 137 in uniformRM (1, 6) pureGen of
-                            0 -> xs !! 0
-                            1 -> xs !! 1
-                            2 -> xs !! 2
-                            3 -> xs !! 3
+chooseRandomDirection gs xs = useRandom gs (0, length xs)
 
 --Decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: GhostType -> GameState -> TargetFieldCord
