@@ -3,50 +3,42 @@ module Board where
 import Prelude
 import System.IO
 --import Language.Haskell.TH (safe)
-import Data.Foldable (minimumBy)
+import Data.Foldable (minimumBy, find)
 import Data.Ord (comparing)
-import Types as T
-    ( Orientation,
+import Types
+    ( Orientation (..),
       Location(..),
-      IsNotWall,
-      FieldType(Wall),
+      IsWall,
+      FieldType(..),
       Field(..),
       Row,
-<<<<<<< HEAD
       Board,
-      fieldSize )
-=======
-      Board, 
-      FieldCord, 
-      Orientation(..))
->>>>>>> 870d7f1c290119e4f4b391ffbda35b9519baac0a
+      fieldSize,
+      FieldCord,
+      LocationCord
+    )
 
-locationToField :: Location -> Board -> MaybeField
-locationToField (Location lcords _) b = let fcords = lCordToFCord lcords in (searchRow fcords =<< b)
+locationToField :: Location -> Board -> Maybe Field
+locationToField (Location lcords _) b = let fcords = lCordToFCord lcords 
+                                        in case map (searchRow fcords) b of
+                                            (field:_) -> field
+                                            []        -> Nothing
 
-searchRow :: FieldCords -> Row -> MaybeField
+searchRow :: FieldCord -> Row -> Maybe Field
 searchRow c = find (\(MkField c1 _) -> c1 == c)
 
 lCordToFCord :: LocationCord -> FieldCord
-lCordToFCord (x,y) = let size = fromIntegral fieldSize in (x `div` size,y `div` size)
-
---findRow :: Location -> Board -> Row
---findRow (Location (_,y) _) board = let headRows = map (\r@((MkField (_,y1) _):_)-> (abs(fromIntegral y1 - y),r)) board 
---                                   in snd (minimumBy (comparing fst) headRows)
-
---findField :: Location -> Row -> Field
---findField (Location (x,_) _) row = let fields = map (\f@(MkField (x1,_) _) -> (abs(fromIntegral x1 - x),f)) row
---                                   in snd (minimumBy (comparing fst) fields)
+lCordToFCord (x,y) = (truncate x `div` fieldSize,truncate y `div` fieldSize)
 
 fieldToLocation :: Field -> Orientation -> Location
-fieldToLocation = Location fCordToLCord
+fieldToLocation (MkField fcords _) = Location (fCordToLCord fcords)
 
 fCordToLCord :: FieldCord -> LocationCord
 fCordToLCord (x,y) = let size = fromIntegral fieldSize in (fromIntegral x * size + size / 2, fromIntegral y * size + size / 2)
 
-wallCheck :: Field -> IsNotWall
-wallCheck (MkField _ Wall) = False
-wallCheck (MkField _ _)    = True
+wallCheck :: Field -> IsWall
+wallCheck (MkField _ Wall) = True
+wallCheck (MkField _ _)    = False
 
 changeFieldType :: Board -> Field -> FieldType -> Board
 changeFieldType board f newType = map (\row -> fieldReplace row f newType) board
@@ -59,7 +51,7 @@ fieldReplace (f:fs) f1@(MkField pos _) newType =
         else f:fieldReplace fs f1 newType
 
 findFieldCordAhead :: FieldCord -> Orientation -> Int -> FieldCord
-findFieldCordAhead (x,y) T.Up    i = (x,y - i)
-findFieldCordAhead (x,y) T.Right i = (x + i,y)
-findFieldCordAhead (x,y) T.Down  i = (x,y + i)
-findFieldCordAhead (x,y) T.Left  i = (x - i,y)
+findFieldCordAhead (x,y) Types.Up    i = (x,y - i)
+findFieldCordAhead (x,y) Types.Right i = (x + i,y)
+findFieldCordAhead (x,y) Types.Down  i = (x,y + i)
+findFieldCordAhead (x,y) Types.Left  i = (x - i,y)

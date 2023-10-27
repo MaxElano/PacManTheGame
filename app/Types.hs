@@ -75,17 +75,16 @@ instance Eq FieldType where
     Empty == Empty = True
 
 type CurrentField = Field
-type IsNotWall = Bool
+type IsWall = Bool
 
 type FieldCord = (Int, Int)
-type LocationCord = (Float, Float)
 
 fieldSize :: Int
 fieldSize = 8
 --------------------------Entity--------------------------
 type Speed = Float
 
-data Location = Location (Float,Float) Orientation
+data Location = Location LocationCord Orientation
 instance Show Location where
     show :: Location -> String
     show (Location (f,f') o) = "(" ++ show f ++ "," ++ show f' ++ ")" ++ show o
@@ -97,6 +96,8 @@ instance Show Orientation where
     show Down = "Down"
     show Types.Left = "Left"
     show Types.Right = "Right"
+
+type LocationCord = (Float, Float)
 
 --------------------------PacMan--------------------------
 data PacMan = PacMan { pacmanLocation     :: Location
