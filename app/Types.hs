@@ -3,6 +3,7 @@ module Types where
 
 import Prelude
 import GHC.Natural (Natural)
+import System.Random (StdGen)
 --import LevelLoader (loadLevel)
 
 data InfoToShow = ShowNothing
@@ -13,11 +14,11 @@ data InfoToShow = ShowNothing
 nO_SECS_BETWEEN_CYCLES :: Float
 nO_SECS_BETWEEN_CYCLES = 5
 
-data GameState = GameState {
-                   infoToShow  :: InfoToShow
-                  ,elapsedTime :: Float
-                  --,board :: IO Board
-                 }
+-- data GameState = GameState {
+--                    infoToShow  :: InfoToShow
+--                   ,elapsedTime :: Float
+--                   --,board :: IO Board
+--                  }
 
 -- initialState :: GameState
 -- initialState = GameState ShowNothing 0
@@ -31,16 +32,18 @@ initialState = GameState (ShowAChar 'c') 0
 
 
 --------------------------Game--------------------------
--- data PlayState = PlayState { infoToShow  :: InfoToShow
---                             ,board       :: Board
---                             ,score       :: Score
---                             ,pacman      :: PacMan
---                             ,ghostMode   :: GhostMode
---                             ,ghostRed    :: Ghost
---                             ,ghostPink   :: Ghost
---                             ,ghostCyan   :: Ghost
---                             ,ghostOrange :: Ghost
---                            }
+data GameState = GameState { infoToShow  :: InfoToShow
+                            ,board       :: Board
+                            ,score       :: Score
+                            ,pacman      :: PacMan
+                            ,ghostMode   :: GhostMode
+                            ,ghostRed    :: Ghost
+                            ,ghostPink   :: Ghost
+                            ,ghostCyan   :: Ghost
+                            ,ghostOrange :: Ghost
+                            ,elapsedTime :: Float
+                            ,generator   :: StdGen
+                           }
 
 newtype Score = Score Natural
 data GhostMode = Chase | Scatter | Frightened
@@ -74,7 +77,6 @@ instance Eq FieldType where
     Cherry == Cherry = True
     Empty == Empty = True
 
-type CurrentField = Field
 type IsWall = Bool
 
 type FieldCord = (Int, Int)
@@ -89,6 +91,8 @@ instance Show Location where
     show :: Location -> String
     show (Location (f,f') o) = "(" ++ show f ++ "," ++ show f' ++ ")" ++ show o
 
+type LocationCord = (Float, Float)
+
 data Orientation = Up | Down | Left | Right
 instance Show Orientation where
     show :: Orientation -> String
@@ -97,29 +101,28 @@ instance Show Orientation where
     show Types.Left = "Left"
     show Types.Right = "Right"
 
-type LocationCord = (Float, Float)
-
 --------------------------PacMan--------------------------
 data PacMan = PacMan { pacmanLocation     :: Location
                       ,lives              :: Lives
                       ,pacmanSpeed        :: Speed
                      }
 
-type PacManLocation = Field
+type PacManLocation = Location
 newtype Lives = Lives Natural
 
 --------------------------Ghost--------------------------
 data Ghost = Ghost { ghostLocation :: Location 
-                    ,targetField   :: TargetField
+                    ,targetField   :: TargetFieldCord
                     ,ghostSpeed    :: Speed
                     ,baseField     :: BaseField
                     ,mustReverse   :: MustReverse
                     ,ghostType     :: GhostType
                    }
 
-type GhostLocation = Field
+type GhostLocation = Location
 data GhostType = Red | Pink | Cyan | Orange
 
 type MustReverse = Bool
-type BaseField = Field
-type TargetField = FieldCord
+type BaseField = TargetFieldCord
+type TargetFieldCord = FieldCord
+type CurrentField = FieldCord

@@ -5,18 +5,20 @@ import System.IO
 --import Language.Haskell.TH (safe)
 import Data.Foldable (minimumBy, find)
 import Data.Ord (comparing)
-import Types
-    ( Orientation (..),
+import System.Random
+import Types as T
+    ( Orientation,
       Location(..),
       IsWall,
       FieldType(..),
       Field(..),
       Row,
-      Board,
+      Board, 
       fieldSize,
-      FieldCord,
-      LocationCord
-    )
+      FieldCord, 
+      LocationCord,
+      Orientation(..),
+      GameState(..))
 
 locationToField :: Location -> Board -> Maybe Field
 locationToField (Location lcords _) b = let fcords = lCordToFCord lcords 
@@ -45,13 +47,16 @@ changeFieldType board f newType = map (\row -> fieldReplace row f newType) board
 
 fieldReplace :: Row -> Field -> FieldType -> Row
 fieldReplace [] _ _ = []
-fieldReplace (f:fs) f1@(MkField pos _) newType =
+fieldReplace (f:fs) f1@(MkField pos _) newType = 
     if f == f1
         then MkField pos newType:fs
         else f:fieldReplace fs f1 newType
 
 findFieldCordAhead :: FieldCord -> Orientation -> Int -> FieldCord
-findFieldCordAhead (x,y) Types.Up    i = (x,y - i)
-findFieldCordAhead (x,y) Types.Right i = (x + i,y)
-findFieldCordAhead (x,y) Types.Down  i = (x,y + i)
-findFieldCordAhead (x,y) Types.Left  i = (x - i,y)
+findFieldCordAhead (x,y) T.Up    i = (x,y - i)
+findFieldCordAhead (x,y) T.Right i = (x + i,y)
+findFieldCordAhead (x,y) T.Down  i = (x,y + i)
+findFieldCordAhead (x,y) T.Left  i = (x - i,y)
+
+useRandom :: GameState -> (Int, Int) -> (Int, GameState)
+useRandom (GameState {generator = g}) = randomR
