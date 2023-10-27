@@ -6,5 +6,10 @@ moveEntity l                        0 = l
 moveEntity (Location (x,y) T.Up)    s = Location (x,y - s) T.Up
 moveEntity (Location (x,y) T.Right) s = Location (x,y - s) T.Up
 moveEntity (Location (x,y) T.Down)  s = Location (x,y - s) T.Up
-moveEntity (Location (x,y) T.Left)  s = Location (x,y - s) T.Up
+moveEntity (Location (x,y) T.Left)  s = Location (x,y - s) T.Up 
 
+oppositeOrientation :: Orientation -> Orientation
+oppositeOrientation T.Up    = T.Down
+oppositeOrientation T.Right = T.Left
+oppositeOrientation T.Down  = T.Up
+oppositeOrientation T.Left  = T.Right

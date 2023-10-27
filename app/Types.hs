@@ -75,7 +75,6 @@ instance Eq FieldType where
     Cherry == Cherry = True
     Empty == Empty = True
 
-type CurrentField = Field
 type IsNotWall = Bool
 
 type FieldCord = (Int, Int)
@@ -124,3 +123,4 @@ data GhostType = Red | Pink | Cyan | Orange
 type MustReverse = Bool
 type BaseField = TargetFieldCord
 type TargetFieldCord = FieldCord
+type CurrentField = FieldCord
