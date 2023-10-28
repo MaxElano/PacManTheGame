@@ -3,44 +3,40 @@ module Types where
 
 import Prelude
 import GHC.Natural (Natural)
-import System.Random (StdGen)
---import LevelLoader (loadLevel)
+import System.Random (StdGen, mkStdGen)
 
 data InfoToShow = ShowNothing
                 | ShowANumber Int
                 | ShowAChar   Char
                 | ShowABoard  (IO Board)
 
-nO_SECS_BETWEEN_CYCLES :: Float
-nO_SECS_BETWEEN_CYCLES = 5
-
--- data GameState = GameState {
---                    infoToShow  :: InfoToShow
---                   ,elapsedTime :: Float
---                   --,board :: IO Board
---                  }
-
--- initialState :: GameState
--- initialState = GameState ShowNothing 0
-
 initialState :: GameState
-initialState = GameState (ShowAChar 'c') 0
+initialState = GameState 
+               ShowNothing
+               emptyBoard 
+               (Score 0) 
+               (PacMan (Location (20,20) Up) (Lives 3) 10)
+               (Ghost (Location (20,20) Down) (0,0) 2 (0,0) False Red)
+               (Ghost (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink)
+               (Ghost (Location (20,20) Types.Left) (0,0) 2 (0,0) False Cyan)
+               (Ghost (Location (20,20) Up) (0,0) 2 (0,0) False Orange)
+               Chase
+               0
+               (mkStdGen 42)
 
-
-
-
-
+emptyBoard :: Board
+emptyBoard = []
 
 --------------------------Game--------------------------
 data GameState = GameState { infoToShow  :: InfoToShow
                             ,board       :: Board
                             ,score       :: Score
                             ,pacman      :: PacMan
-                            ,ghostMode   :: GhostMode
                             ,ghostRed    :: Ghost
                             ,ghostPink   :: Ghost
                             ,ghostCyan   :: Ghost
                             ,ghostOrange :: Ghost
+                            ,ghostMode   :: GhostMode
                             ,elapsedTime :: ElapsedTime
                             ,generator   :: StdGen
                            }

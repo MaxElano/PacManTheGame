@@ -19,6 +19,7 @@ import Types as T
       LocationCord,
       Orientation(..),
       GameState(..))
+import Data.List
 
 locationToField :: Location -> Board -> Maybe Field
 locationToField (Location lcords _) b = let fcords = lCordToFCord lcords 
@@ -59,4 +60,4 @@ findFieldCordAhead (x,y) T.Down  i = (x,y + i)
 findFieldCordAhead (x,y) T.Left  i = (x - i,y)
 
 useRandom :: GameState -> (Int, Int) -> (Int, GameState)
-useRandom (GameState {generator = g}) = randomR
+useRandom gs@(GameState {generator = g}) r = let (rn, ng) = uniformR r g in (rn, gs {generator = ng})
