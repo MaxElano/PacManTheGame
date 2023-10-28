@@ -11,13 +11,23 @@ import LevelLoader
 
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
-step secs gstate
-   | elapsedTime gstate + secs > nO_SECS_BETWEEN_CYCLES
-   = -- We show a new random number
-        return $ (GameState {infoToShow = ShowABoard (loadLevel "Level1.txt")}) 0
-  | otherwise
-  = -- Just update the elapsed time
-    return $ gstate { elapsedTime = elapsedTime gstate + secs }
+step gstate
+   = do gstate <- moveGhost 
+    return $ (GameState {infoToShow = ShowABoard (loadLevel "Level1.txt")}) 0
+
+
+--Volgorde wordt:
+--1. Move PacMan
+--2. Check dead?
+--3. Update Field if not empty
+--4. Update Score
+--5. Find Ghost Target Fields
+--6. Move Ghosts
+
+
+
+
+-- step :: Float -> GameState -> IO GameState
 -- step secs gstate
 --   | elapsedTime gstate + secs > nO_SECS_BETWEEN_CYCLES
 --   = -- We show a new random number
