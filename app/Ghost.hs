@@ -6,10 +6,15 @@ import System.Random
 import GHC.Real (mkRationalBase10)
 
 moveAllGhosts :: GameState -> GameState
-moveAllGhosts gs@(GameState {ghostMode = Frightened}) = gs {ghostRed    = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs)
-                                                           ,ghostCyan   = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs)
-                                                           ,ghostPink   = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs)
-                                                           ,ghostOrange = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs)}
+moveAllGhosts gs@(GameState {ghostMode = Frightened}) = let (ngr, ng1) = moveGhostRandom (generator gs) (board gs) (ghostCyan   gs) (elapsedTime gs) 
+                                                            (ngc, ng2) = moveGhostRandom ng1            (board gs) (ghostCyan   gs) (elapsedTime gs) 
+                                                            (ngp, ng3) = moveGhostRandom ng2            (board gs) (ghostPink   gs) (elapsedTime gs)
+                                                            (ngo, ng4) = moveGhostRandom ng3            (board gs) (ghostOrange gs) (elapsedTime gs)
+                                                        in  gs {ghostRed    = ngr
+                                                               ,ghostCyan   = ngc
+                                                               ,ghostPink   = ngp
+                                                               ,ghostOrange = ngo
+                                                               ,generator   = ng4}
 moveAllGhosts gs = gs {ghostRed    = moveGhost (board gs) (ghostRed    gs) (elapsedTime gs)
                       ,ghostCyan   = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs)
                       ,ghostPink   = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs)
@@ -24,33 +29,51 @@ moveGhost b g@(Ghost {ghostLocation = l@(Location c o)
 moveGhost b g@(Ghost {ghostLocation = l@(Location c _)
                      ,targetField   = t
                      ,ghostSpeed    = s}) et           = g {ghostLocation = moveEntity (Location c (findOrientation b l t)) s et}
-findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Orientation
-findOrientation b gl@(Location gc _) tf = let ao = tryAllOrientations b gl
-                                          in case ao of
-                                             [x] -> x
-                                             xs  -> checkEveryLocation b tf (lCordToFCord gc) xs
+    where
+        findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Orientation
+        findOrientation b gl@(Location gc _) tf = let ao = tryAllOrientations b gl
+                                                  in case ao of
+                                                     [x] -> x
+                                                     xs  -> checkEveryLocation b tf (lCordToFCord gc) xs
+        --Checks which new field for the ghost is the closest to his TargetField
+        checkEveryLocation :: Board -> TargetFieldCord -> FieldCord -> [Orientation] -> Orientation
+        checkEveryLocation b t c [x1, x2] = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
+                                                d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
+                                            in if d1 <= d2
+                                                    then x1
+                                                    else x2
+        checkEveryLocation b t c (x1:x2:xs) = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
+                                                  d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
+                                              in if d1 <= d2
+                                                    then checkEveryLocation b t c (x1:xs)
+                                                    else checkEveryLocation b t c (x2:xs)
+        --Calculates the distance between two FieldCords in Float
+        distanceFCToFloat :: FieldCord -> FieldCord -> Float
+        distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (npy - ngy) * (npy - ngy)))
+            where
+                npx = fromIntegral px :: Float
+                npy = fromIntegral py :: Float
+                ngx = fromIntegral gx :: Float
+                ngy = fromIntegral gy :: Float
 
---Chooses random Orientation for the ghost, used in Frightened mode
-chooseRandomDirection :: [Orientation] -> Int -> Orientation
-chooseRandomDirection = (!!)
 
--- moveGhost :: Board -> Ghost -> GhostMode -> Ghost
--- moveGhost b g@(Ghost {ghostLocation = l@(Location c o)
-                    --  ,targetField   = t
-                    --  ,mustReverse   = True
-                    --  ,ghostSpeed    = s}) m            = g {ghostLocation = moveEntity (Location c (oppositeOrientation o)) s
-                                                        --    ,mustReverse = False}
--- moveGhost b g@(Ghost {ghostLocation = l@(Location c _)
-                    --  ,targetField   = t
-                    --  ,ghostSpeed    = s}) m            = g {ghostLocation = moveEntity (Location c (findOrientation b l t m)) s}
-    -- where
-        -- findOrientation :: Board -> GhostLocation -> TargetFieldCord -> GhostMode -> Orientation
-        -- findOrientation b gl@(Location gc _) tf Frightened = let ao = tryAllOrientations b gl
-                                                            --  in chooseRandomDirection
-        -- findOrientation b gl@(Location gc _) tf _          = let ao = tryAllOrientations b gl
-                                                            --  in case ao of
-                                                                --   [x] -> x
-                                                                --   xs  -> checkEveryLocation b tf (lCordToFCord gc) xs
+moveGhostRandom :: StdGen -> Board -> Ghost -> ElapsedTime -> (Ghost, StdGen)
+moveGhostRandom gs b g@(Ghost {ghostLocation = l@(Location c o)
+                              ,targetField   = t
+                              ,mustReverse   = True
+                              ,ghostSpeed    = s}) et           = (g {ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
+                                                                     ,mustReverse = False}
+                                                                  , gs)
+moveGhostRandom gs b g@(Ghost {ghostLocation = l@(Location c _)
+                              ,targetField   = t
+                              ,ghostSpeed    = s}) et           = let (no, ng) = chooseRandomDirection gs (tryAllOrientations b l)
+                                                                  in (g {ghostLocation = moveEntity (Location c no) s et}
+                                                                     ,ng)
+    where
+        --Chooses random Orientation for the ghost, used in Frightened mode
+        chooseRandomDirection :: StdGen -> [Orientation] -> (Orientation, StdGen)
+        chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs)
+                                      in (xs !! rn, ng)
 
 
 --Finds all allowed new orientations for the ghost
@@ -62,28 +85,6 @@ tryAllOrientations b gl@(Location _ o) = checkPossibility b gl (filter (\d -> d 
                                                             in case t of
                                                             Wall -> checkPossibility b gl zs
                                                             _    -> z :checkPossibility b gl zs
-
---Checks which new field for the ghost is the closest to his TargetField
-checkEveryLocation :: Board -> TargetFieldCord -> FieldCord -> [Orientation] -> Orientation
-checkEveryLocation b t c [x1, x2] = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
-                                        d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
-                                    in if d1 <= d2
-                                            then x1
-                                            else x2
-checkEveryLocation b t c (x1:x2:xs) = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
-                                          d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
-                                      in if d1 <= d2
-                                            then checkEveryLocation b t c (x1:xs)
-                                            else checkEveryLocation b t c (x2:xs)
-
- --Calculates the distance between two FieldCords in Float
-distanceFCToFloat :: FieldCord -> FieldCord -> Float
-distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (npy - ngy) * (npy - ngy)))
-    where
-        npx = fromIntegral px :: Float
-        npy = fromIntegral py :: Float
-        ngx = fromIntegral gx :: Float
-        ngy = fromIntegral gy :: Float
 
 
 

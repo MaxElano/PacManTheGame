@@ -12,10 +12,11 @@ import LevelLoader
 -- | Handle one iteration of the game
 step :: Float -> GameState -> IO GameState
 step secs gstate
-   = let elapsedTime gstate = elapsedTime gstate + secs
+   = do 
+     let elapsedTime gstate = elapsedTime gstate + secs
          do gstate <- findAllTargetField gstate
             gstate <- moveAllGhosts gstate
-            return $ gstate 0
+     return $ gstate { elapsedTime = elapsedTime gstate + secs }
             
 
 --Volgorde wordt:
