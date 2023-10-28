@@ -10,6 +10,9 @@ data InfoToShow = ShowNothing
                 | ShowAChar   Char
                 | ShowABoard  (IO Board)
 
+nO_SECS_BETWEEN_CYCLES :: ElapsedTime
+nO_SECS_BETWEEN_CYCLES = 0
+
 initialState :: GameState
 initialState = GameState 
                ShowNothing
