@@ -41,12 +41,13 @@ data GameState = GameState { infoToShow  :: InfoToShow
                             ,ghostPink   :: Ghost
                             ,ghostCyan   :: Ghost
                             ,ghostOrange :: Ghost
-                            ,elapsedTime :: Float
+                            ,elapsedTime :: ElapsedTime
                             ,generator   :: StdGen
                            }
 
 newtype Score = Score Natural
 data GhostMode = Chase | Scatter | Frightened
+type ElapsedTime = Float
 
 --------------------------Board--------------------------
 type Board = [Row]
@@ -100,6 +101,14 @@ instance Show Orientation where
     show Down = "Down"
     show Types.Left = "Left"
     show Types.Right = "Right"
+
+instance Eq Orientation where
+    (==) :: Orientation -> Orientation -> Bool
+    Types.Up    == Types.Up    = True
+    Types.Right == Types.Right = True
+    Types.Down  == Types.Down  = True
+    Types.Left  == Types.Left  = True
+
 
 --------------------------PacMan--------------------------
 data PacMan = PacMan { pacmanLocation     :: Location
