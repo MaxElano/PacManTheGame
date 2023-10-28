@@ -1,8 +1,27 @@
-module Ghost where
+module Ghost (moveAllGhosts, findAllTargetFields) where
 import Types as T
-import Entity
+    ( TargetFieldCord,
+      BaseField,
+      GhostType(Orange, Red, Pink, Cyan),
+      GhostLocation,
+      Ghost(..),
+      PacManLocation,
+      PacMan(PacMan, pacmanLocation),
+      Orientation(..),
+      LocationCord,
+      Location(Location),
+      FieldCord,
+      FieldType(Wall),
+      Field(MkField),
+      Board,
+      GhostMode(Frightened),
+      GameState(GameState, ghostOrange, ghostMode, generator, board,
+                elapsedTime, ghostCyan, ghostPink, ghostRed, pacman),
+      ElapsedTime )
+import Entity ( moveEntity, oppositeOrientation )
 import Board
-import System.Random
+    ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
+import System.Random ( StdGen )
 import GHC.Real (mkRationalBase10)
 
 moveAllGhosts :: GameState -> GameState
