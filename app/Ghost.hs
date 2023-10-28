@@ -24,31 +24,40 @@ import Board
 import System.Random ( StdGen )
 import GHC.Real (mkRationalBase10)
 
+--Main Function 1 for the entire module. Handles all movement for the ghosts
 moveAllGhosts :: GameState -> GameState
-moveAllGhosts gs@(GameState {ghostMode = Frightened}) = let (ngr, ng1) = moveGhostRandom (generator gs) (board gs) (ghostCyan   gs) (elapsedTime gs) 
-                                                            (ngc, ng2) = moveGhostRandom ng1            (board gs) (ghostCyan   gs) (elapsedTime gs) 
-                                                            (ngp, ng3) = moveGhostRandom ng2            (board gs) (ghostPink   gs) (elapsedTime gs)
-                                                            (ngo, ng4) = moveGhostRandom ng3            (board gs) (ghostOrange gs) (elapsedTime gs)
-                                                        in  gs {ghostRed    = ngr
-                                                               ,ghostCyan   = ngc
-                                                               ,ghostPink   = ngp
-                                                               ,ghostOrange = ngo
-                                                               ,generator   = ng4}
-moveAllGhosts gs = gs {ghostRed    = moveGhost (board gs) (ghostRed    gs) (elapsedTime gs)
-                      ,ghostCyan   = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs)
-                      ,ghostPink   = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs)
-                      ,ghostOrange = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs)}
+moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) (generator gs) 
+                       (ngc, ng2) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) ng1            
+                       (ngp, ng3) = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs) (ghostMode gs) ng2           
+                       (ngo, ng4) = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs) (ghostMode gs) ng3           
+                   in  gs {ghostRed    = ngr
+                          ,ghostCyan   = ngc
+                          ,ghostPink   = ngp
+                          ,ghostOrange = ngo
+                          ,generator   = ng4}
 
-moveGhost :: Board -> Ghost -> ElapsedTime -> Ghost
+--Handles all the movement for one ghost
+moveGhost :: Board -> Ghost -> ElapsedTime -> GhostMode -> StdGen -> (Ghost, StdGen)
+--Reverses the ghost if neccessary
 moveGhost b g@(Ghost {ghostLocation = l@(Location c o)
                      ,targetField   = t
                      ,mustReverse   = True
-                     ,ghostSpeed    = s}) et           = g {ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
-                                                           ,mustReverse = False}
+                     ,ghostSpeed    = s}) et _ gen          = (g {ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
+                                                               ,mustReverse = False}
+                                                            ,gen)
+--Handles random direcion, when frightened
 moveGhost b g@(Ghost {ghostLocation = l@(Location c _)
                      ,targetField   = t
-                     ,ghostSpeed    = s}) et           = g {ghostLocation = moveEntity (Location c (findOrientation b l t)) s et}
+                     ,ghostSpeed    = s}) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l)
+                                                              in (g {ghostLocation = moveEntity (Location c no) s et}
+                                                                 ,ng)
+--"Normal" move
+moveGhost b g@(Ghost {ghostLocation = l@(Location c _)
+                     ,targetField   = t
+                     ,ghostSpeed    = s}) et _ gen          = (g {ghostLocation = moveEntity (Location c (findOrientation b l t)) s et}
+                                                              ,gen)
     where
+        --Main function for finding the new orientation for the ghost
         findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Orientation
         findOrientation b gl@(Location gc _) tf = let ao = tryAllOrientations b gl
                                                   in case ao of
@@ -75,25 +84,10 @@ moveGhost b g@(Ghost {ghostLocation = l@(Location c _)
                 ngx = fromIntegral gx :: Float
                 ngy = fromIntegral gy :: Float
 
-
-moveGhostRandom :: StdGen -> Board -> Ghost -> ElapsedTime -> (Ghost, StdGen)
-moveGhostRandom gs b g@(Ghost {ghostLocation = l@(Location c o)
-                              ,targetField   = t
-                              ,mustReverse   = True
-                              ,ghostSpeed    = s}) et           = (g {ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
-                                                                     ,mustReverse = False}
-                                                                  , gs)
-moveGhostRandom gs b g@(Ghost {ghostLocation = l@(Location c _)
-                              ,targetField   = t
-                              ,ghostSpeed    = s}) et           = let (no, ng) = chooseRandomDirection gs (tryAllOrientations b l)
-                                                                  in (g {ghostLocation = moveEntity (Location c no) s et}
-                                                                     ,ng)
-    where
-        --Chooses random Orientation for the ghost, used in Frightened mode
-        chooseRandomDirection :: StdGen -> [Orientation] -> (Orientation, StdGen)
-        chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs)
-                                      in (xs !! rn, ng)
-
+--Chooses random direction from list
+chooseRandomDirection :: StdGen -> [Orientation] -> (Orientation, StdGen)
+chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs)
+                             in (xs !! rn, ng)
 
 --Finds all allowed new orientations for the ghost
 tryAllOrientations :: Board -> GhostLocation -> [Orientation]
@@ -106,7 +100,7 @@ tryAllOrientations b gl@(Location _ o) = checkPossibility b gl (filter (\d -> d 
                                                             _    -> z :checkPossibility b gl zs
 
 
-
+--Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
 findAllTargetFields gs = gs {ghostRed    = findTargetField (ghostRed    gs) gs
                             ,ghostCyan   = findTargetField (ghostCyan   gs) gs
