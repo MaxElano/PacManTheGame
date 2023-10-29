@@ -28,7 +28,7 @@ step :: Float -> GameState -> IO GameState
 step secs gs
   | elapsedTime gs + secs > nO_SECS_BETWEEN_CYCLES
   = -- We show a new random number
-    do return $ initialState
+    do return initialState
   | otherwise
   = -- Just update the elapsed time
     return $ gs { elapsedTime = elapsedTime gs + secs }
@@ -40,7 +40,7 @@ input e gs = return (inputKey e gs)
  
 inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gs = gs { infoToShow = ShowAChar 'c' }
-inputKey (EventKey (Char 'b') _ _ _) gs = gs { infoToShow = ShowABoard emptyBoard }
+inputKey (EventKey (Char 'p') _ _ _) gs = gs { infoToShow = ShowPlayState }
 inputKey (EventKey (Char 'w') _ _ _) gs = movePacManOrientation gs T.Up
 inputKey (EventKey (Char 'a') _ _ _) gs = movePacManOrientation gs T.Left
 inputKey (EventKey (Char 's') _ _ _) gs = movePacManOrientation gs T.Down
