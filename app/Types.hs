@@ -19,7 +19,7 @@ initialState = GameState
                ShowNothing
                emptyBoard 
                (Score 0) 
-               (PacMan (Location (20,20) Up) (Lives 3) 10)
+               (PacMan (Location (20,20) Up) (Lives 3) 10 8)
                (Ghost (Location (20,20) Down) (0,0) 2 (0,0) False Red)
                (Ghost (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink)
                (Ghost (Location (20,20) Types.Left) (0,0) 2 (0,0) False Cyan)
@@ -35,7 +35,7 @@ emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall, MkFie
 data GameState = GameState { infoToShow  :: InfoToShow
                             ,board       :: Board   --Moet waarschijnlijk nog IO Board worden
                             ,score       :: Score
-                            ,pacman      :: PacMan
+                            ,pacMan      :: PacMan
                             ,ghostRed    :: Ghost
                             ,ghostPink   :: Ghost
                             ,ghostCyan   :: Ghost
@@ -86,6 +86,7 @@ fieldSize :: Int
 fieldSize = 8
 --------------------------Entity--------------------------
 type Speed = Float
+type Size = Int
 
 data Location = Location LocationCord Orientation
 instance Show Location where
@@ -109,11 +110,13 @@ instance Eq Orientation where
     Types.Down  == Types.Down  = True
     Types.Left  == Types.Left  = True
 
+type NewOrientation = Orientation
 
 --------------------------PacMan--------------------------
-data PacMan = PacMan { pacmanLocation     :: Location
+data PacMan = PacMan { pacManLocation     :: Location
                       ,lives              :: Lives
-                      ,pacmanSpeed        :: Speed
+                      ,pacManSpeed        :: Speed
+                      ,pacManSize         :: Size
                      }
 
 type PacManLocation = Location

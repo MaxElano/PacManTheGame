@@ -6,7 +6,7 @@ import Types as T
       GhostLocation,
       Ghost(..),
       PacManLocation,
-      PacMan(PacMan, pacmanLocation),
+      PacMan(PacMan, pacManLocation),
       Orientation(..),
       LocationCord,
       Location(Location),
@@ -16,7 +16,7 @@ import Types as T
       Board,
       GhostMode(Frightened),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
-                elapsedTime, ghostCyan, ghostPink, ghostRed, pacman),
+                elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
       ElapsedTime )
 import Entity ( moveEntity, oppositeOrientation )
 import Board
@@ -109,11 +109,11 @@ findAllTargetFields gs = gs {ghostRed    = findTargetField (ghostRed    gs) gs
 
 --Decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: Ghost -> GameState -> Ghost
-findTargetField g@(Ghost {ghostType = Red})    (GameState {pacman   = (PacMan {pacmanLocation = pl})}) = g {targetField = findTargetFieldRed pl}
-findTargetField g@(Ghost {ghostType = Pink})   (GameState {pacman   = (PacMan {pacmanLocation = pl})}) = g {targetField = findTargetFieldPink pl}
-findTargetField g@(Ghost {ghostType = Cyan})   (GameState {pacman   = (PacMan {pacmanLocation = pl}) 
+findTargetField g@(Ghost {ghostType = Red})    (GameState {pacMan   = (PacMan {pacManLocation = pl})}) = g {targetField = findTargetFieldRed pl}
+findTargetField g@(Ghost {ghostType = Pink})   (GameState {pacMan   = (PacMan {pacManLocation = pl})}) = g {targetField = findTargetFieldPink pl}
+findTargetField g@(Ghost {ghostType = Cyan})   (GameState {pacMan   = (PacMan {pacManLocation = pl}) 
                                                           ,ghostRed = (Ghost {ghostLocation = gl})})   = g {targetField = findTargetFieldCyan pl gl}
-findTargetField g@(Ghost {ghostType = Orange}) (GameState {pacman   = (PacMan {pacmanLocation = pl}) 
+findTargetField g@(Ghost {ghostType = Orange}) (GameState {pacMan   = (PacMan {pacManLocation = pl}) 
                                                           ,ghostOrange = (Ghost {ghostLocation = gl
                                                                                 ,baseField = bf})})    = g {targetField = findTargetFieldOrange pl gl bf}
 
