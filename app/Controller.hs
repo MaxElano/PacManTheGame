@@ -33,7 +33,7 @@ input e gstate = return (inputKey e gstate)
  
 inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gstate = gstate { infoToShow = ShowAChar 'c' }
-inputKey (EventKey (Char 'b') _ _ _) gstate = gstate { infoToShow = ShowABoard emptyBoard }
+inputKey (EventKey (Char 'p') _ _ _) gstate = gstate { infoToShow = ShowPlayState }
 inputKey (EventKey (Char 'w') _ _ _) gstate = movePacManOrientation gstate T.Up
 inputKey (EventKey (Char 'a') _ _ _) gstate = movePacManOrientation gstate T.Left
 inputKey (EventKey (Char 's') _ _ _) gstate = movePacManOrientation gstate T.Down

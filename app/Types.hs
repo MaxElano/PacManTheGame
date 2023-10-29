@@ -4,12 +4,13 @@ module Types where
 import Prelude
 import GHC.Natural (Natural)
 import System.Random (StdGen, mkStdGen)
+import Graphics.Gloss.Data.Color
 
 data InfoToShow = ShowNothing
                 | ShowANumber Int
                 | ShowAChar   Char
                 | ShowABoard  Board
-                | ShowPlayState Board Score PacMan Ghost Ghost Ghost Ghost GhostMode
+                | ShowPlayState
 
 nO_SECS_BETWEEN_CYCLES :: ElapsedTime
 nO_SECS_BETWEEN_CYCLES = 0
@@ -19,17 +20,74 @@ initialState = GameState
                ShowNothing
                emptyBoard 
                (Score 0) 
-               (PacMan (Location (20,20) Up) (Lives 3) 10 8)
-               (Ghost (Location (20,20) Down) (0,0) 2 (0,0) False Red)
-               (Ghost (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink)
-               (Ghost (Location (20,20) Types.Left) (0,0) 2 (0,0) False Cyan)
-               (Ghost (Location (20,20) Up) (0,0) 2 (0,0) False Orange)
+               (PacMan (Location (50,50) Up) (Lives 3) 10 8)
+               (Ghost (Location (12,12) Down) (0,0) 2 (0,0) False Red 6 red)
+               (Ghost (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink 6 rose)
+               (Ghost (Location (28,28) Types.Left) (0,0) 2 (0,0) False Cyan 6 cyan)
+               (Ghost (Location (36,36) Up) (0,0) 2 (0,0) False Orange 6 orange)
                Chase
                0
                (mkStdGen 42)
 
+
+
+
 emptyBoard :: Board
-emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall, MkField (3,0) Wall, MkField (4,0) Wall, MkField (5,0) Wall, MkField (6,0) Wall]]
+emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall, MkField (3,0) Wall]]
+-- emptyBoard = makeBoardTemp ["WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"W..........................W"
+                        --    ,"WWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
+
+-- ---Tijdelijk
+-- makeBoardTemp :: [String] -> Board
+-- makeBoardTemp = convertLineTemp 0
+--     where 
+--         convertLineTemp :: Int -> [String] -> [Row]
+--         convertLineTemp _ [] = []
+--         convertLineTemp y (r:rs) = convertFieldTemp 0 y r : convertLineTemp (y + 1) rs
+--         convertFieldTemp :: Int -> Int -> [Char] -> [Field]
+--         convertFieldTemp _ _ [] = []
+--         convertFieldTemp x y (f:fs) = MkField (x,y) (chooseFieldTypeTemp f) : convertFieldTemp (x + 1) y fs
+--         chooseFieldTypeTemp :: Char -> FieldType
+--         chooseFieldTypeTemp 'W' = Wall
+--         chooseFieldTypeTemp '+' = Pellet
+--         chooseFieldTypeTemp 'P' = PowerUp
+--         chooseFieldTypeTemp 'C' = Cherry
+--         chooseFieldTypeTemp '.' = Empty
+
 
 --------------------------Game--------------------------
 data GameState = GameState { infoToShow  :: InfoToShow
@@ -46,6 +104,9 @@ data GameState = GameState { infoToShow  :: InfoToShow
                            }
 
 newtype Score = Score Natural
+instance Show Score where
+    show :: Score -> String
+    show (Score x) = show x
 data GhostMode = Chase | Scatter | Frightened
 type ElapsedTime = Float
 
@@ -129,6 +190,8 @@ data Ghost = Ghost { ghostLocation :: Location
                     ,baseField     :: BaseField
                     ,mustReverse   :: MustReverse
                     ,ghostType     :: GhostType
+                    ,ghostSize     :: Size
+                    ,ghostColor    :: Color
                    }
 
 type GhostLocation = Location
