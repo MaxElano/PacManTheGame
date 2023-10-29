@@ -17,7 +17,7 @@ nO_SECS_BETWEEN_CYCLES = 0
 
 initialState :: GameState
 initialState = GameState 
-               ShowNothing
+               ShowPlayState
                emptyBoard 
                (Score 0) 
                (PacMan (Location (50,50) Up) (Lives 3) 10 8)
