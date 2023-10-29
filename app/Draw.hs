@@ -7,7 +7,6 @@ import Types
 import Board (fCordToLCord)
 
 draw :: GameState -> IO Picture
-draw (GameState {infoToShow = ShowABoard b}) = drawBoard =<< b
 draw gs = return $ drawPure gs
 
 
@@ -16,6 +15,7 @@ drawPure gstate = case infoToShow gstate of
   ShowNothing   -> blank
   ShowANumber n -> color green (text (show n))
   ShowAChar   c -> color green (text [c])
+  ShowABoard  b -> drawBoard b
     --pictures [color red (text "A"), translate 20 20 (color green (circle 10))]
   --ShowAChar   c -> color green (text [c])
     -- pictures $ fmap (pictures . map (\(MkField (x,y) ft) -> case ft of
@@ -23,8 +23,8 @@ drawPure gstate = case infoToShow gstate of
 --                                     )) b
 --    color green (text (show "9"))
 
-drawBoard :: Board -> IO Picture
-drawBoard b = return . pictures $ map (\(MkField c t) -> let (lx, ly) = fCordToLCord c 
+drawBoard :: Board -> Picture
+drawBoard b = pictures $ map (\(MkField c t) -> let (lx, ly) = fCordToLCord c 
                                                  in case t of
-                                                    Wall -> translate lx ly (color red (text "a"))
-                              ) (concat b)
+                                                    Wall -> translate lx ly (color red (circle (fromIntegral fieldSize / 2)))
+                             ) (concat b)

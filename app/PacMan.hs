@@ -4,11 +4,11 @@ module PacMan where
 import Types
 import Board
 import Entity
-
-movePacMan :: Board -> Location -> NewOrientation -> Speed -> ElapsedTime -> Location
-movePacMan b l no s t = let nl = moveEntity l s t
-                            check = WallCheck nl
-                        in (if () check then l else nl)
+-- 
+-- movePacMan :: Board -> Location -> NewOrientation -> Speed -> ElapsedTime -> Location
+-- movePacMan b l no s t = let nl = moveEntity l s t
+                            -- check = WallCheck nl
+                        -- in (if () check then l else nl)
 
 -- determineOrientation :: Board -> Location -> NewOrientation -> Location
 -- determineOrientation b l@(MkLocation (x,y) oo) oo = l
