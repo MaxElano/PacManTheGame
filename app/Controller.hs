@@ -8,6 +8,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import System.Random
 import LevelLoader
+import PacMan
 
 -- -- | Handle one iteration of the game
 -- step :: Float -> GameState -> IO GameState
@@ -33,8 +34,11 @@ input e gstate = return (inputKey e gstate)
  
 inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gstate = gstate { infoToShow = ShowAChar 'c' }
+inputKey (EventKey (Char 'w') _ _ _) gstate = gstate { pacmanLocation = movePacMan board pacmanLocation Up pacmanSpeed elapsedTime }
+inputKey (EventKey (Char 'a') _ _ _) gstate = gstate { pacmanLocation = movePacMan board pacmanLocation Left pacmanSpeed elapsedTime }
+inputKey (EventKey (Char 's') _ _ _) gstate = gstate { pacmanLocation = movePacMan board pacmanLocation Down pacmanSpeed elapsedTime }
+inputKey (EventKey (Char 'd') _ _ _) gstate = gstate { pacmanLocation = movePacMan board pacmanLocation Right pacmanSpeed elapsedTime }
 inputKey _ gstate = gstate -- Otherwise keep the same
-
 
 --Volgorde wordt:
 --1. Move PacMan
