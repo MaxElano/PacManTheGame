@@ -3,9 +3,8 @@
 module LevelLoader where
 
 import Prelude
-import System.IO
---import Language.Haskell.TH (safe)
-import Types
+import System.IO ()
+import Types ( Board, Field(..), FieldType(..), Row )
 
 printLevel :: FilePath -> IO()
 printLevel fp = do c <- loadLevel fp

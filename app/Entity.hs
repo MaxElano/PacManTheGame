@@ -4,7 +4,7 @@ import Types
     ( Orientation(..), Location(..), Speed, ElapsedTime )
 
 moveEntity ::  Location -> Speed -> ElapsedTime -> Location
-moveEntity l                        0 _ = l
+moveEntity l                      0 _ = l
 moveEntity (Location (x,y) Up)    s t = Location (x,y - s * t) Up
 moveEntity (Location (x,y) Right) s t = Location (x,y - s * t) Up
 moveEntity (Location (x,y) Down)  s t = Location (x,y - s * t) Up

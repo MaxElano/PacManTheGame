@@ -3,7 +3,22 @@
 module Draw where
 
 import Graphics.Gloss
+    ( green,
+      red,
+      blank,
+      circle,
+      color,
+      pictures,
+      text,
+      translate,
+      Picture )
 import Types
+    ( fieldSize,
+      Board,
+      Field(MkField),
+      FieldType(Wall),
+      GameState(infoToShow),
+      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar) )
 import Board (fCordToLCord)
 
 draw :: GameState -> IO Picture
@@ -11,7 +26,7 @@ draw gs = return $ drawPure gs
 
 
 drawPure :: GameState -> Picture
-drawPure gstate = case infoToShow gstate of
+drawPure gs = case infoToShow gs of
   ShowNothing   -> blank
   ShowANumber n -> color green (text (show n))
   ShowAChar   c -> color green (text [c])

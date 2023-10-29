@@ -30,59 +30,66 @@ moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostCyan   gs) (elaps
                        (ngc, ng2) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) ng1            
                        (ngp, ng3) = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs) (ghostMode gs) ng2           
                        (ngo, ng4) = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs) (ghostMode gs) ng3           
-                   in  gs {ghostRed    = ngr
-                          ,ghostCyan   = ngc
-                          ,ghostPink   = ngp
-                          ,ghostOrange = ngo
-                          ,generator   = ng4}
+                   in gs 
+                       { ghostRed    = ngr
+                       , ghostCyan   = ngc
+                       , ghostPink   = ngp
+                       , ghostOrange = ngo
+                       , generator   = ng4 
+                       }
 
 --Handles all the movement for one ghost
 moveGhost :: Board -> Ghost -> ElapsedTime -> GhostMode -> StdGen -> (Ghost, StdGen)
 --Reverses the ghost if neccessary
-moveGhost b g@(Ghost {ghostLocation = l@(Location c o)
-                     ,targetField   = t
-                     ,mustReverse   = True
-                     ,ghostSpeed    = s}) et _ gen          = (g {ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
-                                                               ,mustReverse = False}
-                                                            ,gen)
+moveGhost b g@(Ghost 
+    { ghostLocation = l@(Location c o)
+    , targetField   = t
+    , mustReverse   = True
+    , ghostSpeed    = s
+    }) et _ gen     = (g 
+                        { ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
+                        , mustReverse   = False 
+                        }, gen)
 --Handles random direcion, when frightened
-moveGhost b g@(Ghost {ghostLocation = l@(Location c _)
-                     ,targetField   = t
-                     ,ghostSpeed    = s}) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l)
-                                                              in (g {ghostLocation = moveEntity (Location c no) s et}
-                                                                 ,ng)
+moveGhost b g@(Ghost 
+    { ghostLocation = l@(Location c _)
+    , targetField   = t
+    , ghostSpeed    = s
+    }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l)
+                           in (g { ghostLocation = moveEntity (Location c no) s et }, ng)
 --"Normal" move
-moveGhost b g@(Ghost {ghostLocation = l@(Location c _)
-                     ,targetField   = t
-                     ,ghostSpeed    = s}) et _ gen          = (g {ghostLocation = moveEntity (Location c (findOrientation b l t)) s et}
-                                                              ,gen)
-    where
-        --Main function for finding the new orientation for the ghost
-        findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Orientation
-        findOrientation b gl@(Location gc _) tf = let ao = tryAllOrientations b gl
-                                                  in case ao of
-                                                     [x] -> x
-                                                     xs  -> checkEveryLocation b tf (lCordToFCord gc) xs
-        --Checks which new field for the ghost is the closest to his TargetField
-        checkEveryLocation :: Board -> TargetFieldCord -> FieldCord -> [Orientation] -> Orientation
-        checkEveryLocation b t c [x1, x2] = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
-                                                d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
-                                            in if d1 <= d2
+moveGhost b g@(Ghost 
+    { ghostLocation = l@(Location c _)
+    , targetField   = t
+    , ghostSpeed    = s
+    }) et _ gen     = (g { ghostLocation = moveEntity (Location c (findOrientation b l t)) s et }, gen)
+        where
+            --Main function for finding the new orientation for the ghost
+            findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Orientation
+            findOrientation b gl@(Location gc _) tf = let ao = tryAllOrientations b gl
+                                                      in case ao of
+                                                        [x] -> x
+                                                        xs  -> checkEveryLocation b tf (lCordToFCord gc) xs
+            --Checks which new field for the ghost is the closest to his TargetField
+            checkEveryLocation :: Board -> TargetFieldCord -> FieldCord -> [Orientation] -> Orientation
+            checkEveryLocation b t c [x1, x2] = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
+                                                    d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
+                                                in if d1 <= d2
                                                     then x1
                                                     else x2
-        checkEveryLocation b t c (x1:x2:xs) = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
-                                                  d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
-                                              in if d1 <= d2
+            checkEveryLocation b t c (x1:x2:xs) = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
+                                                      d2 = distanceFCToFloat t (findFieldCordAhead c x2 1)
+                                                  in if d1 <= d2
                                                     then checkEveryLocation b t c (x1:xs)
                                                     else checkEveryLocation b t c (x2:xs)
-        --Calculates the distance between two FieldCords in Float
-        distanceFCToFloat :: FieldCord -> FieldCord -> Float
-        distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (npy - ngy) * (npy - ngy)))
-            where
-                npx = fromIntegral px :: Float
-                npy = fromIntegral py :: Float
-                ngx = fromIntegral gx :: Float
-                ngy = fromIntegral gy :: Float
+            --Calculates the distance between two FieldCords in Float
+            distanceFCToFloat :: FieldCord -> FieldCord -> Float
+            distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (npy - ngy) * (npy - ngy)))
+                where
+                    npx = fromIntegral px :: Float
+                    npy = fromIntegral py :: Float
+                    ngx = fromIntegral gx :: Float
+                    ngy = fromIntegral gy :: Float
 
 --Chooses random direction from list
 chooseRandomDirection :: StdGen -> [Orientation] -> (Orientation, StdGen)
@@ -99,23 +106,30 @@ tryAllOrientations b gl@(Location _ o) = checkPossibility b gl (filter (\d -> d 
                                                             Wall -> checkPossibility b gl zs
                                                             _    -> z :checkPossibility b gl zs
 
-
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
-findAllTargetFields gs = gs {ghostRed    = findTargetField (ghostRed    gs) gs
-                            ,ghostCyan   = findTargetField (ghostCyan   gs) gs
-                            ,ghostPink   = findTargetField (ghostPink   gs) gs
-                            ,ghostOrange = findTargetField (ghostOrange gs) gs}
+findAllTargetFields gs = gs 
+    { ghostRed    = findTargetField (ghostRed    gs) gs
+    , ghostCyan   = findTargetField (ghostCyan   gs) gs
+    , ghostPink   = findTargetField (ghostPink   gs) gs
+    , ghostOrange = findTargetField (ghostOrange gs) gs
+    }
 
 --Decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: Ghost -> GameState -> Ghost
-findTargetField g@(Ghost {ghostType = Red})    (GameState {pacMan   = (PacMan {pacManLocation = pl})}) = g {targetField = findTargetFieldRed pl}
-findTargetField g@(Ghost {ghostType = Pink})   (GameState {pacMan   = (PacMan {pacManLocation = pl})}) = g {targetField = findTargetFieldPink pl}
-findTargetField g@(Ghost {ghostType = Cyan})   (GameState {pacMan   = (PacMan {pacManLocation = pl}) 
-                                                          ,ghostRed = (Ghost {ghostLocation = gl})})   = g {targetField = findTargetFieldCyan pl gl}
-findTargetField g@(Ghost {ghostType = Orange}) (GameState {pacMan   = (PacMan {pacManLocation = pl}) 
-                                                          ,ghostOrange = (Ghost {ghostLocation = gl
-                                                                                ,baseField = bf})})    = g {targetField = findTargetFieldOrange pl gl bf}
+findTargetField g@(Ghost { ghostType = Red })    (GameState { pacMan      = (PacMan { pacManLocation = pl }) }) = g { targetField = findTargetFieldRed pl }
+findTargetField g@(Ghost { ghostType = Pink })   (GameState { pacMan      = (PacMan { pacManLocation = pl }) }) = g { targetField = findTargetFieldPink pl }
+findTargetField g@(Ghost { ghostType = Cyan })   (GameState 
+    { pacMan      = (PacMan { pacManLocation = pl }) 
+    , ghostRed    = (Ghost  { ghostLocation = gl })
+    }) = g { targetField = findTargetFieldCyan pl gl }
+findTargetField g@(Ghost { ghostType = Orange }) (GameState 
+    { pacMan      = (PacMan {pacManLocation = pl}) 
+    , ghostOrange = (Ghost 
+        { ghostLocation = gl
+        , baseField = bf
+        })
+    }) = g {targetField = findTargetFieldOrange pl gl bf}
 
 --(Red Ghost) TargetField is PacMan's location -> field
 findTargetFieldRed :: PacManLocation -> TargetFieldCord
@@ -123,7 +137,7 @@ findTargetFieldRed (Location p _) = lCordToFCord p
 
 --(Pink Ghost) TargetField is 4 fields ahead of PacMan
 findTargetFieldPink :: PacManLocation -> TargetFieldCord
-findTargetFieldPink (Location p o)    = findFieldCordAhead (lCordToFCord p) o 4
+findTargetFieldPink (Location p o) = findFieldCordAhead (lCordToFCord p) o 4
 
 --(Cyan Ghost) TargetField is the field mirrored to the red ghost's location from 2 ahead of PacMan
 findTargetFieldCyan :: PacManLocation -> GhostLocation -> TargetFieldCord
@@ -134,7 +148,7 @@ findTargetFieldCyan (Location p o) (Location g _) = let (npx, npy) = findFieldCo
 --(Orange Ghost) Uses it's own location and pacman's location, if within 8 range -> back to base, otherwise use red algorithm
 findTargetFieldOrange :: PacManLocation -> GhostLocation -> BaseField -> TargetFieldCord
 findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8 = findTargetFieldRed pl
-                                                            | otherwise    = bf
+                                                            | otherwise          = bf
     where
         distance :: LocationCord -> LocationCord -> Float
         distance (px, py) (gx, gy) = sqrt (abs ((px - gx) * (px - gx) + (py - gy) * (py - gy)))

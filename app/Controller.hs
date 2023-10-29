@@ -3,50 +3,49 @@
 module Controller where
 
 import Types as T
-import Graphics.Gloss
+    ( initialState,
+      nO_SECS_BETWEEN_CYCLES,
+      GameState(infoToShow, elapsedTime),
+      InfoToShow(ShowABoard, ShowAChar),
+      Orientation(Right, Up, Left, Down),
+      emptyBoard )
+import Graphics.Gloss ()
 import Graphics.Gloss.Interface.IO.Game
-import System.Random
-import LevelLoader
-import PacMan
+    ( Key(Char), Event(EventKey) )
+import System.Random ()
+import LevelLoader ()
+import PacMan ( movePacManOrientation )
 
 -- -- | Handle one iteration of the game
 -- step :: Float -> GameState -> IO GameState
--- step secs gstate =return gstate
--- --    = let elapsedTime gstate = elapsedTime gstate + secs
--- --         do gstate <- findAllTargetField gstate
--- --            gstate <- moveAllGhosts gstate
--- --      return $ gstate 
+-- step secs gs =return gs
+-- --    = let elapsedTime gs = elapsedTime gs + secs
+-- --         do gs <- findAllTargetField gs
+-- --            gs <- moveAllGhosts gs
+-- --      return $ gs 
 
 step :: Float -> GameState -> IO GameState
-step secs gstate
-  | elapsedTime gstate + secs > nO_SECS_BETWEEN_CYCLES
+step secs gs
+  | elapsedTime gs + secs > nO_SECS_BETWEEN_CYCLES
   = -- We show a new random number
     do return $ initialState
   | otherwise
   = -- Just update the elapsed time
-    return $ gstate { elapsedTime = elapsedTime gstate + secs }
+    return $ gs { elapsedTime = elapsedTime gs + secs }
       
 
 -- Handle user input
 input :: Event -> GameState -> IO GameState
-input e gstate = return (inputKey e gstate)
+input e gs = return (inputKey e gs)
  
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (Char 'c') _ _ _) gstate = gstate { infoToShow = ShowAChar 'c' }
-inputKey (EventKey (Char 'b') _ _ _) gstate = gstate { infoToShow = ShowABoard emptyBoard }
-inputKey (EventKey (Char 'w') _ _ _) gstate = movePacManOrientation gstate T.Up
-inputKey (EventKey (Char 'a') _ _ _) gstate = movePacManOrientation gstate T.Left
-inputKey (EventKey (Char 's') _ _ _) gstate = movePacManOrientation gstate T.Down
-inputKey (EventKey (Char 'd') _ _ _) gstate = movePacManOrientation gstate T.Right
-inputKey _ gstate = gstate -- Otherwise keep the same
-
-
-
--- Feeds the orientation given by wasd to the movePacMan function respectively
-movePacManOrientation :: GameState -> NewOrientation -> GameState
-movePacManOrientation gstate@(GameState {board       = b
-                                        ,pacMan      = p
-                                        ,elapsedTime = t}) no = gstate { pacMan = (pacMan gstate) { pacManLocation = movePacMan b p no t } }
+inputKey (EventKey (Char 'c') _ _ _) gs = gs { infoToShow = ShowAChar 'c' }
+inputKey (EventKey (Char 'b') _ _ _) gs = gs { infoToShow = ShowABoard emptyBoard }
+inputKey (EventKey (Char 'w') _ _ _) gs = movePacManOrientation gs T.Up
+inputKey (EventKey (Char 'a') _ _ _) gs = movePacManOrientation gs T.Left
+inputKey (EventKey (Char 's') _ _ _) gs = movePacManOrientation gs T.Down
+inputKey (EventKey (Char 'd') _ _ _) gs = movePacManOrientation gs T.Right
+inputKey _ gs = gs -- Otherwise keep the same
 
 --Volgorde wordt:
 --1. Move PacMan
@@ -60,13 +59,13 @@ movePacManOrientation gstate@(GameState {board       = b
 
 
 -- step :: Float -> GameState -> IO GameState
--- step secs gstate
---   | elapsedTime gstate + secs > nO_SECS_BETWEEN_CYCLES
+-- step secs gs
+--   | elapsedTime gs + secs > nO_SECS_BETWEEN_CYCLES
 --   = -- We show a new random number
     -- do randomNumber <- randomIO
     --    let newNumber = abs randomNumber `mod` 10
     --    return $ GameState (ShowANumber newNumber) 0
 --   | otherwise
 --   = -- Just update the elapsed time
-    -- return $ gstate { elapsedTime = elapsedTime gstate + secs }
+    -- return $ gs { elapsedTime = elapsedTime gs + secs }
 -- 

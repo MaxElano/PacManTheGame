@@ -1,11 +1,10 @@
 module Board where
 
 import Prelude
-import System.IO
---import Language.Haskell.TH (safe)
+import System.IO ()
 import Data.Foldable (minimumBy, find)
 import Data.Ord (comparing)
-import System.Random
+import System.Random ( uniformR, StdGen )
 import Types as T
     ( Orientation,
       Location(..),
@@ -31,13 +30,14 @@ searchRow :: FieldCord -> Row -> Maybe Field
 searchRow c = find (\(MkField c1 _) -> c1 == c)
 
 lCordToFCord :: LocationCord -> FieldCord
-lCordToFCord (x,y) = (truncate x `div` fieldSize,truncate y `div` fieldSize)
+lCordToFCord (x,y) = (truncate x `div` fieldSize, truncate y `div` fieldSize)
 
 fieldToLocation :: Field -> Orientation -> Location
 fieldToLocation (MkField fcords _) = Location (fCordToLCord fcords)
 
 fCordToLCord :: FieldCord -> LocationCord
-fCordToLCord (x,y) = let size = fromIntegral fieldSize in (fromIntegral x * size + size / 2, fromIntegral y * size + size / 2)
+fCordToLCord (x,y) = let size = fromIntegral fieldSize 
+                     in (fromIntegral x * size + size / 2, fromIntegral y * size + size / 2)
 
 wallCheck :: Field -> IsWall
 wallCheck (MkField _ Wall) = True
@@ -47,17 +47,17 @@ changeFieldType :: Board -> Field -> FieldType -> Board
 changeFieldType board f newType = map (\row -> fieldReplace row f newType) board
 
 fieldReplace :: Row -> Field -> FieldType -> Row
-fieldReplace [] _ _ = []
-fieldReplace (f:fs) f1@(MkField pos _) newType = 
-    if f == f1
-        then MkField pos newType:fs
-        else f:fieldReplace fs f1 newType
+fieldReplace [] _ _                            = []
+fieldReplace (f:fs) f1@(MkField pos _) newType = if f == f1
+                                                    then MkField pos newType:fs
+                                                    else f:fieldReplace fs f1 newType
 
 findFieldCordAhead :: FieldCord -> Orientation -> Int -> FieldCord
-findFieldCordAhead (x,y) T.Up    i = (x,y - i)
-findFieldCordAhead (x,y) T.Right i = (x + i,y)
-findFieldCordAhead (x,y) T.Down  i = (x,y + i)
-findFieldCordAhead (x,y) T.Left  i = (x - i,y)
+findFieldCordAhead (x,y) T.Up    i = (x, y - i)
+findFieldCordAhead (x,y) T.Right i = (x + i, y)
+findFieldCordAhead (x,y) T.Down  i = (x, y + i)
+findFieldCordAhead (x,y) T.Left  i = (x - i, y)
 
 useRandom :: StdGen -> (Int, Int) -> (Int, StdGen)
-useRandom g r = let (rn, ng) = uniformR r g in (rn, g)
+useRandom g r = let (rn, ng) = uniformR r g 
+                in  (rn, g)

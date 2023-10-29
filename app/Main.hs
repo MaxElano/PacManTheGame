@@ -1,11 +1,12 @@
 module Main where
 
 --import Controller
-import Types
-import Draw
-import Controller
+import Types ( initialState )
+import Draw ( draw )
+import Controller ( step, input )
 
 import Graphics.Gloss.Interface.IO.Game
+    ( black, Display(InWindow), playIO )
 -- 
 main :: IO ()
 main = playIO (InWindow "Counter" (224, 288) (0, 0)) -- Or FullScreen
