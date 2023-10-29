@@ -27,12 +27,12 @@ initialState = GameState
                0
                (mkStdGen 42)
 
-emptyBoard :: Board
-emptyBoard = []
+emptyBoard :: IO Board
+emptyBoard = return []
 
 --------------------------Game--------------------------
 data GameState = GameState { infoToShow  :: InfoToShow
-                            ,board       :: Board
+                            ,board       :: IO Board
                             ,score       :: Score
                             ,pacman      :: PacMan
                             ,ghostRed    :: Ghost
