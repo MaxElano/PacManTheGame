@@ -24,7 +24,7 @@ drawPure gs = case infoToShow gs of
 --    color green (text (show "9"))
 
 drawPlayState :: GameState -> Picture
-drawPlayState gs = pictures [drawBoard (board gs), drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs)]
+drawPlayState gs = scale 2 2 $ pictures [drawBoard (board gs), drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs)]
 
 drawBoard :: Board -> Picture
 drawBoard b = pictures $ map (\(MkField c t) -> let (lx, ly) = fCordToLCord c 
