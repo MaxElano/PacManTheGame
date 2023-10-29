@@ -2,8 +2,7 @@
 --   in response to time and user input
 module Controller where
 
-import Types
-
+import Types as T
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import System.Random
@@ -34,11 +33,14 @@ input e gstate = return (inputKey e gstate)
  
 inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gstate = gstate { infoToShow = ShowAChar 'c' }
-inputKey (EventKey (Char 'w') _ _ _) gstate = movePacManOrientation gstate Types.Up
-inputKey (EventKey (Char 'a') _ _ _) gstate = movePacManOrientation gstate Types.Left
-inputKey (EventKey (Char 's') _ _ _) gstate = movePacManOrientation gstate Types.Down
-inputKey (EventKey (Char 'd') _ _ _) gstate = movePacManOrientation gstate Types.Right
+inputKey (EventKey (Char 'b') _ _ _) gstate = gstate { infoToShow = ShowABoard emptyBoard }
+inputKey (EventKey (Char 'w') _ _ _) gstate = movePacManOrientation gstate T.Up
+inputKey (EventKey (Char 'a') _ _ _) gstate = movePacManOrientation gstate T.Left
+inputKey (EventKey (Char 's') _ _ _) gstate = movePacManOrientation gstate T.Down
+inputKey (EventKey (Char 'd') _ _ _) gstate = movePacManOrientation gstate T.Right
 inputKey _ gstate = gstate -- Otherwise keep the same
+
+
 
 -- Feeds the orientation given by wasd to the movePacMan function respectively
 movePacManOrientation :: GameState -> NewOrientation -> GameState

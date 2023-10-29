@@ -8,7 +8,7 @@ import System.Random (StdGen, mkStdGen)
 data InfoToShow = ShowNothing
                 | ShowANumber Int
                 | ShowAChar   Char
-                | ShowABoard  (IO Board)
+                | ShowABoard  Board
 
 nO_SECS_BETWEEN_CYCLES :: ElapsedTime
 nO_SECS_BETWEEN_CYCLES = 0
@@ -28,11 +28,11 @@ initialState = GameState
                (mkStdGen 42)
 
 emptyBoard :: Board
-emptyBoard = []
+emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall]]
 
 --------------------------Game--------------------------
 data GameState = GameState { infoToShow  :: InfoToShow
-                            ,board       :: Board
+                            ,board       :: Board   --Moet waarschijnlijk nog IO Board worden
                             ,score       :: Score
                             ,pacMan      :: PacMan
                             ,ghostRed    :: Ghost
