@@ -9,6 +9,7 @@ data InfoToShow = ShowNothing
                 | ShowANumber Int
                 | ShowAChar   Char
                 | ShowABoard  Board
+                | ShowPlayState Board Score PacMan Ghost Ghost Ghost Ghost GhostMode
 
 nO_SECS_BETWEEN_CYCLES :: ElapsedTime
 nO_SECS_BETWEEN_CYCLES = 0
@@ -28,7 +29,7 @@ initialState = GameState
                (mkStdGen 42)
 
 emptyBoard :: Board
-emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall]]
+emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall, MkField (3,0) Wall, MkField (4,0) Wall, MkField (5,0) Wall, MkField (6,0) Wall]]
 
 --------------------------Game--------------------------
 data GameState = GameState { infoToShow  :: InfoToShow
