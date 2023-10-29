@@ -5,20 +5,24 @@ module Draw where
 import Graphics.Gloss
     ( green,
       red,
+      white,
+      yellow,
+      Picture,
       blank,
       circle,
+      circleSolid,
       color,
       pictures,
+      scale,
       text,
-      translate,
-      Picture )
+      translate )
 import Types
     ( fieldSize,
       Board,
       Field(MkField),
       FieldType(Wall),
-      GameState(infoToShow),
-      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar) )
+      GameState(..),
+      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score )
 import Board (fCordToLCord)
 
 draw :: GameState -> IO Picture

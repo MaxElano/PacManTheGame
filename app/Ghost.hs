@@ -47,9 +47,9 @@ moveGhost b g@(Ghost
     , mustReverse   = True
     , ghostSpeed    = s
     }) et _ gen     = (g 
-                        { ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
-                        , mustReverse   = False 
-                        }, gen)
+        { ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
+        , mustReverse   = False 
+        }, gen)
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost 
     { ghostLocation = l@(Location c _)

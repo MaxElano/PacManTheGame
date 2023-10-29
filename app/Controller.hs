@@ -6,7 +6,7 @@ import Types as T
     ( initialState,
       nO_SECS_BETWEEN_CYCLES,
       GameState(infoToShow, elapsedTime),
-      InfoToShow(ShowABoard, ShowAChar),
+      InfoToShow(ShowABoard, ShowAChar, ShowPlayState),
       Orientation(Right, Up, Left, Down),
       emptyBoard )
 import Graphics.Gloss ()
