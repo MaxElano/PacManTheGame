@@ -5,18 +5,24 @@ import Types
 import Board
 import Entity
 
-movePacMan :: Board -> Location -> NewOrientation -> Speed -> ElapsedTime -> Location
-movePacMan b l no s t = let nl = moveEntity l s t
-                            check = WallCheck nl
-                        in (if () check then l else nl)
+--Moves pacman into a desired orientation, also checks for walls
+movePacMan :: Board -> PacMan -> NewOrientation  -> ElapsedTime -> Location
+movePacMan b p@(PacMan {pacManLocation = l@(Location cords _),
+                        lives          = lvs,
+                        pacManSpeed    = s,
+                        pacManSize     = size}) no t = let nl = moveEntity (Location cords no) s t
+                                                           check = boundaryCheck b p no
+                                                       in (if check then l else nl)
 
--- determineOrientation :: Board -> Location -> NewOrientation -> Location
--- determineOrientation b l@(MkLocation (x,y) oo) oo = l
--- determineOrientation b   (MkLocation c@(x,y) oo) no | wallCheck (b getNextFieldLocation c no) = MkLocation c no
+--Checks if the edge of pacman is in a wall or not in the new location
+boundaryCheck :: Board -> PacMan -> NewOrientation -> IsWall
+boundaryCheck b p@(PacMan {pacManLocation = (Location cords _)
+                          ,pacManSize     = size}) no = let nf = locationToField (Location (getBoundaryLocation cords no size) Up) b
+                                                        in maybe True wallCheck nf
 
--- getNextFieldLocation :: FieldCoordinate -> Orientation -> FieldCoordinate
--- getNextFieldLocation (x,y) Up = y - 1
--- getNextFieldLocation (x,y) Right = x + 1
--- getNextFieldLocation (x,y) Down = y + 1
--- getNextFieldLocation (x,y) Left = x - 1
-
+--Gives the coordinates of the edge of pacman in the new location
+getBoundaryLocation :: LocationCord -> Orientation -> Size -> LocationCord
+getBoundaryLocation (x,y) Up size = (x,y - fromIntegral (size `div` 2))
+getBoundaryLocation (x,y) Types.Right size = (x + fromIntegral (size `div` 2),y)
+getBoundaryLocation (x,y) Down size = (x,y + fromIntegral (size `div` 2))
+getBoundaryLocation (x,y) Types.Left size = (x - fromIntegral (size `div` 2),y)
