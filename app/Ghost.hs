@@ -17,7 +17,7 @@ import Types as T
       GhostMode(Frightened),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
-      ElapsedTime, Size )
+      ElapsedTime, Size, ghostDarkColor )
 import Entity ( moveEntity, oppositeOrientation )
 import Board
     ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
@@ -162,8 +162,12 @@ findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8
         distance :: LocationCord -> LocationCord -> Float
         distance (px, py) (gx, gy) = sqrt (abs ((px - gx) * (px - gx) + (py - gy) * (py - gy)))
 
--- changeAllGhostColor :: GameState -> GameState
--- changeAllGhostColor gs = (GameState { ghostRed    = changeGhostColorDark ghostRed gs
---                                     , ghostPink   = changeGhostColorDark ghostPink gs
---                                     , ghostCyan   = changeGhostColorDark ghostCyan gs
---                                     , ghostOrange = changeGhostColorDark ghostOrange gs })
+changeAllGhostColor :: GameState -> GameState
+changeAllGhostColor gs = gs { ghostRed    = changeGhostColor $ ghostRed gs
+                            , ghostPink   = changeGhostColor $ ghostPink gs
+                            , ghostCyan   = changeGhostColor $ ghostCyan gs
+                            , ghostOrange = changeGhostColor $ ghostOrange gs }
+
+changeGhostColor :: Ghost -> Ghost
+changeGhostColor g@(Ghost {ghostColor = azure}) = g {ghostColor = ghostBaseColor g}
+changeGhostColor g = g {ghostColor = azure}
