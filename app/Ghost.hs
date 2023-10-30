@@ -17,12 +17,13 @@ import Types as T
       GhostMode(Frightened),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
-      ElapsedTime, Size, ghostDarkColor )
+      ElapsedTime, Size)
 import Entity ( moveEntity, oppositeOrientation )
 import Board
     ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
 import System.Random ( StdGen )
 import GHC.Real (mkRationalBase10)
+import Graphics.Gloss.Data.Color as C
 
 --Main Function 1 for the entire module. Handles all movement for the ghosts
 moveAllGhosts :: GameState -> GameState
