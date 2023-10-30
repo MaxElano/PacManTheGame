@@ -161,3 +161,9 @@ findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8
     where
         distance :: LocationCord -> LocationCord -> Float
         distance (px, py) (gx, gy) = sqrt (abs ((px - gx) * (px - gx) + (py - gy) * (py - gy)))
+
+-- changeAllGhostColor :: GameState -> GameState
+-- changeAllGhostColor gs = (GameState { ghostRed    = changeGhostColorDark ghostRed gs
+--                                     , ghostPink   = changeGhostColorDark ghostPink gs
+--                                     , ghostCyan   = changeGhostColorDark ghostCyan gs
+--                                     , ghostOrange = changeGhostColorDark ghostOrange gs })
