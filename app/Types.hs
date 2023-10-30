@@ -20,73 +20,74 @@ initialState = GameState
                ShowPlayState
                emptyBoard 
                (Score 0) 
-               (PacMan (Location (50,50) Up) (Location (50,50) Up) (Lives 3) 10 8)
-               (Ghost (Location (12,12) Types.Down) (Location (12,12) Types.Down) (0,0) 2 (0,0) False Red 6 red)
-               (Ghost (Location (20,20) Types.Right) (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink 6 rose)
-               (Ghost (Location (28,28) Types.Left) (Location (28,28) Types.Left) (0,0) 2 (0,0) False Cyan 6 cyan)
-               (Ghost (Location (36,36) Types.Up) (Location (36,36) Types.Up) (0,0) 2 (0,0) False Orange 6 orange)
+               (PacMan (Location (272,272) Up) (Location (50,50) Up) (Lives 3) 10 8)
+               (Ghost (Location (160,160) Types.Down) (Location (12,12) Types.Down) (0,0) 2 (0,0) False Red 6 red)
+               (Ghost (Location (200,200) Types.Right) (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink 6 rose)
+               (Ghost (Location (280,280) Types.Left) (Location (28,28) Types.Left) (0,0) 2 (0,0) False Cyan 6 cyan)
+               (Ghost (Location (288,288) Types.Up) (Location (36,36) Types.Up) (0,0) 2 (0,0) False Orange 6 orange)
                Chase
                0
                (mkStdGen 42)
 
 
-
+windowSize :: (Int, Int)
+windowSize = (896, 760)
 
 emptyBoard :: Board
-emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall, MkField (3,0) Wall]]
--- emptyBoard = makeBoardTemp ["WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"W..........................W"
-                        --    ,"WWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
+-- emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall, MkField (3,0) Wall]]
+emptyBoard = makeBoardTemp ["WWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"W..........................W"
+                           ,"WWWWWWWWWWWWWWWWWWWWWWWWWWWW"]
 
--- ---Tijdelijk
--- makeBoardTemp :: [String] -> Board
--- makeBoardTemp = convertLineTemp 0
---     where 
---         convertLineTemp :: Int -> [String] -> [Row]
---         convertLineTemp _ [] = []
---         convertLineTemp y (r:rs) = convertFieldTemp 0 y r : convertLineTemp (y + 1) rs
---         convertFieldTemp :: Int -> Int -> [Char] -> [Field]
---         convertFieldTemp _ _ [] = []
---         convertFieldTemp x y (f:fs) = MkField (x,y) (chooseFieldTypeTemp f) : convertFieldTemp (x + 1) y fs
---         chooseFieldTypeTemp :: Char -> FieldType
---         chooseFieldTypeTemp 'W' = Wall
---         chooseFieldTypeTemp '+' = Pellet
---         chooseFieldTypeTemp 'P' = PowerUp
---         chooseFieldTypeTemp 'C' = Cherry
---         chooseFieldTypeTemp '.' = Empty
+---Tijdelijk
+makeBoardTemp :: [String] -> Board
+makeBoardTemp = convertLineTemp 0
+    where 
+        convertLineTemp :: Int -> [String] -> [Row]
+        convertLineTemp _ [] = []
+        convertLineTemp y (r:rs) = convertFieldTemp 0 y r : convertLineTemp (y + 1) rs
+        convertFieldTemp :: Int -> Int -> [Char] -> [Field]
+        convertFieldTemp _ _ [] = []
+        convertFieldTemp x y (f:fs) = MkField (x,y) (chooseFieldTypeTemp f) : convertFieldTemp (x + 1) y fs
+        chooseFieldTypeTemp :: Char -> FieldType
+        chooseFieldTypeTemp 'W' = Wall
+        chooseFieldTypeTemp '+' = Pellet
+        chooseFieldTypeTemp 'P' = PowerUp
+        chooseFieldTypeTemp 'C' = Cherry
+        chooseFieldTypeTemp '.' = Empty
 
 
 --------------------------Game--------------------------
