@@ -17,7 +17,7 @@ import Types as T
       GhostMode(Frightened),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
-      ElapsedTime )
+      ElapsedTime, Size )
 import Entity ( moveEntity, oppositeOrientation )
 import Board
     ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
@@ -55,21 +55,23 @@ moveGhost b g@(Ghost
     { ghostLocation = l@(Location c _)
     , targetField   = t
     , ghostSpeed    = s
-    }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l)
+    , ghostSize     = z
+    }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l z)
                            in (g { ghostLocation = moveEntity (Location c no) s et }, ng)
 --"Normal" move
 moveGhost b g@(Ghost 
     { ghostLocation = l@(Location c _)
     , targetField   = t
     , ghostSpeed    = s
-    }) et _ gen     = (g { ghostLocation = moveEntity (Location c (findOrientation b l t)) s et }, gen)
+    , ghostSize     = z
+    }) et _ gen     = (g { ghostLocation = moveEntity (Location c (findOrientation b l t z)) s et }, gen)
         where
             --Main function for finding the new orientation for the ghost
-            findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Orientation
-            findOrientation b gl@(Location gc _) tf = let ao = tryAllOrientations b gl
-                                                      in case ao of
-                                                        [x] -> x
-                                                        xs  -> checkEveryLocation b tf (lCordToFCord gc) xs
+            findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Size -> Orientation
+            findOrientation b gl@(Location gc _) tf s = let ao = tryAllOrientations b gl s
+                                                        in case ao of
+                                                           [x] -> x
+                                                           xs  -> checkEveryLocation b tf (lCordToFCord gc) xs
             --Checks which new field for the ghost is the closest to his TargetField
             checkEveryLocation :: Board -> TargetFieldCord -> FieldCord -> [Orientation] -> Orientation
             checkEveryLocation b t c [x1, x2] = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
@@ -97,14 +99,21 @@ chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs)
                              in (xs !! rn, ng)
 
 --Finds all allowed new orientations for the ghost
-tryAllOrientations :: Board -> GhostLocation -> [Orientation]
-tryAllOrientations b gl@(Location _ o) = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left])
+tryAllOrientations :: Board -> GhostLocation -> Size -> [Orientation]
+tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s
     where
-        checkPossibility :: Board -> GhostLocation -> [Orientation] -> [Orientation]
-        checkPossibility b gl@(Location l@(x,y) o) (z:zs) = let Just (MkField _ t) = locationToField gl b
-                                                            in case t of
-                                                            Wall -> checkPossibility b gl zs
-                                                            _    -> z :checkPossibility b gl zs
+        checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
+        checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = checkBoundary s gl
+                                                                  Just (MkField _ t) = locationToField l1 b
+                                                                  Just (MkField _ p) = locationToField l2 b
+                                                              in case (t,p) of
+                                                              (Wall,Wall) -> checkPossibility b gl zs s
+                                                              (Wall,_   ) -> checkPossibility b gl zs s
+                                                              (_   ,Wall) -> checkPossibility b gl zs s
+                                                              _           -> z :checkPossibility b gl zs s
+        checkBoundary:: Size -> GhostLocation -> (GhostLocation, GhostLocation)
+        checkBoundary s (Location (x,y) d) | d == Up || d == Down = (Location (x - fromIntegral (s `div` 2), y) d, Location (x + fromIntegral (s `div` 2), y) d)
+                                           | otherwise            = (Location (x, y - fromIntegral (s `div` 2)) d, Location (x, y + fromIntegral (s `div` 2)) d)
 
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
