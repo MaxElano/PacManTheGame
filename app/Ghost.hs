@@ -14,7 +14,7 @@ import Types as T
       FieldType(Wall),
       Field(MkField),
       Board,
-      GhostMode(Frightened),
+      GhostMode(..),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
       ElapsedTime, Size, GhostColorTo (..), ghostDarkColor)
@@ -24,10 +24,11 @@ import Board
 import System.Random ( StdGen )
 import GHC.Real (mkRationalBase10)
 import Graphics.Gloss.Data.Color as C
+import GHC.RTS.Flags (DebugFlags(gc), getParFlags)
 
 --Main Function 1 for the entire module. Handles all movement for the ghosts
 moveAllGhosts :: GameState -> GameState
-moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) (generator gs) 
+moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostRed    gs) (elapsedTime gs) (ghostMode gs) (generator gs) 
                        (ngc, ng2) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) ng1            
                        (ngp, ng3) = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs) (ghostMode gs) ng2           
                        (ngo, ng4) = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs) (ghostMode gs) ng3           
@@ -133,12 +134,34 @@ tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> 
 
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
-findAllTargetFields gs = gs 
+findAllTargetFields gs@(GameState { ghostMode = Chase }) = gs 
     { ghostRed    = findTargetField (ghostRed    gs) gs
     , ghostCyan   = findTargetField (ghostCyan   gs) gs
     , ghostPink   = findTargetField (ghostPink   gs) gs
     , ghostOrange = findTargetField (ghostOrange gs) gs
     }
+findAllTargetFields gs@(GameState { ghostMode = Scatter
+                                  , ghostRed    = gr 
+                                  , ghostCyan   = gc
+                                  , ghostPink   = gp 
+                                  , ghostOrange = go }) = gs 
+    { ghostRed    = gr {targetField = baseField gr}
+    , ghostCyan   = gc {targetField = baseField gc}
+    , ghostPink   = gp {targetField = baseField gp}
+    , ghostOrange = go {targetField = baseField go}
+    }
+findAllTargetFields gs@(GameState { ghostMode = Frightened
+                                  , ghostRed    = gr 
+                                  , ghostCyan   = gc
+                                  , ghostPink   = gp 
+                                  , ghostOrange = go }) = gs 
+    { ghostRed    = gr {targetField = baseField gr}
+    , ghostCyan   = gc {targetField = baseField gc}
+    , ghostPink   = gp {targetField = baseField gp}
+    , ghostOrange = go {targetField = baseField go}
+    }
+
+
 
 --Decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: Ghost -> GameState -> Ghost
