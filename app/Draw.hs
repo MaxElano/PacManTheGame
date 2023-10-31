@@ -56,7 +56,7 @@ drawBoard b = let ls = helpDrawBoard
         helpDrawBoard = map (\(MkField c t) -> let (lx, ly) = fCordToLCord c
                                                    z = fromIntegral fieldSize
                                                  in case t of
-                                                    Wall -> ((lx, ly), translate lx ly (color blue (polygon [(0,0), (0,z), (z,z),  (z,0)])))
+                                                    Wall -> ((lx, ly), translate lx ly (color blue (polygon [(-z/2,-z/2), (-z/2,z/2), (z/2,z/2), (z/2,-z/2)])))
                                                     Pellet -> ((lx, ly), translate lx ly (color yellow (circleSolid $ z / 4)))
                                                     _    -> ((lx, ly), blank)
                              ) (concat b)
