@@ -12,6 +12,8 @@ data InfoToShow = ShowNothing
                 | ShowANumber Float
                 | ShowAChar   Char
                 | ShowABoard  Board
+                | ShowAField  Field
+                | ShowALocation Location
                 | ShowPlayState
 
 initialState :: GameState

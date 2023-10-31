@@ -55,24 +55,24 @@ getBoundaryLocation (x,y) T.Down  size = (x, y + fromIntegral (size `div` 2))
 getBoundaryLocation (x,y) T.Left  size = (x    - fromIntegral (size `div` 2), y)
 
 -- Reacts accordingly to the important field types pac-man could be on
-handleField :: GameState -> Field -> GameState
-handleField gs@(GameState 
+handleField :: Field -> GameState -> GameState
+handleField f@(MkField _ Pellet) gs@(GameState 
     { score = (Score s)
     , board = b
-    }) f@(MkField _ Pellet) = gs 
+    }) = gs 
         { score = Score (s+1)    
         , board = changeFieldType b f Empty 
         }
 
-handleField gs@(GameState 
+handleField f@(MkField _ Cherry) gs@(GameState 
     { score = (Score s)
     , board = b
-    }) f@(MkField _ Cherry) = gs 
+    }) = gs 
         { score = Score (s+5)
         , board = changeFieldType b f Empty 
         }
 
-handleField gs@(GameState { board = b }) f@(MkField _ PowerUp) = gs 
+handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = gs 
     { ghostMode = Frightened
     , board = changeFieldType b f Empty 
     }
