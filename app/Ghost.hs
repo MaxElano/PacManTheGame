@@ -17,7 +17,7 @@ import Types as T
       GhostMode(Frightened),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
-      ElapsedTime, Size)
+      ElapsedTime, Size, GhostColorTo (..), ghostDarkColor)
 import Entity ( moveEntity, oppositeOrientation )
 import Board
     ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
@@ -108,10 +108,10 @@ tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> 
                                                                   Just (MkField _ t) = locationToField l1 b
                                                                   Just (MkField _ p) = locationToField l2 b
                                                               in case (t,p) of
-                                                              (Wall,Wall) -> checkPossibility b gl zs s
-                                                              (Wall,_   ) -> checkPossibility b gl zs s
-                                                              (_   ,Wall) -> checkPossibility b gl zs s
-                                                              _           -> z :checkPossibility b gl zs s
+                                                                  (Wall,Wall) -> checkPossibility b gl zs s
+                                                                  (Wall,_   ) -> checkPossibility b gl zs s
+                                                                  (_   ,Wall) -> checkPossibility b gl zs s
+                                                                  _           -> z :checkPossibility b gl zs s
         checkBoundary:: Size -> GhostLocation -> (GhostLocation, GhostLocation)
         checkBoundary s (Location (x,y) d) | d == Up || d == Down = (Location (x - fromIntegral (s `div` 2), y) d, Location (x + fromIntegral (s `div` 2), y) d)
                                            | otherwise            = (Location (x, y - fromIntegral (s `div` 2)) d, Location (x, y + fromIntegral (s `div` 2)) d)
@@ -163,12 +163,12 @@ findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8
         distance :: LocationCord -> LocationCord -> Float
         distance (px, py) (gx, gy) = sqrt (abs ((px - gx) * (px - gx) + (py - gy) * (py - gy)))
 
-changeAllGhostColor :: GameState -> GameState
-changeAllGhostColor gs = gs { ghostRed    = changeGhostColor $ ghostRed gs
-                            , ghostPink   = changeGhostColor $ ghostPink gs
-                            , ghostCyan   = changeGhostColor $ ghostCyan gs
-                            , ghostOrange = changeGhostColor $ ghostOrange gs }
+changeAllGhostColor :: GameState-> GhostColorTo -> GameState
+changeAllGhostColor gs c = gs { ghostRed    = changeGhostColor (ghostRed gs)  c
+                              , ghostPink   = changeGhostColor (ghostPink gs) c
+                              , ghostCyan   = changeGhostColor (ghostCyan gs) c
+                              , ghostOrange = changeGhostColor (ghostOrange gs) c }
 
-changeGhostColor :: Ghost -> Ghost
-changeGhostColor g@(Ghost {ghostColor = azure}) = g {ghostColor = ghostBaseColor g}
-changeGhostColor g = g {ghostColor = azure}
+changeGhostColor :: Ghost -> GhostColorTo -> Ghost
+changeGhostColor g T.Normal = g {ghostColor = ghostBaseColor g}
+changeGhostColor g T.Dark   = g {ghostColor = ghostDarkColor}

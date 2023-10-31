@@ -42,12 +42,7 @@ drawPlayState gs = let (x,y,p) = drawBoard (board gs)
                        sc = min (fromIntegral wx / x) (fromIntegral wy / (y + fromIntegral fieldSize / 2))
                    in scale sc sc $ translate ((-x - fromIntegral fieldSize / 2) / 2) ((-y - fromIntegral fieldSize / 2) / 2) $ pictures [p, drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs)]
 
--- drawBoard :: Board -> Picture
--- drawBoard b = pictures $ map (\(MkField c t) -> let (lx, ly) = fCordToLCord c 
---                                                  in case t of
---                                                     Wall -> translate lx ly (color red (circle (fromIntegral fieldSize / 2)))
---                                                     _    -> blank
---                              ) (concat b)
+
 
 drawBoard :: Board -> (Float, Float, Picture)
 drawBoard b = let ls = helpDrawBoard
@@ -63,8 +58,7 @@ drawBoard b = let ls = helpDrawBoard
                              ) (concat b)
 
 drawPacMan :: PacMan -> Picture
-drawPacMan (PacMan {pacManSize = s
-                   ,pacManLocation = (Location (x,y) _)}) = translate x y (color yellow (circleSolid (fromIntegral s / 2)))
+drawPacMan p@(PacMan {pacManLocation = (Location (x,y) _)}) = translate x y (color yellow (pacManPicture p))
 
 drawAllGhosts :: GameState -> Picture
 drawAllGhosts gs = pictures [drawGhost (ghostRed gs), drawGhost (ghostPink gs), drawGhost (ghostCyan gs), drawGhost (ghostOrange gs)]

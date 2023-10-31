@@ -28,7 +28,7 @@ step :: Float -> GameState -> IO GameState
 step secs gs
   | elapsedTime gs + secs > nO_SECS_BETWEEN_CYCLES
   = -- We show a new random number
-    do return initialState
+    do return gs
   | otherwise
   = -- Just update the elapsed time
     return $ gs { elapsedTime = elapsedTime gs + secs }
