@@ -85,6 +85,8 @@ moveGhost b g@(Ghost
                                                   in if d1 <= d2
                                                     then checkEveryLocation b t c (x1:xs)
                                                     else checkEveryLocation b t c (x2:xs)
+            checkEveryLocation b t c [x]       = x
+            checkEveryLocation b t c []        = Up
             --Calculates the distance between two FieldCords in Float
             distanceFCToFloat :: FieldCord -> FieldCord -> Float
             distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (npy - ngy) * (npy - ngy)))
@@ -104,17 +106,30 @@ tryAllOrientations :: Board -> GhostLocation -> Size -> [Orientation]
 tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s
     where
         checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
+        checkPossibility b gl@(Location l@(x,y) o) [] s     = []
         checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = checkBoundary s gl
-                                                                  Just (MkField _ t) = locationToField l1 b
-                                                                  Just (MkField _ p) = locationToField l2 b
+                                                                  t = locationToField l1 b
+                                                                  p = locationToField l2 b
                                                               in case (t,p) of
-                                                                  (Wall,Wall) -> checkPossibility b gl zs s
-                                                                  (Wall,_   ) -> checkPossibility b gl zs s
-                                                                  (_   ,Wall) -> checkPossibility b gl zs s
-                                                                  _           -> z :checkPossibility b gl zs s
+                                                                  (Just (MkField _ Wall),Just (MkField _ Wall)) -> checkPossibility b gl zs s
+                                                                  (Just (MkField _ Wall),_   )                  -> checkPossibility b gl zs s
+                                                                  (_                    ,Just (MkField _ Wall)) -> checkPossibility b gl zs s
+                                                                  (_,_)                                         -> z : checkPossibility b gl zs s
         checkBoundary:: Size -> GhostLocation -> (GhostLocation, GhostLocation)
         checkBoundary s (Location (x,y) d) | d == Up || d == Down = (Location (x - fromIntegral (s `div` 2), y) d, Location (x + fromIntegral (s `div` 2), y) d)
                                            | otherwise            = (Location (x, y - fromIntegral (s `div` 2)) d, Location (x, y + fromIntegral (s `div` 2)) d)
+
+
+        -- checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
+        -- checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = checkBoundary s gl
+        --                                                           Just (MkField _ t) = locationToField l1 b
+        --                                                           Just (MkField _ p) = locationToField l2 b
+        --                                                       in case (t,p) of
+        --                                                           (Wall,Wall) -> checkPossibility b gl zs s
+        --                                                           (Wall,_   ) -> checkPossibility b gl zs s
+        --                                                           (_   ,Wall) -> checkPossibility b gl zs s
+        --                                                           _           -> z :checkPossibility b gl zs s
+
 
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState

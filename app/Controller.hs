@@ -16,6 +16,7 @@ import LevelLoader ()
 import PacMan ( changePacManOrientation, movePacMan, pacManWakkaWakka, handleField )
 import Entity (moveEntity)
 import Board (locationToField, lCordToFCord)
+import Ghost (moveAllGhosts, findAllTargetFields)
 
 -- -- | Handle one iteration of the game
 -- step :: Float -> GameState -> IO GameState
@@ -35,7 +36,7 @@ update :: GameState -> IO GameState
 update gs@(GameState { pacMan = (PacMan { pacManLocation = l }) 
                      , board  = b
                      }) = 
-                     do return $ pacManWakkaWakka $ gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
+                     do return $ pacManWakkaWakka $ moveAllGhosts gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
 --                     do return $ pacManWakkaWakka $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
 
 interact :: Location -> GameState -> GameState

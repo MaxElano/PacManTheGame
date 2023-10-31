@@ -125,7 +125,14 @@ instance Eq Orientation where
     Types.Right == Types.Right = True
     Types.Down  == Types.Down  = True
     Types.Left  == Types.Left  = True
-
+    _           == _           = False
+    
+    (/=) :: Orientation -> Orientation -> Bool
+    Types.Up    /= Types.Up    = False
+    Types.Right /= Types.Right = False
+    Types.Down  /= Types.Down  = False
+    Types.Left  /= Types.Left  = False
+    _           /= _           = True
 type NewOrientation = Orientation
 
 --------------------------PacMan--------------------------
