@@ -77,6 +77,8 @@ handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = gs
     , board = changeFieldType b f Empty 
     }
 
+handleField f@(MkField _ _) gs = gs
+
 -- Changes the gamestate depending on whether or not pac-man is in the same field as a ghost, 
 -- if they are, the game to the start position and pac-man loses a life
 enemyCollision :: GameState -> PacManLocation -> GameState

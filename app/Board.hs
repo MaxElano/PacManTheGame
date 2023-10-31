@@ -45,13 +45,13 @@ wallCheck (MkField _ Wall) = True
 wallCheck (MkField _ _)    = False
 
 changeFieldType :: Board -> Field -> FieldType -> Board
-changeFieldType board f newType = map (\row -> fieldReplace row f newType) board
+changeFieldType board f newType = map (fieldReplace f newType) board
 
-fieldReplace :: Row -> Field -> FieldType -> Row
-fieldReplace [] _ _                            = []
-fieldReplace (f:fs) f1@(MkField pos _) newType = if f == f1
-                                                    then MkField pos newType:fs
-                                                    else f:fieldReplace fs f1 newType
+fieldReplace :: Field -> FieldType -> Row -> Row
+fieldReplace _ _ []                            = []
+fieldReplace f1@(MkField pos _) newType (f:fs)
+    | f == f1   = MkField pos newType:fs
+    | otherwise = f:fieldReplace f1 newType fs
 
 findFieldCordAhead :: FieldCord -> Orientation -> Int -> FieldCord
 findFieldCordAhead (x,y) T.Up    i = (x, y + i)
