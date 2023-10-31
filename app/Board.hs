@@ -21,16 +21,17 @@ import Types as T
 import Data.List
 
 locationToField :: Location -> Board -> Maybe Field
-locationToField (Location lcords _) b = let fcords = lCordToFCord lcords 
-                                        in case map (searchRow fcords) b of
-                                            (field:_) -> field
-                                            []        -> Nothing
-
-searchRow :: FieldCord -> Row -> Maybe Field
-searchRow c = find (\(MkField c1 _) -> c1 == c)
+locationToField (Location lcords _) b = let (x,y) = lCordToFCord lcords in checkY x y b
+    where
+        checkY :: Int -> Int -> Board -> Maybe Field
+        checkY x y b | y < length b  = checkX x (b !! y) 
+                     | otherwise     = Nothing
+        checkX :: Int -> Row -> Maybe Field
+        checkX x r | x < length r = Just (r !! x)
+                   | otherwise      = Nothing
 
 lCordToFCord :: LocationCord -> FieldCord
-lCordToFCord (x,y) = (truncate x `div` fieldSize, -truncate y `div` fieldSize)
+lCordToFCord (x,y) = (truncate x `div` fieldSize, truncate y `div` fieldSize)
 
 fieldToLocation :: Field -> Orientation -> Location
 fieldToLocation (MkField fcords _) = Location (fCordToLCord fcords)

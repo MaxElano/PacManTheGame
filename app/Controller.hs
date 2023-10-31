@@ -35,7 +35,8 @@ update :: GameState -> IO GameState
 update gs@(GameState { pacMan = (PacMan { pacManLocation = l }) 
                      , board  = b
                      }) = 
-                     do return $ pacManWakkaWakka $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
+                     do return $ pacManWakkaWakka $ gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
+--                     do return $ pacManWakkaWakka $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
 
 interact :: Location -> GameState -> GameState
 interact l gs@(GameState { board = b}) = let f = locationToField l b
@@ -54,6 +55,7 @@ inputKey (EventKey (Char 'w') _ _ _) gs = changePacManOrientation gs T.Up
 inputKey (EventKey (Char 'a') _ _ _) gs = changePacManOrientation gs T.Left
 inputKey (EventKey (Char 's') _ _ _) gs = changePacManOrientation gs T.Down
 inputKey (EventKey (Char 'd') _ _ _) gs = changePacManOrientation gs T.Right
+inputKey (EventKey (Char 'b') _ _ _) gs = gs { infoToShow = ShowABoard (board gs) }
 inputKey _ gs = gs -- Otherwise keep the same
 
 --Volgorde wordt:

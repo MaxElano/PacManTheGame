@@ -26,6 +26,7 @@ import Types as T
 import Board (fCordToLCord, locationToField)
 import Graphics.Gloss.Data.Picture
 import Graphics.Gloss.Data.Color
+import Data.List (intercalate)
 
 draw :: GameState -> IO Picture
 draw gs = return $ drawPure gs
@@ -39,13 +40,20 @@ drawPure gs = case infoToShow gs of
   ShowPlayState   -> drawPlayState gs
   ShowAPosition l -> let f = locationToField l (board gs)
                      in color white $ translate (-200) 0 (scale 0.2 0.2 (text (show l ++ show f)))
+  ShowABoard    b -> translate (-300) (-300) (scale 0.15 0.15 $ drawHelpBoard b)
+
+drawHelpBoard :: Board -> Picture
+drawHelpBoard b = pictures $ stringsToPicture (map (concatMap show) b) 0
+    where
+        stringsToPicture :: [String] -> Float -> [Picture]
+        stringsToPicture [] _= []
+        stringsToPicture (x:xs) y = translate 0 y (color green (text x)) : stringsToPicture xs (y + 200) 
 
 drawPlayState :: GameState -> Picture
 drawPlayState gs = let (x,y,p) = drawBoard (board gs)
                        (wx, wy) = windowSize
                        sc = min (fromIntegral wx / x) (fromIntegral wy / (y + fromIntegral fieldSize / 2))
                    in scale sc sc $ translate ((-x - fromIntegral fieldSize / 2) / 2) ((-y - fromIntegral fieldSize / 2) / 2) $ pictures [p, drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs)]
-
 
 
 drawBoard :: Board -> (Float, Float, Picture)
@@ -68,9 +76,9 @@ drawPacMan (PacMan { pacManLocation = (Location (x,y) T.Up   )
                 , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate (-90) (color yellow (thickArc ma pa r t))
 drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Right)
                 , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate 0     (color yellow (thickArc ma pa r t))
-drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Down ) 
+drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Down )
                 , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate 90    (color yellow (thickArc ma pa r t))
-drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Left ) 
+drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Left )
                 , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate 180   (color yellow (thickArc ma pa r t))
 
 drawAllGhosts :: GameState -> Picture
