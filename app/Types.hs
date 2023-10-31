@@ -200,10 +200,10 @@ data PacManAnimation = Opening | Closing
 type PacManPictureValues = (Float, Float, Float, Float)
 
 pacManAnimationSpeed :: Float
-pacManAnimationSpeed = 4
+pacManAnimationSpeed = 150
 
 pacManMouthSize :: Float
-pacManMouthSize = 30
+pacManMouthSize = 40
 
 --------------------------Ghost--------------------------
 data Ghost = Ghost 
