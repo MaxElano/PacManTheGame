@@ -21,38 +21,32 @@ import Board
     ( locationToField, 
       wallCheck, 
       changeFieldType )
-import Entity ( moveEntity )
+import Entity ( moveEntity, getCornerBoundaryLocations, boundaryCheck )
 
 -- Changes the orientation of pac-man given by wasd input
 changePacManOrientation :: GameState -> NewOrientation -> GameState
-changePacManOrientation gs@(GameState { pacMan = (PacMan { pacManLocation = (Location cords _) }) }) no = 
-    gs { pacMan = (pacMan gs) { pacManLocation = Location cords no } }
+changePacManOrientation gs@(GameState 
+    { board  = b
+    , pacMan = (PacMan 
+        { pacManLocation = l@(Location cords o)
+        , pacManSize = s 
+        }) 
+    }) no 
+        | isWall    = gs 
+        | otherwise = gs { pacMan = (pacMan gs) { pacManLocation = Location cords no } }
+    where isWall = boundaryCheck b cords no s
 
 -- Moves pac-man when given the gamestate, also checks for walls
 movePacMan :: GameState -> PacManLocation
 movePacMan gs@(GameState { elapsedTime = t
                          , board       = b
                          , pacMan      = p@(PacMan
-                            { pacManLocation = l
-                            , pacManSpeed    = s
+                            { pacManLocation = l@(Location cords o)
+                            , pacManSpeed    = speed
+                            , pacManSize     = size
                             })
-                         }) = let isWall = boundaryCheck b p 
-                              in if isWall then l else moveEntity l s t
-
--- Checks if the edge of pacman is in a wall or not in the new location
-boundaryCheck :: Board -> PacMan -> IsWall
-boundaryCheck b p@(PacMan 
-    { pacManLocation = (Location cords o)
-    , pacManSize     = size
-    }) = let nf = locationToField (Location (getBoundaryLocation cords o size) Up) b
-         in  maybe False wallCheck nf
-
--- Gives the coordinates of the edge of pacman in the new location
-getBoundaryLocation :: LocationCord -> Orientation -> Size -> LocationCord
-getBoundaryLocation (x,y) T.Up    size = (x, y + fromIntegral (size `div` 2))
-getBoundaryLocation (x,y) T.Right size = (x    + fromIntegral (size `div` 2), y)
-getBoundaryLocation (x,y) T.Down  size = (x, y - fromIntegral (size `div` 2))
-getBoundaryLocation (x,y) T.Left  size = (x    - fromIntegral (size `div` 2), y)
+                         }) = let isWall = boundaryCheck b cords o size
+                              in if isWall then l else moveEntity l speed t
 
 -- Reacts accordingly to the important field types pac-man could be on
 handleField :: Field -> GameState -> GameState
