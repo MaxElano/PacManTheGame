@@ -13,7 +13,7 @@ import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )
 import System.Random ()
 import LevelLoader ()
-import PacMan ( movePacManOrientation )
+import PacMan ( movePacManOrientation, pacManWakkaWakka )
 import Entity (moveEntity)
 
 -- -- | Handle one iteration of the game
@@ -30,7 +30,7 @@ step secs gs = do update gs { totalTime   = totalTime gs + secs
                             }
       
 update :: GameState -> IO GameState
-update gs = do return gs { pacMan = updatePacMan gs }
+update gs = do return $ pacManWakkaWakka gs { pacMan = updatePacMan gs }
 
 updatePacMan :: GameState -> PacMan
 updatePacMan gs@(GameState { elapsedTime = t

@@ -1,5 +1,3 @@
-{-# language CPP #-}
-
 module LevelLoader where
 
 import Prelude

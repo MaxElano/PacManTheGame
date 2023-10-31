@@ -189,7 +189,6 @@ data PacMan = PacMan
     , lives               :: Lives
     , pacManSpeed         :: Speed
     , pacManSize          :: Size
-    , pacManPicture       :: Picture
     , pacManPictureValues :: PacManPictureValues
     , pacManAnimation     :: PacManAnimation
     }
@@ -201,7 +200,7 @@ data PacManAnimation = Opening | Closing
 type PacManPictureValues = (Float, Float, Float, Float)
 
 pacManAnimationSpeed :: Float
-pacManAnimationSpeed = 0.5
+pacManAnimationSpeed = 4
 
 pacManMouthSize :: Float
 pacManMouthSize = 30
