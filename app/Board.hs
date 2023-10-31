@@ -30,7 +30,7 @@ searchRow :: FieldCord -> Row -> Maybe Field
 searchRow c = find (\(MkField c1 _) -> c1 == c)
 
 lCordToFCord :: LocationCord -> FieldCord
-lCordToFCord (x,y) = (truncate x `div` fieldSize, -truncate y `div` fieldSize)
+lCordToFCord (x,y) = (truncate x `div` fieldSize, truncate y `div` fieldSize)
 
 fieldToLocation :: Field -> Orientation -> Location
 fieldToLocation (MkField fcords _) = Location (fCordToLCord fcords)

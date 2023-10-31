@@ -10,6 +10,7 @@ import Graphics.Gloss.Data.Picture
 
 data InfoToShow = ShowNothing
                 | ShowANumber Float
+                | ShowAnIntTuple (Int,Int)
                 | ShowAChar   Char
                 | ShowABoard  Board
                 | ShowAPosition Location

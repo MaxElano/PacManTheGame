@@ -5,9 +5,9 @@ module Controller where
 import Types as T
     ( initialState,
       GameState(..),
-      InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber, ShowAPosition),
+      InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber, ShowAPosition, ShowAnIntTuple),
       Orientation(Right, Up, Left, Down),
-      PacMan (..), Location, Field )
+      PacMan (..), Location (Location), Field )
 import Graphics.Gloss ()
 import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )
@@ -15,7 +15,7 @@ import System.Random (RandomGen (genShortByteString))
 import LevelLoader ()
 import PacMan ( changePacManOrientation, movePacMan, pacManWakkaWakka, handleField )
 import Entity (moveEntity)
-import Board (locationToField)
+import Board (locationToField, lCordToFCord)
 
 -- -- | Handle one iteration of the game
 -- step :: Float -> GameState -> IO GameState
@@ -49,6 +49,7 @@ input e gs = return (inputKey e gs)
  
 inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = l }) }) = gs { infoToShow = ShowAPosition l }
+inputKey (EventKey (Char 'v') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = (Location cords _) }) }) = gs { infoToShow = ShowAnIntTuple (lCordToFCord cords) }
 inputKey (EventKey (Char 'p') _ _ _) gs = gs { infoToShow = ShowPlayState }
 inputKey (EventKey (Char 'w') _ _ _) gs = changePacManOrientation gs T.Up
 inputKey (EventKey (Char 'a') _ _ _) gs = changePacManOrientation gs T.Left
