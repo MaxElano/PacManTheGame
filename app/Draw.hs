@@ -22,7 +22,7 @@ import Types as T
       Field(MkField),
       FieldType(..),
       GameState(..),
-      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState, ShowAPosition), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize, Orientation (..) )
+      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState, ShowAPosition, ShowAnIntTuple), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize, Orientation (..) )
 import Board (fCordToLCord, locationToField)
 import Graphics.Gloss.Data.Picture
 import Graphics.Gloss.Data.Color
