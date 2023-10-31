@@ -4,11 +4,10 @@ module Controller where
 
 import Types as T
     ( initialState,
-      nO_SECS_BETWEEN_CYCLES,
-      GameState(infoToShow, elapsedTime),
-      InfoToShow(ShowABoard, ShowAChar, ShowPlayState),
+      GameState(infoToShow, elapsedTime, pacMan, totalTime),
+      InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber),
       Orientation(Right, Up, Left, Down),
-      emptyBoard )
+      emptyBoard, PacMan (pacManSize) )
 import Graphics.Gloss ()
 import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )
@@ -25,21 +24,19 @@ import PacMan ( movePacManOrientation )
 -- --      return $ gs 
 
 step :: Float -> GameState -> IO GameState
-step secs gs
-  | elapsedTime gs + secs > nO_SECS_BETWEEN_CYCLES
-  = -- We show a new random number
-    do return initialState
-  | otherwise
-  = -- Just update the elapsed time
-    return $ gs { elapsedTime = elapsedTime gs + secs }
+step secs gs = do return gs { totalTime   = totalTime gs + secs
+                            , elapsedTime = secs
+                            }
       
+update :: GameState -> IO GameState
+update gs = do return gs
 
 -- Handle user input
 input :: Event -> GameState -> IO GameState
 input e gs = return (inputKey e gs)
  
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (Char 'c') _ _ _) gs = gs { infoToShow = ShowAChar 'c' }
+inputKey (EventKey (Char 'c') _ _ _) gs = gs { infoToShow = ShowANumber (elapsedTime gs) }
 inputKey (EventKey (Char 'p') _ _ _) gs = gs { infoToShow = ShowPlayState }
 inputKey (EventKey (Char 'w') _ _ _) gs = movePacManOrientation gs T.Up
 inputKey (EventKey (Char 'a') _ _ _) gs = movePacManOrientation gs T.Left
@@ -54,9 +51,6 @@ inputKey _ gs = gs -- Otherwise keep the same
 --4. Update Score
 --5. Find Ghost Target Fields
 --6. Move Ghosts
-
-
-
 
 -- step :: Float -> GameState -> IO GameState
 -- step secs gs

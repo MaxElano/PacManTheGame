@@ -36,9 +36,9 @@ movePacMan :: Board -> PacMan -> NewOrientation  -> ElapsedTime -> Location
 movePacMan b p@(PacMan 
     {pacManLocation  = l@(Location cords _)
     , pacManSpeed    = s
-    }) no t = let nl    = moveEntity (Location cords no) s t
+    }) no t = let nl    = moveEntity l s t
                   check = boundaryCheck b p no
-                  in (if check then l else nl)
+                  in (if check then nl else nl)
 
 -- Checks if the edge of pacman is in a wall or not in the new location
 boundaryCheck :: Board -> PacMan -> NewOrientation -> IsWall

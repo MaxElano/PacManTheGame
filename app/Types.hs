@@ -7,25 +7,23 @@ import System.Random (StdGen, mkStdGen)
 import Graphics.Gloss.Data.Color
 
 data InfoToShow = ShowNothing
-                | ShowANumber Int
+                | ShowANumber Float
                 | ShowAChar   Char
                 | ShowABoard  Board
                 | ShowPlayState
-
-nO_SECS_BETWEEN_CYCLES :: ElapsedTime
-nO_SECS_BETWEEN_CYCLES = 0
 
 initialState :: GameState
 initialState = GameState 
                ShowPlayState
                emptyBoard 
                (Score 0) 
-               (PacMan (Location (180,180) Up) (Location (50,50) Up) (Lives 3) 10 8)
+               (PacMan (Location (180,180) Up) (Location (50,50) Up) (Lives 3) 1000 8)
                (Ghost (Location (164,164) Types.Down) (Location (12,12) Types.Down) (0,0) 2 (0,0) False Red 6 red red)
                (Ghost (Location (172,172) Types.Right) (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink 6 rose rose)
                (Ghost (Location (204,204) Types.Left) (Location (28,28) Types.Left) (0,0) 2 (0,0) False Cyan 6 cyan cyan)
                (Ghost (Location (212,212) Types.Up) (Location (36,36) Types.Up) (0,0) 2 (0,0) False Orange 6 orange orange)
                Chase
+               0
                0
                (mkStdGen 42)
 
@@ -101,6 +99,7 @@ data GameState = GameState
     , ghostOrange :: Ghost
     , ghostMode   :: GhostMode
     , elapsedTime :: ElapsedTime
+    , totalTime   :: TotalTime
     , generator   :: StdGen
     }
 
@@ -108,9 +107,10 @@ newtype Score = Score Natural
 instance Show Score where
     show :: Score -> String
     show (Score x) = show x
-data GhostMode = Chase | Scatter | Frightened
-type ElapsedTime = Float
 
+data GhostMode   = Chase | Scatter | Frightened
+type ElapsedTime = Float
+type TotalTime   = Float
 --------------------------Board--------------------------
 type Board = [Row]
 type Row   = [Field]
