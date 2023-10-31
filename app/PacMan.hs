@@ -49,9 +49,9 @@ boundaryCheck b p@(PacMan
 
 -- Gives the coordinates of the edge of pacman in the new location
 getBoundaryLocation :: LocationCord -> Orientation -> Size -> LocationCord
-getBoundaryLocation (x,y) T.Up    size = (x, y - fromIntegral (size `div` 2))
+getBoundaryLocation (x,y) T.Up    size = (x, y + fromIntegral (size `div` 2))
 getBoundaryLocation (x,y) T.Right size = (x    + fromIntegral (size `div` 2), y)
-getBoundaryLocation (x,y) T.Down  size = (x, y + fromIntegral (size `div` 2))
+getBoundaryLocation (x,y) T.Down  size = (x, y - fromIntegral (size `div` 2))
 getBoundaryLocation (x,y) T.Left  size = (x    - fromIntegral (size `div` 2), y)
 
 -- Reacts accordingly to the important field types pac-man could be on
