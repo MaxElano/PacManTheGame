@@ -23,29 +23,29 @@ import Board
       changeFieldType )
 import Entity ( moveEntity )
 
--- Feeds the orientation given by wasd to the movePacMan function respectively
-movePacManOrientation :: GameState -> NewOrientation -> GameState
-movePacManOrientation gs@(GameState 
-    { board       = b
-    , pacMan      = p
-    }) no = gs { pacMan = (pacMan gs) { pacManLocation = movePacMan b p no } }
+-- Changes the orientation of pac-man given by wasd input
+changePacManOrientation :: GameState -> NewOrientation -> GameState
+changePacManOrientation gs@(GameState { pacMan = (PacMan { pacManLocation = (Location cords _) }) }) no = 
+    gs { pacMan = (pacMan gs) { pacManLocation = Location cords no } }
 
--- Moves pacman into a desired orientation, also checks for walls
-movePacMan :: Board -> PacMan -> NewOrientation -> Location
-movePacMan b p@(PacMan 
-    {pacManLocation  = l@(Location cords _)
-    , pacManSpeed    = s
-    }) no = let nl    = Location cords no
-                check = boundaryCheck b p no
-                in (if check then l else nl)
+-- Moves pac-man when given the gamestate, also checks for walls
+movePacMan :: GameState -> PacManLocation
+movePacMan gs@(GameState { elapsedTime = t
+                         , board       = b
+                         , pacMan      = p@(PacMan
+                            { pacManLocation = l
+                            , pacManSpeed    = s
+                            })
+                         }) = let isWall = boundaryCheck b p 
+                              in if isWall then l else moveEntity l s t
 
 -- Checks if the edge of pacman is in a wall or not in the new location
-boundaryCheck :: Board -> PacMan -> NewOrientation -> IsWall
+boundaryCheck :: Board -> PacMan -> IsWall
 boundaryCheck b p@(PacMan 
-    { pacManLocation = (Location cords _)
+    { pacManLocation = (Location cords o)
     , pacManSize     = size
-    }) no = let nf = locationToField (Location (getBoundaryLocation cords no size) Up) b
-            in  maybe False wallCheck nf
+    }) = let nf = locationToField (Location (getBoundaryLocation cords o size) Up) b
+         in  maybe False wallCheck nf
 
 -- Gives the coordinates of the edge of pacman in the new location
 getBoundaryLocation :: LocationCord -> Orientation -> Size -> LocationCord

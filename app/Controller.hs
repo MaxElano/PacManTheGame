@@ -13,7 +13,7 @@ import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )
 import System.Random ()
 import LevelLoader ()
-import PacMan ( movePacManOrientation, pacManWakkaWakka )
+import PacMan ( changePacManOrientation, movePacMan, pacManWakkaWakka )
 import Entity (moveEntity)
 
 -- -- | Handle one iteration of the game
@@ -30,15 +30,7 @@ step secs gs = do update gs { totalTime   = totalTime gs + secs
                             }
       
 update :: GameState -> IO GameState
-update gs = do return $ pacManWakkaWakka gs { pacMan = updatePacMan gs }
-
-updatePacMan :: GameState -> PacMan
-updatePacMan gs@(GameState { elapsedTime = t
-                           , pacMan      = p@(PacMan
-                            { pacManLocation = l
-                            , pacManSpeed    = s
-                            })
-                           }) = p{ pacManLocation = moveEntity l s t }
+update gs = do return $ pacManWakkaWakka gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
 
 -- Handle user input
 input :: Event -> GameState -> IO GameState
@@ -47,10 +39,10 @@ input e gs = return (inputKey e gs)
 inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gs = gs { infoToShow = ShowANumber (elapsedTime gs) }
 inputKey (EventKey (Char 'p') _ _ _) gs = gs { infoToShow = ShowPlayState }
-inputKey (EventKey (Char 'w') _ _ _) gs = movePacManOrientation gs T.Up
-inputKey (EventKey (Char 'a') _ _ _) gs = movePacManOrientation gs T.Left
-inputKey (EventKey (Char 's') _ _ _) gs = movePacManOrientation gs T.Down
-inputKey (EventKey (Char 'd') _ _ _) gs = movePacManOrientation gs T.Right
+inputKey (EventKey (Char 'w') _ _ _) gs = changePacManOrientation gs T.Up
+inputKey (EventKey (Char 'a') _ _ _) gs = changePacManOrientation gs T.Left
+inputKey (EventKey (Char 's') _ _ _) gs = changePacManOrientation gs T.Down
+inputKey (EventKey (Char 'd') _ _ _) gs = changePacManOrientation gs T.Right
 inputKey _ gs = gs -- Otherwise keep the same
 
 --Volgorde wordt:
