@@ -13,7 +13,7 @@ import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )
 import System.Random ()
 import LevelLoader ()
-import PacMan ( movePacManOrientation )
+import PacMan ( movePacManOrientation, pacManWakkaWakka )
 
 -- -- | Handle one iteration of the game
 -- step :: Float -> GameState -> IO GameState
@@ -24,12 +24,12 @@ import PacMan ( movePacManOrientation )
 -- --      return $ gs 
 
 step :: Float -> GameState -> IO GameState
-step secs gs = do return gs { totalTime   = totalTime gs + secs
+step secs gs = do update gs { totalTime   = totalTime gs + secs
                             , elapsedTime = secs
                             }
       
 update :: GameState -> IO GameState
-update gs = do return gs
+update gs = do return $ pacManWakkaWakka gs
 
 -- Handle user input
 input :: Event -> GameState -> IO GameState

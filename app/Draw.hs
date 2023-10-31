@@ -62,10 +62,14 @@ drawBoard b = let ls = helpDrawBoard
 -- drawPacMan p@(PacMan {pacManLocation = (Location (x,y) _)}) = translate x y (color yellow (pacManPicture p))
 
 drawPacMan :: PacMan -> Picture
-drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Up   )}) = translate x y $ rotate (-90) (color yellow (pacManPicture p))
-drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Right)}) = translate x y $ rotate 0     (color yellow (pacManPicture p))
-drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Down )}) = translate x y $ rotate 90    (color yellow (pacManPicture p))
-drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Left )}) = translate x y $ rotate 180   (color yellow (pacManPicture p))
+drawPacMan (PacMan { pacManLocation = (Location (x,y) T.Up   )
+                , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate (-90) (color yellow (thickArc ma pa r t))
+drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Right)
+                , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate 0     (color yellow (thickArc ma pa r t))
+drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Down ) 
+                , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate 90    (color yellow (thickArc ma pa r t))
+drawPacMan (PacMan {pacManLocation = (Location (x,y) T.Left ) 
+                , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate 180   (color yellow (thickArc ma pa r t))
 
 drawAllGhosts :: GameState -> Picture
 drawAllGhosts gs = pictures [drawGhost (ghostRed gs), drawGhost (ghostPink gs), drawGhost (ghostCyan gs), drawGhost (ghostOrange gs)]
