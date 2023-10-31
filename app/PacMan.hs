@@ -16,7 +16,7 @@ import Types as T
       Score(Score),
       ElapsedTime,
       NewOrientation,
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation), GhostLocation, Lives (Lives) )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize )
 import Board 
     ( locationToField, 
       wallCheck, 
@@ -122,3 +122,22 @@ ghostInSameField pacf ghostl b = let ghostf = locationToField ghostl b
                                  in case ghostf of
                                     Just ghostf -> pacf == ghostf
                                     Nothing     -> False
+
+pacManWakkaWakka :: GameState -> GameState
+pacManWakkaWakka gs@(GameState { pacMan = 
+                 p@(PacMan { pacManAnimation = Opening
+                           , pacManPictureValues = (ma, pa, r, t) } ) }) 
+                 = let (nma, npa, nr, nt) = (ma - pacManAnimationSpeed * elapsedTime gs, pa + pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)
+                       na | npa >= pacManMouthSize = Closing
+                          | otherwise              = Opening
+                   in gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)
+                                     , pacManAnimation = na}}
+pacManWakkaWakka gs@(GameState { pacMan = 
+                 p@(PacMan { pacManAnimation = Closing
+                           , pacManPictureValues = (ma, pa, r, t) } ) }) 
+                 = let (nma, npa, nr, nt) = (ma - pacManAnimationSpeed * elapsedTime gs, pa + pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)
+                       na | npa <= 0               = Opening
+                          | otherwise              = Closing
+                   in gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)
+                                     , pacManAnimation = na}}
+

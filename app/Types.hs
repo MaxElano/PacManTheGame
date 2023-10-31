@@ -5,6 +5,8 @@ import Prelude
 import GHC.Natural (Natural)
 import System.Random (StdGen, mkStdGen)
 import Graphics.Gloss.Data.Color
+import Graphics.Gloss (Picture(Pictures))
+import Graphics.Gloss.Data.Picture
 
 data InfoToShow = ShowNothing
                 | ShowANumber Float
@@ -17,11 +19,11 @@ initialState = GameState
                ShowPlayState
                emptyBoard 
                (Score 0) 
-               (PacMan (Location (180,180) Up) (Location (50,50) Up) (Lives 3) 1000 8)
-               (Ghost (Location (164,164) Types.Down) (Location (12,12) Types.Down) (0,0) 2 (0,0) False Red 6 red red)
-               (Ghost (Location (172,172) Types.Right) (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink 6 rose rose)
-               (Ghost (Location (204,204) Types.Left) (Location (28,28) Types.Left) (0,0) 2 (0,0) False Cyan 6 cyan cyan)
-               (Ghost (Location (212,212) Types.Up) (Location (36,36) Types.Up) (0,0) 2 (0,0) False Orange 6 orange orange)
+               (PacMan (Location (180,180) Types.Right) (Location (180,180) Types.Right) (Lives 3) 10 8 (thickArc (-30) 30 2 4) (-30, 30, 2, 4) Closing)
+               (Ghost (Location (164,164) Types.Down) (Location (164,164) Types.Down) (0,0) 2 (0,0) False Red 6 red red)
+               (Ghost (Location (172,172) Types.Right) (Location (172,172) Types.Right) (0,0) 2 (0,0) False Pink 6 rose rose)
+               (Ghost (Location (204,204) Types.Left) (Location (204,204) Types.Left) (0,0) 2 (0,0) False Cyan 6 cyan cyan)
+               (Ghost (Location (212,212) Types.Up) (Location (212,212) Types.Up) (0,0) 2 (0,0) False Orange 6 orange orange)
                Chase
                0
                0
@@ -187,10 +189,22 @@ data PacMan = PacMan
     , lives               :: Lives
     , pacManSpeed         :: Speed
     , pacManSize          :: Size
+    , pacManPicture       :: Picture
+    , pacManPictureValues :: PacManPictureValues
+    , pacManAnimation     :: PacManAnimation
     }
 
 type PacManLocation = Location
 newtype Lives       = Lives Natural
+
+data PacManAnimation = Opening | Closing
+type PacManPictureValues = (Float, Float, Float, Float)
+
+pacManAnimationSpeed :: Float
+pacManAnimationSpeed = 0.5
+
+pacManMouthSize :: Float
+pacManMouthSize = 30
 
 --------------------------Ghost--------------------------
 data Ghost = Ghost 
@@ -213,6 +227,8 @@ type MustReverse     = Bool
 type BaseField       = TargetFieldCord
 type TargetFieldCord = FieldCord
 type CurrentField    = FieldCord
+
+data GhostColorTo = Normal | Dark
 
 ghostDarkColor :: Color
 ghostDarkColor = azure
