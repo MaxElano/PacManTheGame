@@ -16,14 +16,15 @@ import Graphics.Gloss
       scale,
       text,
       translate )
-import Types
+import Types as T
     ( fieldSize,
       Board,
       Field(MkField),
       FieldType(Wall),
       GameState(..),
-      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize )
+      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize, Orientation (..) )
 import Board (fCordToLCord)
+import Graphics.Gloss.Data.Picture
 
 draw :: GameState -> IO Picture
 draw gs = return $ drawPure gs
@@ -57,8 +58,14 @@ drawBoard b = let ls = helpDrawBoard
                                                     _    -> ((lx, ly), blank)
                              ) (concat b)
 
+-- drawPacMan :: PacMan -> Picture
+-- drawPacMan p@(PacMan {pacManLocation = (Location (x,y) _)}) = translate x y (color yellow (pacManPicture p))
+
 drawPacMan :: PacMan -> Picture
-drawPacMan p@(PacMan {pacManLocation = (Location (x,y) _)}) = translate x y (color yellow (pacManPicture p))
+drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Up   )}) = translate x y $ rotate 0   (color yellow (pacManPicture p))
+drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Right)}) = translate x y $ rotate 90  (color yellow (pacManPicture p))
+drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Down )}) = translate x y $ rotate 180 (color yellow (pacManPicture p))
+drawPacMan p@(PacMan {pacManLocation = (Location (x,y) T.Left )}) = translate x y $ rotate 270 (color yellow (pacManPicture p))
 
 drawAllGhosts :: GameState -> Picture
 drawAllGhosts gs = pictures [drawGhost (ghostRed gs), drawGhost (ghostPink gs), drawGhost (ghostCyan gs), drawGhost (ghostOrange gs)]
