@@ -134,7 +134,7 @@ pacManWakkaWakka gs@(GameState { pacMan =
 pacManWakkaWakka gs@(GameState { pacMan = 
                  p@(PacMan { pacManAnimation = Closing
                            , pacManPictureValues = (ma, pa, r, t) } ) }) 
-                 = let (nma, npa, nr, nt) = (ma - pacManAnimationSpeed * elapsedTime gs, pa + pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)
+                 = let (nma, npa, nr, nt) = (ma + pacManAnimationSpeed * elapsedTime gs, pa - pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)
                        na | npa <= 0               = Opening
                           | otherwise              = Closing
                    in gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)
