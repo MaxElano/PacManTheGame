@@ -22,7 +22,7 @@ initialState = GameState
                ShowPlayState
                emptyBoard 
                (Score 0) 
-               (PacMan (Location (180,180) Up) (Location (50,50) Types.Right) (Lives 3) 10 8 (thickArc (-30) 30 2 4) (-30, 30, 2, 4) Closing)
+               (PacMan (Location (180,180) Types.Right) (Location (50,50) Types.Right) (Lives 3) 10 8 (thickArc (-30) 30 2 4) (-30, 30, 2, 4) Closing)
                (Ghost (Location (164,164) Types.Down) (Location (12,12) Types.Down) (0,0) 2 (0,0) False Red 6 red red)
                (Ghost (Location (172,172) Types.Right) (Location (20,20) Types.Right) (0,0) 2 (0,0) False Pink 6 rose rose)
                (Ghost (Location (204,204) Types.Left) (Location (28,28) Types.Left) (0,0) 2 (0,0) False Cyan 6 cyan cyan)
