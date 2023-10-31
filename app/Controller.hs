@@ -4,16 +4,17 @@ module Controller where
 
 import Types as T
     ( initialState,
-      GameState(infoToShow, elapsedTime, pacMan, totalTime),
+      GameState(..),
       InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber),
       Orientation(Right, Up, Left, Down),
-      emptyBoard, PacMan (pacManSize) )
+      emptyBoard, PacMan (..) )
 import Graphics.Gloss ()
 import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )
 import System.Random ()
 import LevelLoader ()
 import PacMan ( movePacManOrientation )
+import Entity (moveEntity)
 
 -- -- | Handle one iteration of the game
 -- step :: Float -> GameState -> IO GameState
@@ -24,12 +25,20 @@ import PacMan ( movePacManOrientation )
 -- --      return $ gs 
 
 step :: Float -> GameState -> IO GameState
-step secs gs = do return gs { totalTime   = totalTime gs + secs
+step secs gs = do update gs { totalTime   = totalTime gs + secs
                             , elapsedTime = secs
                             }
       
 update :: GameState -> IO GameState
-update gs = do return gs
+update gs = do return gs { pacMan = updatePacMan gs }
+
+updatePacMan :: GameState -> PacMan
+updatePacMan gs@(GameState { elapsedTime = t
+                           , pacMan      = p@(PacMan
+                            { pacManLocation = l
+                            , pacManSpeed    = s
+                            })
+                           }) = p{ pacManLocation = moveEntity l s t }
 
 -- Handle user input
 input :: Event -> GameState -> IO GameState

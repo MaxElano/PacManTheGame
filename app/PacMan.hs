@@ -28,17 +28,16 @@ movePacManOrientation :: GameState -> NewOrientation -> GameState
 movePacManOrientation gs@(GameState 
     { board       = b
     , pacMan      = p
-    , elapsedTime = t
-    }) no = gs { pacMan = (pacMan gs) { pacManLocation = movePacMan b p no t } }
+    }) no = gs { pacMan = (pacMan gs) { pacManLocation = movePacMan b p no } }
 
 -- Moves pacman into a desired orientation, also checks for walls
-movePacMan :: Board -> PacMan -> NewOrientation  -> ElapsedTime -> Location
+movePacMan :: Board -> PacMan -> NewOrientation -> Location
 movePacMan b p@(PacMan 
     {pacManLocation  = l@(Location cords _)
     , pacManSpeed    = s
-    }) no t = let nl    = moveEntity l s t
-                  check = boundaryCheck b p no
-                  in (if check then nl else nl)
+    }) no = let nl    = Location cords no
+                check = boundaryCheck b p no
+                in (if check then l else nl)
 
 -- Checks if the edge of pacman is in a wall or not in the new location
 boundaryCheck :: Board -> PacMan -> NewOrientation -> IsWall
@@ -46,7 +45,7 @@ boundaryCheck b p@(PacMan
     { pacManLocation = (Location cords _)
     , pacManSize     = size
     }) no = let nf = locationToField (Location (getBoundaryLocation cords no size) Up) b
-            in  maybe True wallCheck nf
+            in  maybe False wallCheck nf
 
 -- Gives the coordinates of the edge of pacman in the new location
 getBoundaryLocation :: LocationCord -> Orientation -> Size -> LocationCord
