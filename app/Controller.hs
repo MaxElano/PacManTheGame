@@ -5,7 +5,7 @@ module Controller where
 import Types as T
     ( initialState,
       GameState(..),
-      InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber, ShowAField, ShowALocation),
+      InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber, ShowAPosition),
       Orientation(Right, Up, Left, Down),
       PacMan (..), Location, Field )
 import Graphics.Gloss ()
@@ -48,7 +48,7 @@ input :: Event -> GameState -> IO GameState
 input e gs = return (inputKey e gs)
  
 inputKey :: Event -> GameState -> GameState
-inputKey (EventKey (Char 'c') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = l }) }) = gs { infoToShow = ShowALocation l }
+inputKey (EventKey (Char 'c') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = l }) }) = gs { infoToShow = ShowAPosition l }
 inputKey (EventKey (Char 'p') _ _ _) gs = gs { infoToShow = ShowPlayState }
 inputKey (EventKey (Char 'w') _ _ _) gs = changePacManOrientation gs T.Up
 inputKey (EventKey (Char 'a') _ _ _) gs = changePacManOrientation gs T.Left

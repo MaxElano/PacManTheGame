@@ -22,7 +22,7 @@ import Types as T
       Field(MkField),
       FieldType(..),
       GameState(..),
-      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState, ShowAField, ShowALocation), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize, Orientation (..) )
+      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState, ShowAPosition), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize, Orientation (..) )
 import Board (fCordToLCord, locationToField)
 import Graphics.Gloss.Data.Picture
 import Graphics.Gloss.Data.Color
@@ -37,8 +37,7 @@ drawPure gs = case infoToShow gs of
   ShowANumber n   -> color green (text (show n))
   ShowAChar   c   -> color green (text [c])
   ShowPlayState   -> drawPlayState gs
-  ShowAField f    -> color white (scale 0.5 0.5 (text (show f)))
-  ShowALocation l -> let f = locationToField l (board gs)
+  ShowAPosition l -> let f = locationToField l (board gs)
                      in color white $ translate (-200) 0 (scale 0.2 0.2 (text (show l ++ show f)))
 
 drawPlayState :: GameState -> Picture
