@@ -16,7 +16,7 @@ createStringList fp = readFile fp >>= \string ->
                         return (lines string)
 
 makeBoard :: IO [String] -> IO Board
-makeBoard = fmap (convertLine 0)  
+makeBoard = fmap (convertLine 0 . reverse)
     where 
         convertLine :: Int -> [String] -> [Row]
         convertLine _ [] = []

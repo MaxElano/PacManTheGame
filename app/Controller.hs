@@ -7,7 +7,7 @@ import Types as T
       GameState(..),
       InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber),
       Orientation(Right, Up, Left, Down),
-      emptyBoard, PacMan (..) )
+      PacMan (..) )
 import Graphics.Gloss ()
 import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )

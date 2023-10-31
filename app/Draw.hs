@@ -61,9 +61,6 @@ drawBoard b = let ls = helpDrawBoard
                                                     _    -> ((lx, ly), blank)
                              ) (concat b)
 
--- drawPacMan :: PacMan -> Picture
--- drawPacMan p@(PacMan {pacManLocation = (Location (x,y) _)}) = translate x y (color yellow (pacManPicture p))
-
 drawPacMan :: PacMan -> Picture
 drawPacMan (PacMan { pacManLocation = (Location (x,y) T.Up   )
                 , pacManPictureValues = (ma,pa,r,t)})       = translate x y $ rotate (-90) (color yellow (thickArc ma pa r t))
@@ -89,4 +86,3 @@ drawGhost g@(Ghost {ghostType = Orange
 
 drawScore :: Score -> Picture   --Still needs to be translated
 drawScore s = color white (text (show s))
-
