@@ -13,7 +13,7 @@ import Graphics.Gloss.Interface.IO.Game
     ( Key(Char), Event(EventKey) )
 import System.Random (RandomGen (genShortByteString))
 import LevelLoader ()
-import PacMan ( changePacManOrientation, movePacMan, pacManWakkaWakka, handleField )
+import PacMan ( movePacMan, pacManWakkaWakka, handleField, enemyCollision, interact, deathCheck )
 import Entity (moveEntity)
 import Board (locationToField, lCordToFCord)
 import Ghost (moveAllGhosts, findAllTargetFields)
@@ -36,15 +36,13 @@ update :: GameState -> IO GameState
 update gs@(GameState { pacMan = (PacMan { pacManLocation = l }) 
                      , board  = b
                      }) = 
-                     do return $ pacManWakkaWakka $ moveAllGhosts $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
---                     do return $ pacManWakkaWakka $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
-
-interact :: Location -> GameState -> GameState
-interact l gs@(GameState { board = b}) = let f = locationToField l b
-                                         in case f of
-                                            Just f -> handleField f gs
-                                            Nothing -> gs
-
+                     do return 
+                     . deathCheck 
+                     . enemyCollision 
+                     . pacManWakkaWakka 
+                     . moveAllGhosts 
+                     . (PacMan.interact l) $ gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
+                     
 -- Handle user input
 input :: Event -> GameState -> IO GameState
 input e gs = return (inputKey e gs)
@@ -53,10 +51,10 @@ inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = l }) }) = gs { infoToShow = ShowAPosition l }
 inputKey (EventKey (Char 'v') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = (Location cords _) }) }) = gs { infoToShow = ShowAnIntTuple (lCordToFCord cords) }
 inputKey (EventKey (Char 'p') _ _ _) gs = gs { infoToShow = ShowPlayState }
-inputKey (EventKey (Char 'w') _ _ _) gs = changePacManOrientation gs T.Up
-inputKey (EventKey (Char 'a') _ _ _) gs = changePacManOrientation gs T.Left
-inputKey (EventKey (Char 's') _ _ _) gs = changePacManOrientation gs T.Down
-inputKey (EventKey (Char 'd') _ _ _) gs = changePacManOrientation gs T.Right
+inputKey (EventKey (Char 'w') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Up } }
+inputKey (EventKey (Char 'a') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Left } }
+inputKey (EventKey (Char 's') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Down } }
+inputKey (EventKey (Char 'd') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Right } }
 inputKey (EventKey (Char 'b') _ _ _) gs = gs { infoToShow = ShowABoard (board gs) }
 inputKey _ gs = gs -- Otherwise keep the same
 

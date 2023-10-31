@@ -5,7 +5,7 @@ import Types as T
     ( Board,
       Field(..),
       FieldType(Empty, Pellet, Cherry, PowerUp),
-      GameState(GameState, board, elapsedTime, pacMan, score, ghostMode, ghostRed, ghostPink, ghostCyan, ghostOrange),
+      GameState(GameState, board, elapsedTime, pacMan, score, ghostMode, ghostRed, ghostPink, ghostCyan, ghostOrange, infoToShow),
       GhostMode(Frightened),
       IsWall,
       Location(..),
@@ -16,25 +16,12 @@ import Types as T
       Score(Score),
       ElapsedTime,
       NewOrientation,
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar) )
 import Board 
     ( locationToField, 
       wallCheck, 
       changeFieldType )
-import Entity ( moveEntity, getCornerBoundaryLocations, boundaryCheck )
-
--- Changes the orientation of pac-man given by wasd input
-changePacManOrientation :: GameState -> NewOrientation -> GameState
-changePacManOrientation gs@(GameState 
-    { board  = b
-    , pacMan = (PacMan 
-        { pacManLocation = l@(Location cords o)
-        , pacManSize = s 
-        }) 
-    }) no 
-        | isWall    = gs 
-        | otherwise = gs { pacMan = (pacMan gs) { pacManLocation = Location cords no } }
-    where isWall = boundaryCheck b cords no s
+import Entity ( moveEntity, getCornerBoundaryLocations, boundaryCheck, snapToCenter )
 
 -- Moves pac-man when given the gamestate, also checks for walls
 movePacMan :: GameState -> PacManLocation
@@ -42,11 +29,21 @@ movePacMan gs@(GameState { elapsedTime = t
                          , board       = b
                          , pacMan      = p@(PacMan
                             { pacManLocation = l@(Location cords o)
+                            , pacManFutureOrientation = fo
                             , pacManSpeed    = speed
                             , pacManSize     = size
                             })
-                         }) = let isWall = boundaryCheck b cords o size
-                              in if isWall then l else moveEntity l speed t
+                         }) 
+    | o == fo   = let isWall = boundaryCheck b cords o size
+                  in if isWall then snapToCenter l size else moveEntity l speed t size
+    | otherwise = let isWall = boundaryCheck b cords fo size
+                  in if isWall then moveEntity l speed t size else moveEntity (Location cords fo) speed t size
+
+interact :: Location -> GameState -> GameState
+interact l gs@(GameState { board = b}) = let f = locationToField l b
+                                         in case f of
+                                            Just f -> handleField f gs
+                                            Nothing -> gs
 
 -- Reacts accordingly to the important field types pac-man could be on
 handleField :: Field -> GameState -> GameState
@@ -75,19 +72,20 @@ handleField f@(MkField _ _) gs = gs
 
 -- Changes the gamestate depending on whether or not pac-man is in the same field as a ghost, 
 -- if they are, the game to the start position and pac-man loses a life
-enemyCollision :: GameState -> PacManLocation -> GameState
+enemyCollision :: GameState -> GameState
 enemyCollision gs@(GameState 
     { board       = b
     , pacMan      = (PacMan 
-        { lives               = Lives lvs 
+        { lives               = Lives lvs
+        , pacManLocation      = pacl
         , pacManStartLocation = pacsl
         })
     , ghostRed    = (Ghost { ghostStartLocation = redsl })
     , ghostPink   = (Ghost { ghostStartLocation = pinksl })
     , ghostCyan   = (Ghost { ghostStartLocation = cyansl })
     , ghostOrange = (Ghost { ghostStartLocation = orangesl })
-    }) pacl = let pacf = locationToField pacl b
-        in case pacf of
+    }) = let pacf = locationToField pacl b
+         in case pacf of
             Just pacf -> if checkEnemyCollision gs pacf b
                 then gs
                     { pacMan      = (pacMan gs) 
@@ -117,6 +115,11 @@ ghostInSameField pacf ghostl b = let ghostf = locationToField ghostl b
                                  in case ghostf of
                                     Just ghostf -> pacf == ghostf
                                     Nothing     -> False
+
+deathCheck :: GameState -> GameState
+deathCheck gs@(GameState { pacMan = (PacMan { lives = l }) })
+    | l == Lives 0    = gs { infoToShow = ShowAChar 'L' }
+    | otherwise       = gs
 
 pacManWakkaWakka :: GameState -> GameState
 pacManWakkaWakka gs@(GameState { pacMan = 

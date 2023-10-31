@@ -21,7 +21,7 @@ initialState b = GameState
                ShowPlayState
                b 
                (Score 0) 
-               (PacMan (Location (108,180) Types.Right) (Location (108,180) Types.Right) (Lives 3) 8 8 (-30, 30, 2, 4) Closing)
+               (PacMan (Location (108,180) Types.Right) (Location (108,180) Types.Right) Types.Right (Lives 3) 24 8 (-30, 30, 2, 4) Closing)
                (Ghost (Location (164,164) Types.Up) (Location (164,164) Types.Up) (0,0) 4 (0,300) False Red 6 red red)
                (Ghost (Location (172,172) Types.Right) (Location (172,172) Types.Right) (0,0) 4 (300,0) False Pink 6 rose rose)
                (Ghost (Location (204,204) Types.Left) (Location (204,204) Types.Left) (0,0) 4 (300,300) False Cyan 6 cyan cyan)
@@ -137,17 +137,22 @@ type NewOrientation = Orientation
 
 --------------------------PacMan--------------------------
 data PacMan = PacMan 
-    { pacManLocation      :: Location
-    , pacManStartLocation :: Location
-    , lives               :: Lives
-    , pacManSpeed         :: Speed
-    , pacManSize          :: Size
-    , pacManPictureValues :: PacManPictureValues
-    , pacManAnimation     :: PacManAnimation
+    { pacManLocation          :: Location
+    , pacManStartLocation     :: Location
+    , pacManFutureOrientation :: NewOrientation
+    , lives                   :: Lives
+    , pacManSpeed             :: Speed
+    , pacManSize              :: Size
+    , pacManPictureValues     :: PacManPictureValues
+    , pacManAnimation         :: PacManAnimation
     }
 
 type PacManLocation = Location
+
 newtype Lives       = Lives Natural
+instance Eq Lives where
+    (==) :: Lives -> Lives -> Bool
+    Lives l == Lives l' = l == l'
 
 data PacManAnimation = Opening | Closing
 type PacManPictureValues = (Float, Float, Float, Float)
