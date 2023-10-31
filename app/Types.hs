@@ -16,10 +16,10 @@ data InfoToShow = ShowNothing
                 | ShowALocation Location
                 | ShowPlayState
 
-initialState :: GameState
-initialState = GameState 
+initialState :: Board -> GameState
+initialState b = GameState 
                ShowPlayState
-               emptyBoard 
+               b 
                (Score 0) 
                (PacMan (Location (180,180) Types.Right) (Location (180,180) Types.Right) (Lives 3) 20 8 (-30, 30, 2, 4) Closing)
                (Ghost (Location (164,164) Types.Down) (Location (164,164) Types.Down) (0,0) 2 (0,0) False Red 6 red red)
@@ -34,62 +34,6 @@ initialState = GameState
 
 windowSize :: (Int, Int)
 windowSize = (896, 760)
-
-emptyBoard :: Board
--- emptyBoard = [[MkField (0,0) Wall, MkField (1,0) Wall, MkField (2,0) Wall, MkField (3,0) Wall]]
-emptyBoard = makeBoardTemp $ reverse ["WWWWWWWWWWWWWWWWWWWWWWWWWWW"
-                                     ,"W............W............W"
-                                     ,"W.WWWW.WWWWW.W.WWWWW.WWWW.W"
-                                     ,"W.WWWW.WWWWW.W.WWWWW.WWWW.W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W....++++.................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"W.........................W"
-                                     ,"WWWWWWWWWWWWWWWWWWWWWWWWWWW"]
-
----Tijdelijk
-makeBoardTemp :: [String] -> Board
-makeBoardTemp = convertLineTemp 0
-    where 
-        convertLineTemp :: Int -> [String] -> [Row]
-        convertLineTemp _ [] = []
-        convertLineTemp y (r:rs) = convertFieldTemp 0 y r : convertLineTemp (y + 1) rs
-        convertFieldTemp :: Int -> Int -> [Char] -> [Field]
-        convertFieldTemp _ _ [] = []
-        convertFieldTemp x y (f:fs) = MkField (x,y) (chooseFieldTypeTemp f) : convertFieldTemp (x + 1) y fs
-        chooseFieldTypeTemp :: Char -> FieldType
-        chooseFieldTypeTemp 'W' = Wall
-        chooseFieldTypeTemp '+' = Pellet
-        chooseFieldTypeTemp 'P' = PowerUp
-        chooseFieldTypeTemp 'C' = Cherry
-        chooseFieldTypeTemp '.' = Empty
-
 
 --------------------------Game--------------------------
 data GameState = GameState 

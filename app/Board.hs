@@ -53,9 +53,9 @@ fieldReplace (f:fs) f1@(MkField pos _) newType = if f == f1
                                                     else f:fieldReplace fs f1 newType
 
 findFieldCordAhead :: FieldCord -> Orientation -> Int -> FieldCord
-findFieldCordAhead (x,y) T.Up    i = (x, y - i)
+findFieldCordAhead (x,y) T.Up    i = (x, y + i)
 findFieldCordAhead (x,y) T.Right i = (x + i, y)
-findFieldCordAhead (x,y) T.Down  i = (x, y + i)
+findFieldCordAhead (x,y) T.Down  i = (x, y - i)
 findFieldCordAhead (x,y) T.Left  i = (x - i, y)
 
 useRandom :: StdGen -> (Int, Int) -> (Int, StdGen)
