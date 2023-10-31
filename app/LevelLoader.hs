@@ -20,7 +20,7 @@ makeBoard = fmap (convertLine 0 . reverse)
     where 
         convertLine :: Int -> [String] -> [Row]
         convertLine _ [] = []
-        convertLine y (r:rs) = convertField 0 y r : convertLine (y + 1) rs
+        convertLine y (r:rs) = convertField 0 y r : convertLine (y - 1) rs
         convertField :: Int -> Int -> [Char] -> [Field]
         convertField _ _ [] = []
         convertField x y (f:fs) = MkField (x,y) (chooseFieldType f) : convertField (x + 1) y fs
