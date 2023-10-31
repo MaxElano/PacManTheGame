@@ -20,11 +20,12 @@ import Types as T
     ( fieldSize,
       Board,
       Field(MkField),
-      FieldType(Wall),
+      FieldType(..),
       GameState(..),
       InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize, Orientation (..) )
 import Board (fCordToLCord)
 import Graphics.Gloss.Data.Picture
+import Graphics.Gloss.Data.Color
 
 draw :: GameState -> IO Picture
 draw gs = return $ drawPure gs
@@ -53,8 +54,10 @@ drawBoard b = let ls = helpDrawBoard
               in (x, y, pictures p)
     where
         helpDrawBoard = map (\(MkField c t) -> let (lx, ly) = fCordToLCord c
+                                                   z = fromIntegral fieldSize
                                                  in case t of
-                                                    Wall -> ((lx, ly), translate lx ly (color red (circle (fromIntegral fieldSize / 2))))
+                                                    Wall -> ((lx, ly), translate lx ly (color blue (polygon [(0,0), (0,z), (z,z),  (z,0)])))
+                                                    Pellet -> ((lx, ly), translate lx ly (color yellow (circleSolid $ z / 4)))
                                                     _    -> ((lx, ly), blank)
                              ) (concat b)
 
