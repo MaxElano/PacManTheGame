@@ -14,7 +14,7 @@ import Types as T
       FieldType(Wall),
       Field(MkField),
       Board,
-      GhostMode(Frightened),
+      GhostMode(..),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
       ElapsedTime, Size, GhostColorTo (..), ghostDarkColor)
@@ -24,10 +24,11 @@ import Board
 import System.Random ( StdGen )
 import GHC.Real (mkRationalBase10)
 import Graphics.Gloss.Data.Color as C
+import GHC.RTS.Flags (DebugFlags(gc), getParFlags)
 
 --Main Function 1 for the entire module. Handles all movement for the ghosts
 moveAllGhosts :: GameState -> GameState
-moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) (generator gs) 
+moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostRed    gs) (elapsedTime gs) (ghostMode gs) (generator gs) 
                        (ngc, ng2) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) ng1            
                        (ngp, ng3) = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs) (ghostMode gs) ng2           
                        (ngo, ng4) = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs) (ghostMode gs) ng3           
@@ -85,6 +86,8 @@ moveGhost b g@(Ghost
                                                   in if d1 <= d2
                                                     then checkEveryLocation b t c (x1:xs)
                                                     else checkEveryLocation b t c (x2:xs)
+            checkEveryLocation b t c [x]       = x
+            checkEveryLocation b t c []        = Up
             --Calculates the distance between two FieldCords in Float
             distanceFCToFloat :: FieldCord -> FieldCord -> Float
             distanceFCToFloat (px, py) (gx, gy) = sqrt (abs ((npx - ngx) * (npx - ngx) + (npy - ngy) * (npy - ngy)))
@@ -104,26 +107,61 @@ tryAllOrientations :: Board -> GhostLocation -> Size -> [Orientation]
 tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s
     where
         checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
+        checkPossibility b gl@(Location l@(x,y) o) [] s     = []
         checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = checkBoundary s gl
-                                                                  Just (MkField _ t) = locationToField l1 b
-                                                                  Just (MkField _ p) = locationToField l2 b
+                                                                  t = locationToField l1 b
+                                                                  p = locationToField l2 b
                                                               in case (t,p) of
-                                                                  (Wall,Wall) -> checkPossibility b gl zs s
-                                                                  (Wall,_   ) -> checkPossibility b gl zs s
-                                                                  (_   ,Wall) -> checkPossibility b gl zs s
-                                                                  _           -> z :checkPossibility b gl zs s
+                                                                  (Just (MkField _ Wall),Just (MkField _ Wall)) -> checkPossibility b gl zs s
+                                                                  (Just (MkField _ Wall),_   )                  -> checkPossibility b gl zs s
+                                                                  (_                    ,Just (MkField _ Wall)) -> checkPossibility b gl zs s
+                                                                  (_,_)                                         -> z : checkPossibility b gl zs s
         checkBoundary:: Size -> GhostLocation -> (GhostLocation, GhostLocation)
         checkBoundary s (Location (x,y) d) | d == Up || d == Down = (Location (x - fromIntegral (s `div` 2), y) d, Location (x + fromIntegral (s `div` 2), y) d)
                                            | otherwise            = (Location (x, y - fromIntegral (s `div` 2)) d, Location (x, y + fromIntegral (s `div` 2)) d)
 
+
+        -- checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
+        -- checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = checkBoundary s gl
+        --                                                           Just (MkField _ t) = locationToField l1 b
+        --                                                           Just (MkField _ p) = locationToField l2 b
+        --                                                       in case (t,p) of
+        --                                                           (Wall,Wall) -> checkPossibility b gl zs s
+        --                                                           (Wall,_   ) -> checkPossibility b gl zs s
+        --                                                           (_   ,Wall) -> checkPossibility b gl zs s
+        --                                                           _           -> z :checkPossibility b gl zs s
+
+
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
-findAllTargetFields gs = gs 
+findAllTargetFields gs@(GameState { ghostMode = Chase }) = gs 
     { ghostRed    = findTargetField (ghostRed    gs) gs
     , ghostCyan   = findTargetField (ghostCyan   gs) gs
     , ghostPink   = findTargetField (ghostPink   gs) gs
     , ghostOrange = findTargetField (ghostOrange gs) gs
     }
+findAllTargetFields gs@(GameState { ghostMode = Scatter
+                                  , ghostRed    = gr 
+                                  , ghostCyan   = gc
+                                  , ghostPink   = gp 
+                                  , ghostOrange = go }) = gs 
+    { ghostRed    = gr {targetField = baseField gr}
+    , ghostCyan   = gc {targetField = baseField gc}
+    , ghostPink   = gp {targetField = baseField gp}
+    , ghostOrange = go {targetField = baseField go}
+    }
+findAllTargetFields gs@(GameState { ghostMode = Frightened
+                                  , ghostRed    = gr 
+                                  , ghostCyan   = gc
+                                  , ghostPink   = gp 
+                                  , ghostOrange = go }) = gs 
+    { ghostRed    = gr {targetField = baseField gr}
+    , ghostCyan   = gc {targetField = baseField gc}
+    , ghostPink   = gp {targetField = baseField gp}
+    , ghostOrange = go {targetField = baseField go}
+    }
+
+
 
 --Decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: Ghost -> GameState -> Ghost
