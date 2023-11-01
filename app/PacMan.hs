@@ -34,10 +34,27 @@ movePacMan gs@(GameState { elapsedTime = t
                             , pacManSize     = size
                             })
                          }) 
-    | o == fo   = let isWall = boundaryCheck b cords o size
-                  in if isWall then snapToCenter l size else moveEntity l speed t size
-    | otherwise = let isWall = boundaryCheck b cords fo size
-                  in if isWall then moveEntity l speed t size else moveEntity (Location cords fo) speed t size
+    | o == fo && boundaryCheck b cords o size = snapToCenter l size 
+    | o == fo                                 = moveEntity l speed t size
+    | not (boundaryCheck b cords fo size) = moveEntity (Location cords fo) speed t size
+    | not (boundaryCheck b cords o size)  = moveEntity l speed t size
+    | otherwise                        = l
+
+--movePacMan :: GameState -> PacManLocation
+-- movePacMan gs@(GameState { elapsedTime = t
+--                          , board       = b
+--                          , pacMan      = p@(PacMan
+--                             { pacManLocation = l@(Location cords o)
+--                             , pacManFutureOrientation = fo
+--                             , pacManSpeed    = speed
+--                             , pacManSize     = size
+--                             })
+--                          }) 
+--     | o == fo   = let isWall = boundaryCheck b cords o size
+--                   in if isWall then snapToCenter l size else moveEntity l speed t size
+--     | otherwise = let nIsWall = boundaryCheck b cords fo size
+--                       oIsWall = boundaryCheck b cords o size
+--                   in if nIsWall then moveEntity l speed t size else moveEntity (Location cords fo) speed t size
 
 interact :: Location -> GameState -> GameState
 interact l gs@(GameState { board = b}) = let f = locationToField l b

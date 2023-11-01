@@ -18,7 +18,7 @@ import Types as T
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
       ElapsedTime, Size, GhostColorTo (..), ghostDarkColor)
-import Entity ( moveEntity, oppositeOrientation )
+import Entity ( moveEntity, oppositeOrientation, boundaryCheck )
 import Board
     ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
 import System.Random ( StdGen )
@@ -110,19 +110,19 @@ tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> 
     where
         checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
         checkPossibility b gl@(Location l@(x,y) o) [] s     = []
-        checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = checkBoundary s gl
-                                                                  t = locationToField l1 b
-                                                                  p = locationToField l2 b
-                                                              in case (t,p) of
-                                                                  (Just (MkField _ Wall),Just (MkField _ Wall)) -> checkPossibility b gl zs s
-                                                                  (Just (MkField _ Wall),_   )                  -> checkPossibility b gl zs s
-                                                                  (_                    ,Just (MkField _ Wall)) -> checkPossibility b gl zs s
-                                                                  (_,_)                                         -> z : checkPossibility b gl zs s
-        checkBoundary:: Size -> GhostLocation -> (GhostLocation, GhostLocation)
-        checkBoundary s (Location (x,y) T.Up)    = (Location (x - fromIntegral s / 2, y + fromIntegral s / 2) T.Up   , Location (x + fromIntegral s / 2, y + fromIntegral s / 2) T.Up   )
-        checkBoundary s (Location (x,y) T.Right) = (Location (x + fromIntegral s / 2, y - fromIntegral s / 2) T.Right, Location (x + fromIntegral s / 2, y + fromIntegral s / 2) T.Right)
-        checkBoundary s (Location (x,y) T.Down)  = (Location (x - fromIntegral s / 2, y - fromIntegral s / 2) T.Down , Location (x + fromIntegral s / 2, y - fromIntegral s / 2) T.Down )
-        checkBoundary s (Location (x,y) T.Left)  = (Location (x - fromIntegral s / 2, y - fromIntegral s / 2) T.Left , Location (x - fromIntegral s / 2, y + fromIntegral s / 2) T.Left )
+        checkPossibility b gl@(Location l@(x,y) o) (z:zs) s | boundaryCheck b l o s = checkPossibility b gl zs s
+                                                            | otherwise = z : checkPossibility b gl zs s
+
+        -- checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
+        -- checkPossibility b gl@(Location l@(x,y) o) [] s     = []
+        -- checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = getCornerBoundaryLocations l o s 
+        --                                                           t = locationToField l1 b
+        --                                                           p = locationToField l2 b
+        --                                                       in case (t,p) of
+        --                                                           (Just (MkField _ Wall),Just (MkField _ Wall)) -> checkPossibility b gl zs s
+        --                                                           (Just (MkField _ Wall),_   )                  -> checkPossibility b gl zs s
+        --                                                           (_                    ,Just (MkField _ Wall)) -> checkPossibility b gl zs s
+        --                                                           (_,_)                                         -> z : checkPossibility b gl zs s
 
 -- checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
 -- checkPossibility b _ [] _     = []
@@ -134,12 +134,6 @@ tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> 
 --                                                           (Just (MkField _ Wall),_   )                  -> checkPossibility b gl zs s
 --                                                           (_                    ,Just (MkField _ Wall)) -> checkPossibility b gl zs s
 --                                                           (_,_)                                         -> z : checkPossibility b gl zs s
-
--- checkBoundary:: Size -> GhostLocation -> (GhostLocation, GhostLocation)
--- checkBoundary s (Location (x,y) T.Up)    = (Location (x - fromIntegral s / 2, y + fromIntegral s / 2) T.Up   , Location (x + fromIntegral s / 2, y + fromIntegral s / 2) T.Up   )
--- checkBoundary s (Location (x,y) T.Right) = (Location (x + fromIntegral s / 2, y - fromIntegral s / 2) T.Right, Location (x + fromIntegral s / 2, y + fromIntegral s / 2) T.Right)
--- checkBoundary s (Location (x,y) T.Down)  = (Location (x - fromIntegral s / 2, y - fromIntegral s / 2) T.Down , Location (x + fromIntegral s / 2, y - fromIntegral s / 2) T.Down )
--- checkBoundary s (Location (x,y) T.Left)  = (Location (x - fromIntegral s / 2, y - fromIntegral s / 2) T.Left , Location (x - fromIntegral s / 2, y + fromIntegral s / 2) T.Left )
 
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
