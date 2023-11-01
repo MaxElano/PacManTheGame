@@ -53,7 +53,9 @@ drawPlayState :: GameState -> Picture
 drawPlayState gs = let (x,y,p) = drawBoard (board gs)
                        (wx, wy) = windowSize
                        sc = min (fromIntegral wx / x) (fromIntegral wy / (y + fromIntegral fieldSize / 2))
-                   in scale sc sc $ translate ((-x - fromIntegral fieldSize / 2) / 2) ((-y - fromIntegral fieldSize / 2) / 2) $ pictures [p, drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs)]
+                   in scale sc sc 
+                    $ translate ((-x - fromIntegral fieldSize / 2) / 2) ((-y - fromIntegral fieldSize / 2) / 2) 
+                    $ pictures [p, drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs) y]
 
 
 drawBoard :: Board -> (Float, Float, Picture)
@@ -100,5 +102,5 @@ drawGhost g@(Ghost {ghostType = Cyan
 drawGhost g@(Ghost {ghostType = Orange
                    ,ghostLocation = (Location (x,y) _)}) = translate x y (color (ghostColor g) (circleSolid (fromIntegral (ghostSize g) / 2)))
 
-drawScore :: Score -> Picture   --Still needs to be translated
-drawScore s = color white (text (show s))
+drawScore :: Score -> Float -> Picture   --Still needs to be translated
+drawScore s y = translate (-45) (y - 30) $ scale 0.2 0.2 $ color white (text (show s))
