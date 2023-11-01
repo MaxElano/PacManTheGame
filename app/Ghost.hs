@@ -110,30 +110,13 @@ tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> 
     where
         checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
         checkPossibility b gl@(Location l@(x,y) o) [] s     = []
-        checkPossibility b gl@(Location l@(x,y) o) (z:zs) s | boundaryCheck b l o s = checkPossibility b gl zs s
+        checkPossibility b gl@(Location l@(x,y) o) (z:zs) s | boundaryCheck b l z s = checkPossibility b gl zs s
                                                             | otherwise = z : checkPossibility b gl zs s
 
-        -- checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
-        -- checkPossibility b gl@(Location l@(x,y) o) [] s     = []
-        -- checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = getCornerBoundaryLocations l o s 
-        --                                                           t = locationToField l1 b
-        --                                                           p = locationToField l2 b
-        --                                                       in case (t,p) of
-        --                                                           (Just (MkField _ Wall),Just (MkField _ Wall)) -> checkPossibility b gl zs s
-        --                                                           (Just (MkField _ Wall),_   )                  -> checkPossibility b gl zs s
-        --                                                           (_                    ,Just (MkField _ Wall)) -> checkPossibility b gl zs s
-        --                                                           (_,_)                                         -> z : checkPossibility b gl zs s
 
--- checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
--- checkPossibility b _ [] _     = []
--- checkPossibility b gl@(Location l@(x,y) o) (z:zs) s = let (l1,l2) = checkBoundary s (Location l z)
---                                                           t = locationToField l1 b
---                                                           p = locationToField l2 b
---                                                       in case (t,p) of
---                                                           (Just (MkField _ Wall),Just (MkField _ Wall)) -> checkPossibility b gl zs s
---                                                           (Just (MkField _ Wall),_   )                  -> checkPossibility b gl zs s
---                                                           (_                    ,Just (MkField _ Wall)) -> checkPossibility b gl zs s
---                                                           (_,_)                                         -> z : checkPossibility b gl zs s
+
+
+
 
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
@@ -201,6 +184,9 @@ findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8
     where
         distance :: LocationCord -> LocationCord -> Float
         distance (px, py) (gx, gy) = sqrt (abs ((px - gx) * (px - gx) + (py - gy) * (py - gy)))
+
+
+
 
 changeAllGhostColor :: GameState-> GhostColorTo -> GameState
 changeAllGhostColor gs c = gs { ghostRed    = changeGhostColor (ghostRed gs)  c

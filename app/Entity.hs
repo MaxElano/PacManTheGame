@@ -12,7 +12,7 @@ moveEntity (Location (x,y) Right) s t size = Location (x + s * t,fromIntegral (c
 moveEntity (Location (x,y) Down)  s t size = Location (fromIntegral (centerCoordinate (truncate x) size),y - s * t) Down
 moveEntity (Location (x,y) Left)  s t size = Location (x - s * t,fromIntegral (centerCoordinate (truncate y) size)) Left
 
--- Checks if the edge of pacman is in a wall or not in the new location
+-- Checks if the entity is in a wall or not in the new location
 boundaryCheck :: Board -> LocationCord -> Orientation -> Size -> IsWall
 boundaryCheck b cords o s = let (l1,l2) = getCornerBoundaryLocations cords o s
                             in  maybe False wallCheck (locationToField l1 b) || maybe False wallCheck (locationToField l2 b)
