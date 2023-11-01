@@ -22,15 +22,14 @@ initialState b = GameState
                b 
                (Score 0) 
                (PacMan (Location (180,180) Types.Right) (Location (180,180) Types.Right) (Lives 3) 20 8 (-30, 30, 2, 4) Closing)
-               (Ghost (Location (164,164) Types.Up) (Location (164,164) Types.Up) (0,0) 4 (0,300) False Red 6 red red)
-               (Ghost (Location (172,172) Types.Right) (Location (172,172) Types.Right) (0,0) 4 (300,0) False Pink 6 rose rose)
-               (Ghost (Location (204,204) Types.Left) (Location (204,204) Types.Left) (0,0) 4 (300,300) False Cyan 6 cyan cyan)
-               (Ghost (Location (196,196) Types.Up) (Location (196,196) Types.Up) (0,0) 4 (0,0) False Orange 6 orange orange)
-               Scatter
+               (Ghost (Location (164,164) Types.Up) (Location (164,164) Types.Up) (0,0) 6 (-40,40) False Red 6 red red)
+               (Ghost (Location (172,172) Types.Right) (Location (172,172) Types.Right) (0,0) 6 (-40,40) False Pink 6 rose rose)
+               (Ghost (Location (204,204) Types.Left) (Location (204,204) Types.Left) (0,0) 6 (-2,2) False Cyan 6 cyan cyan)
+               (Ghost (Location (196,196) Types.Up) (Location (196,196) Types.Up) (0,0) 6 (-2,2) False Orange 6 orange orange)
+               Chase
                0
                0
                (mkStdGen 42)
-
 
 windowSize :: (Int, Int)
 windowSize = (896, 760)

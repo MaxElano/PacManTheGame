@@ -36,7 +36,7 @@ update :: GameState -> IO GameState
 update gs@(GameState { pacMan = (PacMan { pacManLocation = l }) 
                      , board  = b
                      }) = 
-                     do return $ pacManWakkaWakka $ moveAllGhosts $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
+                     do return $ pacManWakkaWakka $ moveAllGhosts $ findAllTargetFields $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
 --                     do return $ pacManWakkaWakka $ Controller.interact l gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
 
 interact :: Location -> GameState -> GameState
