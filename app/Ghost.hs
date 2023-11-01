@@ -1,4 +1,4 @@
-module Ghost (moveAllGhosts, findAllTargetFields) where
+module Ghost (moveAllGhosts, findAllTargetFields, changeAllGhostColor) where
 import Types as T
     ( TargetFieldCord,
       BaseField,
