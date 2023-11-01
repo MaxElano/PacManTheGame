@@ -93,14 +93,7 @@ drawAllGhosts :: GameState -> Picture
 drawAllGhosts gs = pictures [drawGhost (ghostRed gs), drawGhost (ghostPink gs), drawGhost (ghostCyan gs), drawGhost (ghostOrange gs)]
 
 drawGhost :: Ghost -> Picture
-drawGhost g@(Ghost {ghostType = Red
-                   ,ghostLocation = (Location (x,y) _)}) = translate x y (color (ghostColor g) (circleSolid (fromIntegral (ghostSize g) / 2)))
-drawGhost g@(Ghost {ghostType = Pink
-                   ,ghostLocation = (Location (x,y) _)}) = translate x y (color (ghostColor g) (circleSolid (fromIntegral (ghostSize g) / 2)))
-drawGhost g@(Ghost {ghostType = Cyan
-                   ,ghostLocation = (Location (x,y) _)}) = translate x y (color (ghostColor g) (circleSolid (fromIntegral (ghostSize g) / 2)))
-drawGhost g@(Ghost {ghostType = Orange
-                   ,ghostLocation = (Location (x,y) _)}) = translate x y (color (ghostColor g) (circleSolid (fromIntegral (ghostSize g) / 2)))
+drawGhost g@(Ghost {ghostLocation = (Location (x,y) _)}) = translate x y (color (ghostColor g) (circleSolid (fromIntegral (ghostSize g) / 2)))
 
 drawScore :: Score -> Float -> Picture   --Still needs to be translated
 drawScore s y = translate (-45) (y - 30) $ scale 0.2 0.2 $ color white (text (show s))
