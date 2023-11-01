@@ -49,9 +49,10 @@ moveGhost b g@(Ghost
     , targetField   = t
     , mustReverse   = True
     , ghostSpeed    = s
-    }) et _ gen     = (g
-        { ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et
-        , mustReverse   = False
+    , ghostSize     = z
+    }) et _ gen     = (g 
+        { ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et z
+        , mustReverse   = False 
         }, gen)
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
@@ -60,14 +61,14 @@ moveGhost b g@(Ghost
     , ghostSpeed    = s
     , ghostSize     = z
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l z)
-                           in (g { ghostLocation = moveEntity (Location c no) s et }, ng)
+                           in (g { ghostLocation = moveEntity (Location c no) s et z }, ng)
 --"Normal" move
 moveGhost b g@(Ghost
     { ghostLocation = l@(Location c _)
     , targetField   = t
     , ghostSpeed    = s
     , ghostSize     = z
-    }) et _ gen     = (g { ghostLocation = moveEntity (Location c (findOrientation b l t z)) s et }, gen)
+    }) et _ gen     = (g { ghostLocation = moveEntity (Location c (findOrientation b l t z)) s et z }, gen)
         where
             --Main function for finding the new orientation for the ghost
             findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Size -> Orientation
