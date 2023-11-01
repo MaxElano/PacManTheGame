@@ -101,7 +101,7 @@ moveGhost b g@(Ghost
 
 --Chooses random direction from list
 chooseRandomDirection :: StdGen -> [Orientation] -> (Orientation, StdGen)
-chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs)
+chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs - 1)
                              in (xs !! rn, ng)
 
 --Finds all allowed new orientations for the ghost

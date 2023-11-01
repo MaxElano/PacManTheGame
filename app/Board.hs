@@ -60,5 +60,4 @@ findFieldCordAhead (x,y) T.Down  i = (x, y - i)
 findFieldCordAhead (x,y) T.Left  i = (x - i, y)
 
 useRandom :: StdGen -> (Int, Int) -> (Int, StdGen)
-useRandom g r = let (rn, ng) = uniformR r g 
-                in  (rn, g)
+useRandom g r = uniformR r g
