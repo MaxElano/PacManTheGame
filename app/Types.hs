@@ -94,6 +94,7 @@ type FieldCord = (Int, Int)
 
 fieldSize :: Int
 fieldSize = 8
+
 --------------------------Entity--------------------------
 type Speed = Float
 type Size  = Int
@@ -187,4 +188,4 @@ type CurrentField    = FieldCord
 data GhostColorTo = Normal | Dark
 
 ghostDarkColor :: Color
-ghostDarkColor = azure
+ghostDarkColor = dark $ dark azure

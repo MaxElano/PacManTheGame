@@ -16,12 +16,13 @@ import Types as T
       Score(Score),
       ElapsedTime,
       NewOrientation,
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar) )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar), GhostColorTo (..) )
 import Board 
     ( locationToField, 
       wallCheck, 
       changeFieldType )
 import Entity ( moveEntity, getCornerBoundaryLocations, boundaryCheck, snapToCenter )
+import Ghost (changeAllGhostColor)
 
 -- Moves pac-man when given the gamestate, also checks for walls
 movePacMan :: GameState -> PacManLocation
@@ -80,10 +81,10 @@ handleField f@(MkField _ Cherry) gs@(GameState
         , board = changeFieldType b f Empty 
         }
 
-handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = gs 
+handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = changeAllGhostColor gs
     { ghostMode = Frightened
     , board = changeFieldType b f Empty 
-    }
+    } Dark
 
 handleField f@(MkField _ _) gs = gs
 
