@@ -40,9 +40,9 @@ fCordToLCord :: FieldCord -> LocationCord
 fCordToLCord (x,y) = let size = fromIntegral fieldSize 
                      in (fromIntegral x * size + size / 2, fromIntegral y * size + size / 2)
 
-wallCheck :: Field -> IsWall
-wallCheck (MkField _ Wall) = True
-wallCheck (MkField _ _)    = False
+isWall :: Field -> IsWall
+isWall (MkField _ Wall) = True
+isWall (MkField _ _)    = False
 
 changeFieldType :: Board -> Field -> FieldType -> Board
 changeFieldType board f newType = map (fieldReplace f newType) board

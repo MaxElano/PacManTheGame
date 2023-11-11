@@ -42,8 +42,8 @@ update gs@(GameState { pacMan = (PacMan { pacManLocation = l })
                      . pacManWakkaWakka 
                      . moveAllGhosts 
                      . findAllTargetFields
-                     . (PacMan.interact l) $ gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
-                     
+                     . PacMan.interact l $ gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } }
+
 -- Handle user input
 input :: Event -> GameState -> IO GameState
 input e gs = return (inputKey e gs)
