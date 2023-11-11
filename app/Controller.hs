@@ -17,6 +17,7 @@ import PacMan ( movePacMan, pacManWakkaWakka, handleField, enemyCollision, inter
 import Entity (moveEntity)
 import Board (locationToField, lCordToFCord)
 import Ghost (moveAllGhosts, findAllTargetFields)
+import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 
 -- -- | Handle one iteration of the game
 -- step :: Float -> GameState -> IO GameState
@@ -27,10 +28,13 @@ import Ghost (moveAllGhosts, findAllTargetFields)
 -- --      return $ gs 
 
 step :: Float -> GameState -> IO GameState
-step secs gs = do update gs 
-                   { totalTime = totalTime gs + secs
-                   , elapsedTime = secs
-                   }
+step secs gs@(GameState { paused = False }) = 
+    do update gs 
+        { totalTime = totalTime gs + secs
+        , elapsedTime = secs
+        }
+
+step secs gs = return gs
       
 update :: GameState -> IO GameState
 update gs@(GameState { pacMan = (PacMan { pacManLocation = l }) 
@@ -51,13 +55,13 @@ input e gs = return (inputKey e gs)
 inputKey :: Event -> GameState -> GameState
 inputKey (EventKey (Char 'c') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = l }) }) = gs { infoToShow = ShowAPosition l }
 inputKey (EventKey (Char 'v') _ _ _) gs@(GameState { pacMan = (PacMan { pacManLocation = (Location cords _) }) }) = gs { infoToShow = ShowAnIntTuple (lCordToFCord cords) }
-inputKey (EventKey (Char 'p') _ _ _) gs = gs { infoToShow = ShowPlayState }
 inputKey (EventKey (Char 'w') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Up } }
 inputKey (EventKey (Char 'a') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Left } }
 inputKey (EventKey (Char 's') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Down } }
 inputKey (EventKey (Char 'd') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Right } }
 inputKey (EventKey (Char 'b') _ _ _) gs = gs { infoToShow = ShowABoard (board gs) }
-inputKey _ gs = gs -- Otherwise keep the same
+inputKey (EventKey (Char 'p') _ _ _) gs@(GameState { paused = pauseState, keyStatePaused = KeyState.Up }) = gs { paused = not pauseState, keyStatePaused = KeyState.Down }
+inputKey _ gs = gs { keyStatePaused = KeyState.Up} -- Otherwise keep the same
 
 --Volgorde wordt:
 --1. Move PacMan

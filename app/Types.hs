@@ -7,6 +7,8 @@ import System.Random (StdGen, mkStdGen)
 import Graphics.Gloss.Data.Color
 import Graphics.Gloss (Picture(Pictures))
 import Graphics.Gloss.Data.Picture
+import Graphics.Gloss.Interface.IO.Game (KeyState)
+import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 
 data InfoToShow = ShowNothing
                 | ShowANumber Float
@@ -19,6 +21,8 @@ data InfoToShow = ShowNothing
 initialState :: Board -> GameState
 initialState b = GameState 
                ShowPlayState
+               False
+               KeyState.Up
                b 
                (Score 0) 
                (PacMan (Location (108,180) Types.Right) (Location (108,180) Types.Right) Types.Right (Lives 3) 24 8 (-30, 30, 2, 4) Closing)
@@ -36,18 +40,20 @@ windowSize = (896, 760)
 
 --------------------------Game--------------------------
 data GameState = GameState 
-    { infoToShow  :: InfoToShow
-    , board       :: Board   --Moet waarschijnlijk nog IO Board worden
-    , score       :: Score
-    , pacMan      :: PacMan
-    , ghostRed    :: Ghost
-    , ghostPink   :: Ghost
-    , ghostCyan   :: Ghost
-    , ghostOrange :: Ghost
-    , ghostMode   :: GhostMode
-    , elapsedTime :: ElapsedTime
-    , totalTime   :: TotalTime
-    , generator   :: StdGen
+    { infoToShow     :: InfoToShow
+    , paused         :: Bool
+    , keyStatePaused :: KeyState
+    , board          :: Board   --Moet waarschijnlijk nog IO Board worden
+    , score          :: Score
+    , pacMan         :: PacMan
+    , ghostRed       :: Ghost
+    , ghostPink      :: Ghost
+    , ghostCyan      :: Ghost
+    , ghostOrange    :: Ghost
+    , ghostMode      :: GhostMode
+    , elapsedTime    :: ElapsedTime
+    , totalTime      :: TotalTime
+    , generator      :: StdGen
     }
 
 newtype Score = Score Natural
