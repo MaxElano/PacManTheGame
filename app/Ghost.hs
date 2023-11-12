@@ -30,10 +30,10 @@ import Data.Maybe
 
 --Main Function 1 for the entire module. Handles all movement for the ghosts
 moveAllGhosts :: GameState -> GameState
-moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostRed    gs) (elapsedTime gs) (ghostMode gs) (generator gs)
-                       (ngc, ng2) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode gs) ng1
-                       (ngp, ng3) = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs) (ghostMode gs) ng2
-                       (ngo, ng4) = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs) (ghostMode gs) ng3
+moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostRed    gs) (elapsedTime gs) (ghostMode (ghostRed gs))    (generator gs)
+                       (ngc, ng2) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode (ghostCyan gs))   ng1
+                       (ngp, ng3) = moveGhost (board gs) (ghostPink   gs) (elapsedTime gs) (ghostMode (ghostPink gs))   ng2
+                       (ngo, ng4) = moveGhost (board gs) (ghostOrange gs) (elapsedTime gs) (ghostMode (ghostOrange gs)) ng3
                    in gs
                        { ghostRed    = ngr
                        , ghostCyan   = ngc
@@ -130,32 +130,17 @@ tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> 
 
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
-findAllTargetFields gs@(GameState { ghostMode = Chase }) = gs
-    { ghostRed    = findTargetField (ghostRed    gs) gs
-    , ghostCyan   = findTargetField (ghostCyan   gs) gs
-    , ghostPink   = findTargetField (ghostPink   gs) gs
-    , ghostOrange = findTargetField (ghostOrange gs) gs
+findAllTargetFields gs = gs 
+    { ghostRed    = assignTargetField gs (ghostRed gs) 
+    , ghostPink   = assignTargetField gs (ghostPink gs)
+    , ghostCyan   = assignTargetField gs (ghostCyan gs)
+    , ghostOrange = assignTargetField gs (ghostOrange gs)
     }
-findAllTargetFields gs@(GameState { ghostMode = Scatter
-                                  , ghostRed    = gr
-                                  , ghostCyan   = gc
-                                  , ghostPink   = gp
-                                  , ghostOrange = go }) = gs
-    { ghostRed    = gr {targetField = baseField gr}
-    , ghostCyan   = gc {targetField = baseField gc}
-    , ghostPink   = gp {targetField = baseField gp}
-    , ghostOrange = go {targetField = baseField go}
-    }
-findAllTargetFields gs@(GameState { ghostMode = Frightened
-                                  , ghostRed    = gr
-                                  , ghostCyan   = gc
-                                  , ghostPink   = gp
-                                  , ghostOrange = go }) = gs
-    { ghostRed    = gr {targetField = baseField gr}
-    , ghostCyan   = gc {targetField = baseField gc}
-    , ghostPink   = gp {targetField = baseField gp}
-    , ghostOrange = go {targetField = baseField go}
-    }
+
+assignTargetField :: GameState -> Ghost -> Ghost
+assignTargetField gs g@(Ghost { ghostMode = Chase })   = findTargetField g gs
+assignTargetField gs g@(Ghost { ghostMode = Scatter }) = g { targetField = baseField g }
+assignTargetField gs g@(Ghost { ghostMode = _ })       = g 
 
 --Decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: Ghost -> GameState -> Ghost
@@ -194,9 +179,6 @@ findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8
     where
         distance :: LocationCord -> LocationCord -> Float
         distance (px, py) (gx, gy) = sqrt (abs ((px - gx) * (px - gx) + (py - gy) * (py - gy)))
-
-
-
 
 changeAllGhostColor :: GameState-> GhostColorTo -> GameState
 changeAllGhostColor gs c = gs { ghostRed    = changeGhostColor (ghostRed gs)  c
