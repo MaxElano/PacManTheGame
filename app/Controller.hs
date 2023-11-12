@@ -45,6 +45,7 @@ update gs@(GameState { pacMan = (PacMan { pacManLocation = l })
                      }) = 
                      do return 
                      . setEndOfGame
+                     . handleTimers
                      . deathCheck 
                      . enemyCollision 
                      . pacManWakkaWakka 
@@ -74,11 +75,11 @@ changePausedState ShowPlayState  = ShowPauseState
 changePausedState ShowPauseState = ShowPlayState
 changePausedState i              = i
 
-handleTimers :: GameState -> TotalTime -> GameState
-handleTimers gs t = gs { ghostRed    = handleGhostTimers (ghostRed gs) t
-                       , ghostOrange = handleGhostTimers (ghostOrange gs) t
-                       , ghostPink   = handleGhostTimers (ghostPink gs) t
-                       , ghostCyan   = handleGhostTimers (ghostCyan gs) t }
+handleTimers :: GameState -> GameState
+handleTimers gs = gs { ghostRed    = handleGhostTimers (ghostRed gs) (totalTime gs)
+                     , ghostOrange = handleGhostTimers (ghostOrange gs) (totalTime gs)
+                     , ghostPink   = handleGhostTimers (ghostPink gs) (totalTime gs)
+                     , ghostCyan   = handleGhostTimers (ghostCyan gs) (totalTime gs) }
 
 handleGhostTimers :: Ghost -> TotalTime -> Ghost
 handleGhostTimers g t = g { ghostHouseStatus = changeGhostHouseStatus (leaveHouseTime g) (ghostHouseStatus g) t}
