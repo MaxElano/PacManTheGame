@@ -181,4 +181,3 @@ pacManWakkaWakka gs@(GameState { pacMan =
                           | otherwise              = Closing
                    in gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)
                                      , pacManAnimation = na}}
-
