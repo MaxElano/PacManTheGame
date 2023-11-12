@@ -52,7 +52,16 @@ moveGhost b g@(Ghost
     }) et _ gen     = (g 
         { ghostLocation = moveEntityGhost b (Location c (oppositeOrientation o)) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g)
         , mustReverse   = False 
+        , mayTurn       = False
         }, gen)
+--If the ghost may not turn, go straight untill new field
+moveGhost b g@(Ghost
+    { ghostLocation    = l@(Location c o)
+    , mayTurn          = False
+    }) et _ gen          = let nl@(Location nc no) = moveEntityGhost b l (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g)
+                           in if (lCordToFCord nc == lCordToFCord c) 
+                                then (g { ghostLocation = nl, mayTurn = False }, gen)
+                                else (g { ghostLocation = nl, mayTurn = True  }, gen)
 --Handles random direction, when inside of GhostHouse
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
@@ -62,17 +71,25 @@ moveGhost b g@(Ghost
                   in (g { ghostLocation = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g) }, ng)
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
-    { ghostLocation    = l@(Location c _)
+    { ghostLocation    = l@(Location c o)
+    , mayTurn          = True
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l (ghostSize g) Outside)
-                           in (g { ghostLocation = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g) }, ng)
+                               nl = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g)
+                           in if o == no || ((ghostHouseStatus g) == MayLeave)
+                                then (g { ghostLocation = nl, mayTurn = True  }, ng)
+                                else (g { ghostLocation = nl, mayTurn = False }, gen)
 --"Normal" move
 moveGhost b g@(Ghost
-    { ghostLocation    = l@(Location c _)
-    }) et _ gen     = let nl = moveEntityGhost b (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g)
+    { ghostLocation    = l@(Location c o)
+    , mayTurn          = True
+    }) et _ gen     = let no = findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)
+                          nl = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g)
                           nh = case locationToField nl b of
                                Just (MkField _ GhostWall) -> Outside
                                _                          -> (ghostHouseStatus g)
-                      in (g { ghostLocation = nl, ghostHouseStatus = nh}, gen)
+                      in if o == no || ((ghostHouseStatus g) == MayLeave)
+                            then (g { ghostLocation = nl, ghostHouseStatus = nh , mayTurn = True}, gen)
+                            else (g { ghostLocation = nl, ghostHouseStatus = nh , mayTurn = False}, gen)
         where
             --Main function for finding the new orientation for the ghost
             findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Size -> GhostHouseStatus -> Orientation

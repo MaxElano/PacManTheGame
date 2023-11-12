@@ -111,7 +111,7 @@ killPacMan gs@(GameState
             { lives          = Lives (lvs - 1) 
             , pacManLocation = pacsl
             } 
-        , ghostRed    = (ghostRed gs)    { ghostLocation = redsl, ghostHouseStatus = Outside }
+        , ghostRed    = (ghostRed gs)    { ghostLocation = redsl, ghostHouseStatus = Inside }
         , ghostPink   = (ghostPink gs)   { ghostLocation = pinksl, ghostHouseStatus = Inside }
         , ghostCyan   = (ghostCyan gs)   { ghostLocation = cyansl, ghostHouseStatus = Inside }
         , ghostOrange = (ghostOrange gs) { ghostLocation = orangesl, ghostHouseStatus = Inside }

@@ -61,7 +61,9 @@ inputKey (EventKey (Char 'd') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutu
 inputKey (EventKey (Char 'p') _ _ _) gs@(GameState { infoToShow = drawState
                                                    , paused = pauseState
                                                    , keyStatePaused = KeyState.Up }) = gs { infoToShow = changePausedState drawState, paused = not pauseState, keyStatePaused = KeyState.Down }
+inputKey (EventKey (Char 'n') _ _ _) gs = gs { infoToShow = ShowANumber 2 }
 inputKey _ gs = gs { keyStatePaused = KeyState.Up}
+
 
 changePausedState :: InfoToShow -> InfoToShow
 changePausedState ShowPlayState  = ShowPauseState
