@@ -50,6 +50,10 @@ drawPure gs = case infoToShow gs of
   ShowAPosition l -> let f = locationToField l (board gs)
                      in color white $ translate (-200) 0 (scale 0.2 0.2 (text (show l ++ show f)))
   ShowABoard    b -> translate (-300) (-300) (scale 0.15 0.15 $ drawHelpBoard b)
+  ShowFinishedState -> drawFinishedState $ score gs
+
+drawFinishedState :: Score -> Picture
+drawFinishedState s = color white $ translate (-330) 0 (scale 0.4 0.4 $ text ("You WON With " ++ show s ++ " Points!!"))
 
 drawHelpBoard :: Board -> Picture
 drawHelpBoard b = pictures $ stringsToPicture (map (concatMap show) b) 0

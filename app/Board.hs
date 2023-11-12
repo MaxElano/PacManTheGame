@@ -6,7 +6,8 @@ import Data.Foldable (minimumBy, find)
 import Data.Ord (comparing)
 import System.Random ( uniformR, StdGen )
 import Types as T
-    ( Orientation,
+    ( InfoToShow(..),
+      Orientation,
       Location(..),
       IsWall,
       FieldType(..),
@@ -17,6 +18,7 @@ import Types as T
       FieldCord, 
       LocationCord,
       Orientation(..),
+      Finished,
       GameState(..))
 import Data.List
 
@@ -61,3 +63,14 @@ findFieldCordAhead (x,y) T.Left  i = (x - i, y)
 
 useRandom :: StdGen -> (Int, Int) -> (Int, StdGen)
 useRandom g r = uniformR r g
+
+setEndOfGame :: GameState -> GameState
+setEndOfGame gs | checkEndOfGame (board gs) = gs { finished = True, infoToShow = ShowFinishedState } 
+                | otherwise                 = gs
+    where 
+        checkEndOfGame :: Board -> Finished
+        checkEndOfGame b = not $ foldr (\rs x -> x || foldr (\(MkField _ f) y -> y || case f of
+                                                                                      Pellet  -> True
+                                                                                      Cherry  -> True
+                                                                                      PowerUp -> True
+                                                                                      _       -> False) False rs) False b 

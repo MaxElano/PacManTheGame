@@ -15,7 +15,7 @@ import System.Random (RandomGen (genShortByteString))
 import LevelLoader ()
 import PacMan ( movePacMan, pacManWakkaWakka, handleField, enemyCollision, interact, deathCheck )
 import Entity (moveEntity)
-import Board (locationToField, lCordToFCord)
+import Board (locationToField, lCordToFCord, setEndOfGame)
 import Ghost (moveAllGhosts, findAllTargetFields)
 import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 
@@ -28,7 +28,7 @@ import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 -- --      return $ gs 
 
 step :: Float -> GameState -> IO GameState
-step secs gs@(GameState { paused = False }) = 
+step secs gs@(GameState { paused = False , finished = False}) = 
     do update gs 
         { totalTime = totalTime gs + secs
         , elapsedTime = secs
@@ -41,6 +41,7 @@ update gs@(GameState { pacMan = (PacMan { pacManLocation = l })
                      , board  = b
                      }) = 
                      do return 
+                     . setEndOfGame
                      . deathCheck 
                      . enemyCollision 
                      . pacManWakkaWakka 
