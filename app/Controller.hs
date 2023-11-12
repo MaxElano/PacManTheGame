@@ -10,7 +10,7 @@ import Types as T
       TotalTime,
       Ghost(..),
       Orientation(Right, Up, Left, Down),
-      PacMan (..), Location (Location), Field (MkField), ElapsedTime, Time, Lives (Lives), Finished, FieldType (..) )
+      PacMan (..), Location (Location), Field (MkField), ElapsedTime, Time, Lives (Lives), Finished, FieldType (..), PacManAnimation (Dying) )
 import Graphics.Gloss ()
 import Graphics.Gloss.Interface.IO.Game
     ( Key(Char, SpecialKey), Event(EventKey), SpecialKey (KeySpace) )
@@ -36,12 +36,14 @@ update gs@(GameState
     { pacMan = (PacMan 
         { pacManLocation = l
         , lives = (Lives lvs) 
+        , pacManAnimation = pa
         }) 
     , board  = b
     , score  = s
     }) 
     | finished gs && lvs > 0 = do return gs { infoToShow = ShowWinState }
     | finished gs            = do return gs { infoToShow = ShowLostState }
+    | pa == Dying            = do return (pacManWakkaWakka gs)
     | otherwise              = do return
                                . handleTimers
                                . checkEndOfGame 

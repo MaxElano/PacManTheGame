@@ -93,7 +93,7 @@ enemyCollision gs@(GameState
          in killEntities gs collidingGhosts isPacManDead
 
 killEntities :: GameState -> [Ghost] -> Bool -> GameState
-killEntities gs _ True = killPacMan gs
+killEntities gs _ True = gs { pacMan = (pacMan gs) { pacManAnimation = Dying } }
 killEntities gs ghosts _  = killGhosts gs ghosts
 
 isOneNotFrightened :: [Ghost] -> Bool
@@ -166,21 +166,37 @@ isGhostInSameField pacf g@(Ghost { ghostLocation = ghostl }) b = let ghostf = lo
                                     Just ghostf -> if ghostf == pacf then Just g else Nothing 
                                     Nothing     -> Nothing
 
--- pac-mans animation code, returns different states of animation for pac-man
+-- pac-mans active animation code, returns different states of animation for pac-man
 pacManWakkaWakka :: GameState -> GameState
-pacManWakkaWakka gs@(GameState { pacMan = 
-                 p@(PacMan { pacManAnimation = Opening
-                           , pacManPictureValues = (ma, pa, r, t) } ) }) 
-                 = let (nma, npa, nr, nt) = (ma - pacManAnimationSpeed * elapsedTime gs, pa + pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)
-                       na | npa >= pacManMouthSize = Closing
-                          | otherwise              = Opening
-                   in gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)
-                                     , pacManAnimation = na}}
-pacManWakkaWakka gs@(GameState { pacMan = 
-                 p@(PacMan { pacManAnimation = Closing
-                           , pacManPictureValues = (ma, pa, r, t) } ) }) 
-                 = let (nma, npa, nr, nt) = (ma + pacManAnimationSpeed * elapsedTime gs, pa - pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)
-                       na | npa <= 0               = Opening
-                          | otherwise              = Closing
-                   in gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)
-                                     , pacManAnimation = na}}
+pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan 
+    { pacManAnimation = Opening
+    , pacManPictureValues = (ma, pa, r, t) 
+    } ) }) = let (nma, npa, nr, nt) = (ma - pacManAnimationSpeed * elapsedTime gs, pa + pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)
+                 na 
+                    | npa >= pacManMouthSize = Closing
+                    | otherwise              = Opening
+             in gs {pacMan = p 
+                { pacManPictureValues = (nma, npa, nr, nt)
+                , pacManAnimation = na
+                }}
+pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan 
+    { pacManAnimation = Closing
+    , pacManPictureValues = (ma, pa, r, t) 
+    } ) }) = let (nma, npa, nr, nt) = (ma + pacManAnimationSpeed * elapsedTime gs, pa - pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2) 
+                 na 
+                    | npa <= 0               = Opening
+                    | otherwise              = Closing
+             in gs {pacMan = p 
+                { pacManPictureValues = (nma, npa, nr, nt)
+                , pacManAnimation = na
+                }}
+pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan 
+    { pacManAnimation = Dying
+    , pacManPictureValues = (ma, pa, r, t) 
+    } ) })  
+    | npa < 180 = gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)}}
+    | otherwise = killPacMan gs { pacMan = (pacMan gs) 
+        { pacManAnimation     = Closing 
+        , pacManPictureValues = (-pacManMouthSize, pacManMouthSize, nr, nt)
+        } }
+    where (nma, npa, nr, nt) = (ma - pacManAnimationSpeed * elapsedTime gs, pa + pacManAnimationSpeed * elapsedTime gs, fromIntegral (pacManSize p) / 4, fromIntegral (pacManSize p) / 2)

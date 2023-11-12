@@ -31,7 +31,7 @@ initialState b = GameState
                b 
                (13,21)
                (Score 0) 
-               (PacMan (Location (104,124) Types.Right) (Location (104,124) Types.Right) Types.Right (Lives 3) 57 8 (-30, 30, 2, 4) Closing)
+               (PacMan (Location (104,124) Types.Right) (Location (104,124) Types.Right) Types.Right (Lives 3) 57 8 (-40, 40, 2, 4) Closing)
                (Ghost (Location (112,140) Types.Up) (Location (112,140) Types.Up) (0,0) Chase 16 (0,300) False Red 8 red red Inside 0 20 Chase 0)
                (Ghost (Location (104,140) Types.Right) (Location (104,140) Types.Right) (0,0) Chase 16 (300,0) False Pink 8 rose rose Inside 10 20 Chase 0)
                (Ghost (Location (112,140) Types.Left) (Location (112,140) Types.Left) (0,0) Chase 16 (300,300) False Cyan 8 cyan cyan Inside 20 20 Chase 0)
@@ -171,7 +171,15 @@ instance Eq Lives where
     (==) :: Lives -> Lives -> Bool
     Lives l == Lives l' = l == l'
 
-data PacManAnimation = Opening | Closing
+data PacManAnimation = Opening | Closing | Dying
+
+instance Eq PacManAnimation where
+    (==) :: PacManAnimation -> PacManAnimation -> Bool
+    Opening == Opening = True
+    Closing == Closing = True
+    Dying   == Dying   = True
+    _       == _       = False
+
 type PacManPictureValues = (Float, Float, Float, Float)
 
 pacManAnimationSpeed :: Float
