@@ -17,10 +17,13 @@ data InfoToShow = ShowNothing
                 | ShowABoard  Board
                 | ShowAPosition Location
                 | ShowPlayState
+                | ShowPauseState 
+                | ShowFinishedState
 
 initialState :: Board -> GameState
 initialState b = GameState 
                ShowPlayState
+               False
                False
                KeyState.Up
                b 
@@ -40,7 +43,8 @@ windowSize = (896, 760)
 --------------------------Game--------------------------
 data GameState = GameState 
     { infoToShow     :: InfoToShow
-    , paused         :: Bool
+    , paused         :: Paused
+    , finished       :: Finished
     , keyStatePaused :: KeyState
     , board          :: Board   --Moet waarschijnlijk nog IO Board worden
     , score          :: Score
@@ -53,6 +57,9 @@ data GameState = GameState
     , totalTime      :: TotalTime
     , generator      :: StdGen
     }
+
+type Paused = Bool
+type Finished = Bool
 
 newtype Score = Score Natural
 instance Show Score where

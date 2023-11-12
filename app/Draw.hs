@@ -22,7 +22,15 @@ import Types as T
       Field(MkField),
       FieldType(..),
       GameState(..),
-      InfoToShow(ShowABoard, ShowNothing, ShowANumber, ShowAChar, ShowPlayState, ShowAPosition, ShowAnIntTuple), PacMan (..), Location (Location), Ghost (..), GhostType (..), Score, windowSize, Orientation (..) )
+      InfoToShow(..), 
+      PacMan (..), 
+      Location (Location), 
+      Ghost (..), 
+      GhostType (..), 
+      Lives (..),
+      Score, 
+      windowSize, 
+      Orientation (..) )
 import Board (fCordToLCord, locationToField)
 import Graphics.Gloss.Data.Picture
 import Graphics.Gloss.Data.Color
@@ -38,9 +46,14 @@ drawPure gs = case infoToShow gs of
   ShowANumber n   -> color green (text (show n))
   ShowAChar   c   -> color green (text [c])
   ShowPlayState   -> drawPlayState gs
+  ShowPauseState  -> drawPauseState gs
   ShowAPosition l -> let f = locationToField l (board gs)
                      in color white $ translate (-200) 0 (scale 0.2 0.2 (text (show l ++ show f)))
   ShowABoard    b -> translate (-300) (-300) (scale 0.15 0.15 $ drawHelpBoard b)
+  ShowFinishedState -> drawFinishedState $ score gs
+
+drawFinishedState :: Score -> Picture
+drawFinishedState s = color white $ translate (-330) 0 (scale 0.4 0.4 $ text ("You WON With " ++ show s ++ " Points!!"))
 
 drawHelpBoard :: Board -> Picture
 drawHelpBoard b = pictures $ stringsToPicture (map (concatMap show) b) 0
@@ -49,14 +62,17 @@ drawHelpBoard b = pictures $ stringsToPicture (map (concatMap show) b) 0
         stringsToPicture [] _= []
         stringsToPicture (x:xs) y = translate 0 y (color green (text x)) : stringsToPicture xs (y + 200) 
 
+drawPauseState :: GameState -> Picture
+drawPauseState gs = let t = color white $ translate (-200) 0 (scale 0.2 0.2 $ text "Game Paused, Press 'P' To Continue")
+                    in pictures [drawPlayState gs, t]
+
 drawPlayState :: GameState -> Picture
 drawPlayState gs = let (x,y,p) = drawBoard (board gs)
                        (wx, wy) = windowSize
                        sc = min (fromIntegral wx / x) (fromIntegral wy / (y + fromIntegral fieldSize / 2))
                    in scale sc sc 
                     $ translate ((-x - fromIntegral fieldSize / 2) / 2) ((-y - fromIntegral fieldSize / 2) / 2) 
-                    $ pictures [p, drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs) y]
-
+                    $ pictures [drawPacManLives (lives $ pacMan gs) y, p, drawPacMan (pacMan gs), drawAllGhosts gs, drawScore (score gs) y]
 
 drawBoard :: Board -> (Float, Float, Picture)
 drawBoard b = let ls = helpDrawBoard
@@ -95,5 +111,9 @@ drawAllGhosts gs = pictures [drawGhost (ghostRed gs), drawGhost (ghostPink gs), 
 drawGhost :: Ghost -> Picture
 drawGhost g@(Ghost {ghostLocation = (Location (x,y) _)}) = translate x y (color (ghostColor g) (circleSolid (fromIntegral (ghostSize g) / 2)))
 
-drawScore :: Score -> Float -> Picture   --Still needs to be translated
+drawScore :: Score -> Float -> Picture
 drawScore s y = translate (-45) (y - 30) $ scale 0.2 0.2 $ color white (text (show s))
+
+drawPacManLives :: Lives -> Float -> Picture 
+drawPacManLives (Lives l) y = let life = color yellow (thickArc (-30) (30) 2 4)
+                              in translate (225) (y - 10) $ pictures $ map (\n -> translate 0 ((-10) * n) life) (take (fromIntegral l) [0..])

@@ -5,7 +5,7 @@ module Controller where
 import Types as T
     ( initialState,
       GameState(..),
-      InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber, ShowAPosition, ShowAnIntTuple),
+      InfoToShow(..),
       Orientation(Right, Up, Left, Down),
       PacMan (..), Location (Location), Field )
 import Graphics.Gloss ()
@@ -15,7 +15,7 @@ import System.Random (RandomGen (genShortByteString))
 import LevelLoader ()
 import PacMan ( movePacMan, pacManWakkaWakka, handleField, enemyCollision, interact, deathCheck )
 import Entity (moveEntity)
-import Board (locationToField, lCordToFCord)
+import Board (locationToField, lCordToFCord, setEndOfGame)
 import Ghost (moveAllGhosts, findAllTargetFields)
 import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 
@@ -28,7 +28,7 @@ import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 -- --      return $ gs 
 
 step :: Float -> GameState -> IO GameState
-step secs gs@(GameState { paused = False }) = 
+step secs gs@(GameState { paused = False , finished = False}) = 
     do update gs 
         { totalTime = totalTime gs + secs
         , elapsedTime = secs
@@ -41,6 +41,7 @@ update gs@(GameState { pacMan = (PacMan { pacManLocation = l })
                      , board  = b
                      }) = 
                      do return 
+                     . setEndOfGame
                      . deathCheck 
                      . enemyCollision 
                      . pacManWakkaWakka 
@@ -60,8 +61,16 @@ inputKey (EventKey (Char 'a') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutu
 inputKey (EventKey (Char 's') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Down } }
 inputKey (EventKey (Char 'd') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Right } }
 inputKey (EventKey (Char 'b') _ _ _) gs = gs { infoToShow = ShowABoard (board gs) }
-inputKey (EventKey (Char 'p') _ _ _) gs@(GameState { paused = pauseState, keyStatePaused = KeyState.Up }) = gs { paused = not pauseState, keyStatePaused = KeyState.Down }
+inputKey (EventKey (Char 'p') _ _ _) gs@(GameState { infoToShow = drawState
+                                                   , paused = pauseState
+                                                   , keyStatePaused = KeyState.Up }) = gs { infoToShow = changePausedState drawState, paused = not pauseState, keyStatePaused = KeyState.Down }
 inputKey _ gs = gs { keyStatePaused = KeyState.Up} -- Otherwise keep the same
+
+changePausedState :: InfoToShow -> InfoToShow
+changePausedState ShowPlayState  = ShowPauseState
+changePausedState ShowPauseState = ShowPlayState
+changePausedState i              = i
+
 
 --Volgorde wordt:
 --1. Move PacMan
