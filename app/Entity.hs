@@ -5,12 +5,18 @@ import Types
 import qualified Types as T
 import Board (isWall, locationToField)
 
-moveEntity ::  Location -> Speed -> ElapsedTime -> Size -> Location
-moveEntity l                      0 _ _ = l
-moveEntity (Location (x,y) Up)    s t size = Location (fromIntegral (centerCoordinate (truncate x) size),y + s * t) Up
-moveEntity (Location (x,y) Right) s t size = Location (x + s * t,fromIntegral (centerCoordinate (truncate y) size)) Right
-moveEntity (Location (x,y) Down)  s t size = Location (fromIntegral (centerCoordinate (truncate x) size),y - s * t) Down
-moveEntity (Location (x,y) Left)  s t size = Location (x - s * t,fromIntegral (centerCoordinate (truncate y) size)) Left
+moveEntity :: Board -> Location -> Speed -> ElapsedTime -> Size -> Location
+moveEntity b l@(Location cords o) speed t size
+    | boundaryCheck b cords o size = snapToCenter l size
+    | otherwise                    = nl
+    where nl = nextLocation l speed t size
+
+nextLocation :: Location -> Speed -> ElapsedTime -> Size -> Location
+nextLocation l                      0 _ _ = l
+nextLocation (Location (x,y) Up)    s t size = Location (fromIntegral (centerCoordinate (truncate x) size),y + s * t) Up
+nextLocation (Location (x,y) Right) s t size = Location (x + s * t,fromIntegral (centerCoordinate (truncate y) size)) Right
+nextLocation (Location (x,y) Down)  s t size = Location (fromIntegral (centerCoordinate (truncate x) size),y - s * t) Down
+nextLocation (Location (x,y) Left)  s t size = Location (x - s * t,fromIntegral (centerCoordinate (truncate y) size)) Left
 
 -- Checks if the entity is in a wall or not in the new location
 boundaryCheck :: Board -> LocationCord -> Orientation -> Size -> IsWall
@@ -34,7 +40,7 @@ halfSize :: Size -> Float
 halfSize size = fromIntegral size / 1.99
 
 almostHalfSize :: Size -> Float
-almostHalfSize size = fromIntegral size / 2.01
+almostHalfSize size = fromIntegral size / 2.05
 
 snapToCenter :: Location -> Size -> Location
 snapToCenter (Location (x,y) o) s = Location (center (truncate x, truncate y)) o

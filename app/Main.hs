@@ -17,8 +17,8 @@ main = do putStrLn "Choose level by inserting one of the following chars: '1', '
             then do b <- loadLevel "app\\Level1.txt"
                     playIO (InWindow "Counter" windowSize (0, 0)) -- Or FullScreen
                      black            -- Background color
-                     60               -- Frames per second
-                     (initialState b)   -- Initial state
+                     600              -- Frames per second
+                     (initialState b) -- Initial state
                      draw             -- View function
                      input            -- Event function
                      step             -- Step function

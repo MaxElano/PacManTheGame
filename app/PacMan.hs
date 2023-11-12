@@ -37,11 +37,11 @@ movePacMan gs@(GameState
         , pacManSize     = size
         })
     }) 
-    | o == fo && boundaryCheck b cords o size = snapToCenter l size 
-    | o == fo                                 = moveEntity l speed t size
-    | not (boundaryCheck b cords fo size)     = moveEntity (Location cords fo) speed t size
-    | not (boundaryCheck b cords o size)      = moveEntity l speed t size
-    | otherwise                               = l
+    | o == fo                             = moveEntity b l speed t size
+    | not (boundaryCheck b cords fo size) = moveEntity b (Location cords fo) speed t size
+    | not (boundaryCheck b cords o size)  = moveEntity b l speed t size
+    | otherwise                           = snapToCenter l size
+
 
 interact :: Location -> GameState -> GameState
 interact l gs@(GameState { board = b}) = let f = locationToField l b
