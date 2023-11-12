@@ -127,7 +127,7 @@ killGhosts gs@(GameState
     | gtp == ghostType ghost = gs { ghostPink   = killGhost gp }
     | gtc == ghostType ghost = gs { ghostCyan   = killGhost gc }
     | gto == ghostType ghost = gs { ghostOrange = killGhost go }
-    | otherwise   = gs
+    | otherwise   = killGhosts gs ghosts
 
 -- kill a ghost, resets their position and color
 killGhost :: Ghost -> Ghost
