@@ -29,13 +29,13 @@ initialState b = GameState
                False
                KeyState.Up
                b 
-               (13,21)
+               (13,19)
                (Score 0) 
                (PacMan (Location (104,124) Types.Right) (Location (104,124) Types.Right) Types.Right (Lives 3) 57 8 (-40, 40, 2, 4) Closing)
-               (Ghost (Location (112,140) Types.Up) (Location (112,140) Types.Up) (0,0) Chase 16 (0,300) False Red 8 red red Inside 0 20 Chase 0)
-               (Ghost (Location (104,140) Types.Right) (Location (104,140) Types.Right) (0,0) Chase 16 (300,0) False Pink 8 rose rose Inside 10 20 Chase 0)
-               (Ghost (Location (112,140) Types.Left) (Location (112,140) Types.Left) (0,0) Chase 16 (300,300) False Cyan 8 cyan cyan Inside 20 20 Chase 0)
-               (Ghost (Location (120,140) Types.Up) (Location (120,140) Types.Up) (0,0) Chase 16 (0,0) False Orange 8 orange orange Inside 30 20 Chase 0)
+               (Ghost (Location (112,140) Types.Up) (Location (112,140) Types.Up) (0,0) Chase 40 (0,300) False Red 8 red red Inside 0 20 Chase 0 True)
+               (Ghost (Location (104,140) Types.Right) (Location (104,140) Types.Right) (0,0) Chase 40 (300,0) False Pink 8 rose rose Inside 10 20 Chase 0 True)
+               (Ghost (Location (112,140) Types.Left) (Location (112,140) Types.Left) (0,0) Chase 40 (300,300) False Cyan 8 cyan cyan Inside 20 20 Chase 0 True)
+               (Ghost (Location (120,140) Types.Up) (Location (120,140) Types.Up) (0,0) Chase 40 (0,0) False Orange 8 orange orange Inside 30 20 Chase 0 True)
                0
                0
                (mkStdGen 42)
@@ -206,9 +206,10 @@ data Ghost = Ghost
     , modeTime           :: Time
     , coreMode           :: GhostMode
     , frightenedTime     :: Time
+    , mayTurn            :: MayTurn
     }
 
-
+type MayTurn       = Bool
 type GhostLocation = Location
 data GhostType     = Red | Pink | Cyan | Orange
 
@@ -236,6 +237,20 @@ instance Show GhostMode where
     show Frightened = "Frightened"
 
 data GhostHouseStatus = Inside | MayLeave | Outside
+
+instance Eq GhostHouseStatus where
+    (==) :: GhostHouseStatus -> GhostHouseStatus -> Bool
+    Inside   == Inside   = True
+    MayLeave == MayLeave = True
+    Outside  == Outside  = True
+    _        == _        = False
+
+
+instance Show GhostHouseStatus where
+    show :: GhostHouseStatus -> String
+    show Inside   = "Inside"
+    show MayLeave = "MayLeave"
+    show Outside  = "Outside"
 
 type MustReverse     = Bool
 type BaseField       = TargetFieldCord

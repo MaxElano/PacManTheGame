@@ -43,7 +43,7 @@ draw gs = return $ drawPure gs
 drawPure :: GameState -> Picture
 drawPure gs = case infoToShow gs of
   ShowNothing     -> blank
-  ShowANumber n   -> color green (text (show n))
+  ShowANumber n   -> scale 0.2 0.2 $ color green $ text ((show (ghostLocation (ghostPink gs))) ++ (show (mayTurn (ghostPink gs))) ++ (show (ghostHouseStatus (ghostPink gs))))
   ShowAChar   c   -> color green (text [c])
   ShowPlayState   -> drawPlayState gs
   ShowPauseState  -> drawPauseState gs

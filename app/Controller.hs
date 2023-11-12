@@ -78,6 +78,7 @@ input (EventKey (SpecialKey KeySpace) _ _ _) gs@(GameState
              
 input _ gs = return gs { keyStatePaused = KeyState.Up}
 
+
 changePausedState :: InfoToShow -> InfoToShow
 changePausedState ShowPlayState  = ShowPauseState
 changePausedState ShowPauseState = ShowPlayState
