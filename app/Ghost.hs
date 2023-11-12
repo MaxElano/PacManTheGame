@@ -16,7 +16,7 @@ import Types as T
       Board,
       GhostMode(..),
       GhostHouseStatus(..),
-      GameState(GameState, ghostOrange, ghostMode, generator, board,
+      GameState(GameState, ghostOrange, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
       ElapsedTime, Size, GhostColorTo (..), ghostDarkColor)
 import Entity ( moveEntity, oppositeOrientation, boundaryCheck )
