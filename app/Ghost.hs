@@ -1,4 +1,4 @@
-module Ghost (moveAllGhosts, findAllTargetFields, changeAllGhostColor, handleGhostTimers) where
+module Ghost where
 import Types as T
     ( IsWall,
       TargetFieldCord,
@@ -29,7 +29,7 @@ import Graphics.Gloss.Data.Color as C
 import GHC.RTS.Flags (DebugFlags(gc), getParFlags)
 import Data.Maybe
 
---Main Function 1 for the entire module. Handles all movement for the ghosts
+-- main Function 1 for the entire module. Handles all movement for the ghosts
 moveAllGhosts :: GameState -> GameState
 moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostRed    gs) (elapsedTime gs) (ghostMode (ghostRed gs))    (generator gs)
                        (ngc, ng2) = moveGhost (board gs) (ghostCyan   gs) (elapsedTime gs) (ghostMode (ghostCyan gs))   ng1
@@ -43,9 +43,9 @@ moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostRed    gs) (elaps
                        , generator   = ng4
                        }
 
---Handles all the movement for one ghost
+-- handles all the movement for one ghost
 moveGhost :: Board -> Ghost -> ElapsedTime -> GhostMode -> StdGen -> (Ghost, StdGen)
---Reverses the ghost if neccessary
+-- reverses the ghost if neccessary
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , mustReverse      = True
@@ -54,7 +54,7 @@ moveGhost b g@(Ghost
         , mustReverse   = False 
         , mayTurn       = False
         }, gen)
---If the ghost may not turn, go straight untill new field
+-- if the ghost may not turn, go straight untill new field
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , mayTurn          = False
@@ -62,14 +62,14 @@ moveGhost b g@(Ghost
                            in if (lCordToFCord nc == lCordToFCord c) 
                                 then (g { ghostLocation = nl, mayTurn = False }, gen)
                                 else (g { ghostLocation = nl, mayTurn = True  }, gen)
---Handles random direction, when inside of GhostHouse
+-- handles random direction, when inside of GhostHouse
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , ghostHouseStatus = Inside
     }) et _ gen = let os = (tryAllOrientations b l (ghostSize g) Inside)
                       (no, ng) = chooseRandomDirection gen os
                   in (g { ghostLocation = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g) }, ng)
---Handles random direcion, when frightened
+-- handles random direcion, when frightened
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , mayTurn          = True
@@ -78,7 +78,7 @@ moveGhost b g@(Ghost
                            in if o == no || ((ghostHouseStatus g) == MayLeave)
                                 then (g { ghostLocation = nl, mayTurn = True  }, ng)
                                 else (g { ghostLocation = nl, mayTurn = False }, gen)
---"Normal" move
+-- "normal" move
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , mayTurn          = True
@@ -120,13 +120,13 @@ moveGhost b g@(Ghost
                     ngx = fromIntegral gx :: Float
                     ngy = fromIntegral gy :: Float
 
---Chooses random direction from list
+-- chooses random direction from list
 chooseRandomDirection :: StdGen -> [Orientation] -> (Orientation, StdGen)
 chooseRandomDirection g [] = (Up, g)
 chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs - 1)
                              in (xs !! rn, ng)
 
---Finds all allowed new orientations for the ghost
+-- finds all allowed new orientations for the ghost
 tryAllOrientations :: Board -> GhostLocation -> Size -> GhostHouseStatus -> [Orientation]
 tryAllOrientations b gl@(Location _ o) s Inside   = let os = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s Inside []
                                                     in case os of
@@ -135,6 +135,7 @@ tryAllOrientations b gl@(Location _ o) s Inside   = let os = checkPossibility b 
 tryAllOrientations b gl@(Location _ o) s Outside  = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s Outside []
 tryAllOrientations b gl@(Location _ o) s MayLeave = checkPossibility b gl [T.Up, T.Right, T.Down, T.Left] s MayLeave []
 
+-- returns all possible directions the ghost can go in
 checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> GhostHouseStatus -> [Orientation] -> [Orientation]
 checkPossibility _ _                       [] _     _        acc = acc
 checkPossibility b gl@(Location l@(x,y) o) (z:zs) s MayLeave acc | ghostWallBoundaryCheck b l z s = [z]
@@ -144,7 +145,7 @@ checkPossibility b gl@(Location l@(x,y) o) (z:zs) s h        acc | boundaryCheck
                                                                  | otherwise             = checkPossibility b gl zs s h (z : acc)
     
 
---Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
+-- main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
 findAllTargetFields gs = gs 
     { ghostRed    = assignTargetField gs (ghostRed gs) 
@@ -153,6 +154,7 @@ findAllTargetFields gs = gs
     , ghostOrange = assignTargetField gs (ghostOrange gs)
     }
 
+-- assigns a target field for the ghost given
 assignTargetField :: GameState -> Ghost -> Ghost
 assignTargetField _  g@(Ghost { ghostHouseStatus = Inside })   = g
 assignTargetField gs g@(Ghost { ghostHouseStatus = MayLeave }) = g { targetField = ghostHouseDoor gs } 
@@ -162,7 +164,7 @@ assignTargetField gs g@(Ghost { ghostMode = Scatter
                               , ghostHouseStatus = Outside })  = g { targetField = baseField g }
 assignTargetField _ g                                          = g 
         
---Decides which algorithm to use to chase PacMan, depends on ghostType
+-- decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: Ghost -> GameState -> Ghost
 findTargetField g@(Ghost { ghostType = Red })    (GameState { pacMan      = (PacMan { pacManLocation = pl }) }) = g { targetField = findTargetFieldRed pl }
 findTargetField g@(Ghost { ghostType = Pink })   (GameState { pacMan      = (PacMan { pacManLocation = pl }) }) = g { targetField = findTargetFieldPink pl }
@@ -178,21 +180,21 @@ findTargetField g@(Ghost { ghostType = Orange }) (GameState
         })
     }) = g {targetField = findTargetFieldOrange pl gl bf}
 
---(Red Ghost) TargetField is PacMan's location -> field
+-- (red Ghost) TargetField is PacMan's location -> field
 findTargetFieldRed :: PacManLocation -> TargetFieldCord
 findTargetFieldRed (Location p _) = lCordToFCord p
 
---(Pink Ghost) TargetField is 4 fields ahead of PacMan
+-- (pink Ghost) TargetField is 4 fields ahead of PacMan
 findTargetFieldPink :: PacManLocation -> TargetFieldCord
 findTargetFieldPink (Location p o) = findFieldCordAhead (lCordToFCord p) o 4
 
---(Cyan Ghost) TargetField is the field mirrored to the red ghost's location from 2 ahead of PacMan
+-- (cyan Ghost) TargetField is the field mirrored to the red ghost's location from 2 ahead of PacMan
 findTargetFieldCyan :: PacManLocation -> GhostLocation -> TargetFieldCord
 findTargetFieldCyan (Location p o) (Location g _) = let (npx, npy) = findFieldCordAhead (lCordToFCord p) o 2
                                                         (ngx, ngy) = lCordToFCord g
                                                     in (npx * 2 - ngx , npy * 2 - ngy)
 
---(Orange Ghost) Uses it's own location and pacman's location, if within 8 range -> back to base, otherwise use red algorithm
+-- (orange Ghost) Uses it's own location and pacman's location, if within 8 range -> back to base, otherwise use red algorithm
 findTargetFieldOrange :: PacManLocation -> GhostLocation -> BaseField -> TargetFieldCord
 findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8 = findTargetFieldRed pl
                                                             | otherwise          = bf
@@ -200,16 +202,27 @@ findTargetFieldOrange pl@(Location pc o) (Location gc _) bf | distance pc gc > 8
         distance :: LocationCord -> LocationCord -> Float
         distance (px, py) (gx, gy) = sqrt (abs ((px - gx) * (px - gx) + (py - gy) * (py - gy)))
 
+-- changes the color of all ghosts to the derired color
 changeAllGhostColor :: GameState-> GhostColorTo -> GameState
 changeAllGhostColor gs c = gs { ghostRed    = changeGhostColor (ghostRed gs)  c
                               , ghostPink   = changeGhostColor (ghostPink gs) c
                               , ghostCyan   = changeGhostColor (ghostCyan gs) c
                               , ghostOrange = changeGhostColor (ghostOrange gs) c }
 
+-- changes the color of the ghost to the desired color
 changeGhostColor :: Ghost -> GhostColorTo -> Ghost
 changeGhostColor g T.Normal = g {ghostColor = ghostBaseColor g}
 changeGhostColor g T.Dark   = g {ghostColor = ghostDarkColor}
 
+-- handles all timers for all the ghosts
+handleGhostsTimers :: GameState -> GameState
+handleGhostsTimers gs = gs { ghostRed    = handleGhostTimers (ghostRed gs) (elapsedTime gs)
+                     , ghostOrange = handleGhostTimers (ghostOrange gs) (elapsedTime gs) 
+                     , ghostPink   = handleGhostTimers (ghostPink gs) (elapsedTime gs) 
+                     , ghostCyan   = handleGhostTimers (ghostCyan gs) (elapsedTime gs) 
+                     }
+
+-- handles the important timers specific to the given ghost
 handleGhostTimers :: Ghost -> ElapsedTime -> Ghost
 handleGhostTimers g t = changeMode g 
     { ghostHouseStatus = changeGhostHouseStatus (leaveHouseTime g - t) (ghostHouseStatus g) t
@@ -218,11 +231,13 @@ handleGhostTimers g t = changeMode g
     , frightenedTime   = frightenedTime g - t
     }
 
+-- changes the ghost house status of the ghost depending on time
 changeGhostHouseStatus :: Time -> GhostHouseStatus -> ElapsedTime -> GhostHouseStatus
 changeGhostHouseStatus lt Inside t | lt <= 0   = MayLeave
                                    | otherwise = Inside
 changeGhostHouseStatus _ g _       = g
 
+-- changes the ghosts mode between the three different states using two timers to differentiate between Chase - Scatter and (Chase/Scatter) - Frightened
 changeMode :: Ghost -> Ghost
 changeMode g@(Ghost 
     { ghostMode      = gm

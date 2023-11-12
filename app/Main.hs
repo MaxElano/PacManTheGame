@@ -26,6 +26,3 @@ main = do putStrLn "Choose level by inserting one of the following chars: '1', '
                          input            -- Event function
                          step             )-- Step function
           else do display (InWindow "Counter" windowSize (0, 0)) red (scale 0.2 0.2 $ translate (-30) 0 $ color black (text "&&%&#$%&E#RR#OR&&%&$#%&"))
-          writeScore (Score 3)
-          
-

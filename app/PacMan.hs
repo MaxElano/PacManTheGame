@@ -18,7 +18,7 @@ import Types as T
       ElapsedTime,
       NewOrientation,
       GhostHouseStatus(..),
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse, frightenedTime, ghostHouseStatus), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar, ShowLostState), GhostColorTo (Dark) )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse, frightenedTime, ghostHouseStatus), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar, ShowLostState), GhostColorTo (Dark), initialState, GhostType (..) )
 import Board
     ( locationToField,
       isWall,
@@ -26,8 +26,9 @@ import Board
 import Entity ( moveEntity, getCornerBoundaryLocations, boundaryCheck, snapToCenter )
 import Ghost (changeAllGhostColor)
 import Data.Maybe (mapMaybe)
+import Graphics.Gloss ( cyan, orange, red, rose )
 
--- Moves pac-man when given the gamestate, also checks for walls
+-- moves pac-man when given the gamestate, also checks for walls
 movePacMan :: GameState -> PacManLocation
 movePacMan gs@(GameState 
     { elapsedTime = t
@@ -45,13 +46,15 @@ movePacMan gs@(GameState
     | otherwise                           = snapToCenter l size
 
 
+-- checks the field of pac-man handles the field if need be
 interact :: Location -> GameState -> GameState
 interact l gs@(GameState { board = b}) = let f = locationToField l b
                                          in case f of
                                             Just f -> handleField f gs
                                             Nothing -> gs
 
--- Reacts accordingly to the important field types pac-man could be on
+-- reacts accordingly to the important field types pac-man could be on
+-- removes pellet and adds 10 to the score
 handleField :: Field -> GameState -> GameState
 handleField f@(MkField _ Pellet) gs@(GameState 
     { score = (Score s)
@@ -61,6 +64,7 @@ handleField f@(MkField _ Pellet) gs@(GameState
         , board = changeFieldType b f Empty 
         }
 
+-- removes cherry and adds 100 to the score
 handleField f@(MkField _ Cherry) gs@(GameState 
     { score = (Score s)
     , board = b
@@ -69,6 +73,7 @@ handleField f@(MkField _ Cherry) gs@(GameState
         , board = changeFieldType b f Empty 
         }
 
+-- removes power-up, adds 50 to the score and changes all ghosts to frightened
 handleField f@(MkField _ PowerUp) gs@(GameState 
     { score = (Score s)
     , board = b 
@@ -83,6 +88,7 @@ handleField f@(MkField _ PowerUp) gs@(GameState
 
 handleField f@(MkField _ _) gs = gs
 
+-- checks all colliding ghosts and if pac-man should die (if one of the colliding ghosts isn't in frightened)
 enemyCollision :: GameState -> GameState
 enemyCollision gs@(GameState 
     { board = b
@@ -92,14 +98,16 @@ enemyCollision gs@(GameState
              isPacManDead = isOneNotFrightened collidingGhosts
          in killEntities gs collidingGhosts isPacManDead
 
+-- handles the colliding ghosts depending on if pac-man shoud die or not
 killEntities :: GameState -> [Ghost] -> Bool -> GameState
 killEntities gs _ True = gs { pacMan = (pacMan gs) { pacManAnimation = Dying } }
 killEntities gs ghosts _  = killGhosts gs ghosts
 
+-- returns true when one of the colliding ghosts is not frightened, thus signaling pac-mans untimely death
 isOneNotFrightened :: [Ghost] -> Bool
 isOneNotFrightened = any (\g -> ghostMode g /= Frightened)
 
--- kills pac-man and resets the ghosts, resulting in pac-man losing a life
+-- kills pac-man and resets pac-man and the ghosts, resulting in pac-man losing a life
 killPacMan :: GameState -> GameState
 killPacMan gs@(GameState 
     { pacMan      = (PacMan 
@@ -111,16 +119,14 @@ killPacMan gs@(GameState
     , ghostCyan   = (Ghost { ghostStartLocation = cyansl })
     , ghostOrange = (Ghost { ghostStartLocation = orangesl })
     }) = gs
-        { pacMan      = (pacMan gs) 
-            { lives          = Lives (lvs - 1) 
-            , pacManLocation = pacsl
-            } 
-        , ghostRed    = (ghostRed gs)    { ghostLocation = redsl, ghostHouseStatus = Inside }
-        , ghostPink   = (ghostPink gs)   { ghostLocation = pinksl, ghostHouseStatus = Inside }
-        , ghostCyan   = (ghostCyan gs)   { ghostLocation = cyansl, ghostHouseStatus = Inside }
-        , ghostOrange = (ghostOrange gs) { ghostLocation = orangesl, ghostHouseStatus = Inside }
+        { pacMan      = PacMan (Location (104,124) T.Right) (Location (104,124) T.Right) T.Right (Lives (lvs-1)) 57 8 (-40, 40, 2, 4) Closing
+        , ghostRed    = Ghost (Location (112,140) T.Up) (Location (112,140) T.Up) (0,0) Chase 40 (0,300) False Red 8 red red Inside 1 20 Chase 0 True
+        , ghostPink   = Ghost (Location (104,140) T.Right) (Location (104,140) T.Right) (0,0) Chase 40 (300,0) False Pink 8 rose rose Inside 10 20 Chase 0 True
+        , ghostCyan   = Ghost (Location (112,140) T.Left) (Location (112,140) T.Left) (0,0) Chase 40 (300,300) False Cyan 8 cyan cyan Inside 20 20 Chase 0 True
+        , ghostOrange = Ghost (Location (120,140) T.Up) (Location (120,140) T.Up) (0,0) Chase 40 (0,0) False Orange 8 orange orange Inside 30 20 Chase 0 True
         }
 
+-- kills all colliding ghosts recursively
 killGhosts :: GameState -> [Ghost] -> GameState
 killGhosts gs [] = gs
 killGhosts gs@(GameState 
@@ -136,7 +142,7 @@ killGhosts gs@(GameState
     | gto == ghostType ghost = gs { ghostOrange = killGhost go }
     | otherwise   = killGhosts gs { score = Score (s+200)} ghosts
 
--- kill a ghost, resets their position and color
+-- kill a ghost, resets their attributes and delays their return to the board 
 killGhost :: Ghost -> Ghost
 killGhost g@(Ghost 
     { ghostStartLocation = gsl 
@@ -166,7 +172,8 @@ isGhostInSameField pacf g@(Ghost { ghostLocation = ghostl }) b = let ghostf = lo
                                     Just ghostf -> if ghostf == pacf then Just g else Nothing 
                                     Nothing     -> Nothing
 
--- pac-mans active animation code, returns different states of animation for pac-man
+-- pac-mans animation code, returns different states of animation for pac-man
+-- pac-mans opening animation
 pacManWakkaWakka :: GameState -> GameState
 pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan 
     { pacManAnimation = Opening
@@ -179,6 +186,8 @@ pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan
                 { pacManPictureValues = (nma, npa, nr, nt)
                 , pacManAnimation = na
                 }}
+
+-- pac-mans closing animation
 pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan 
     { pacManAnimation = Closing
     , pacManPictureValues = (ma, pa, r, t) 
@@ -190,6 +199,8 @@ pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan
                 { pacManPictureValues = (nma, npa, nr, nt)
                 , pacManAnimation = na
                 }}
+                
+-- pac-mans dying animation
 pacManWakkaWakka gs@(GameState { pacMan = p@(PacMan 
     { pacManAnimation = Dying
     , pacManPictureValues = (ma, pa, r, t) 

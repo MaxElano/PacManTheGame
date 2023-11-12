@@ -4,17 +4,16 @@ import Prelude
 import System.IO ()
 import Types ( Board, Field(..), FieldType(..), Row )
 
-printLevel :: FilePath -> IO()
-printLevel fp = do c <- loadLevel fp
-                   print c
-
+-- returns the io board when given a filepath
 loadLevel :: FilePath -> IO Board
 loadLevel = makeBoard . createStringList
 
+-- reads the levelfile and returns the io list of strings 
 createStringList :: FilePath -> IO [String]
 createStringList fp = readFile fp >>= \string ->
                         return (lines string)
 
+-- makes the io board 
 makeBoard :: IO [String] -> IO Board
 makeBoard = fmap (convertLine 0 . reverse)
     where 

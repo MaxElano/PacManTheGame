@@ -19,11 +19,12 @@ import LevelLoader ()
 import PacMan ( movePacMan, pacManWakkaWakka, handleField, enemyCollision, interact, )
 import Entity (moveEntity)
 import Board (locationToField, lCordToFCord)
-import Ghost (moveAllGhosts, findAllTargetFields, handleGhostTimers )
+import Ghost (moveAllGhosts, findAllTargetFields, handleGhostTimers, handleGhostsTimers )
 import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 import System.Exit
 import ScoreWriter (writeScore)
 
+-- updates the time every frame except when the game is paused
 step :: Float -> GameState -> IO GameState
 step secs gs@(GameState { paused = False }) = do update gs 
                                                   { totalTime = totalTime gs + secs
@@ -31,6 +32,7 @@ step secs gs@(GameState { paused = False }) = do update gs
                                                   }
 step _ gs = return gs
       
+-- updates the game logic based on different situations
 update :: GameState -> IO GameState
 update gs@(GameState 
     { pacMan = (PacMan 
@@ -45,7 +47,7 @@ update gs@(GameState
     | finished gs            = do return gs { infoToShow = ShowLostState }
     | pa == Dying            = do return (pacManWakkaWakka gs)
     | otherwise              = do return
-                               . handleTimers
+                               . handleGhostsTimers
                                . checkEndOfGame 
                                . enemyCollision 
                                . pacManWakkaWakka 
@@ -54,10 +56,8 @@ update gs@(GameState
                                . PacMan.interact l $ gs { pacMan = (pacMan gs) { pacManLocation = movePacMan gs } } 
 
 
--- handle user input
+-- handles user input
 input :: Event -> GameState -> IO GameState
-input (EventKey (Char 'c') _ _ _) gs@(GameState { ghostRed = (Ghost { ghostMode = gm }) }) = return gs { infoToShow = ShowAMode gm }
-input (EventKey (Char 'b') _ _ _) gs = return gs { infoToShow = ShowPlayState }
 input (EventKey (Char 'w') _ _ _) gs = return gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Up } }
 input (EventKey (Char 'a') _ _ _) gs = return gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Left } }
 input (EventKey (Char 's') _ _ _) gs = return gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Down } }
@@ -78,19 +78,13 @@ input (EventKey (SpecialKey KeySpace) _ _ _) gs@(GameState
              
 input _ gs = return gs { keyStatePaused = KeyState.Up}
 
-
+-- changes the state from paused to play and vice versa
 changePausedState :: InfoToShow -> InfoToShow
 changePausedState ShowPlayState  = ShowPauseState
 changePausedState ShowPauseState = ShowPlayState
 changePausedState i              = i
 
-handleTimers :: GameState -> GameState
-handleTimers gs = gs { ghostRed    = handleGhostTimers (ghostRed gs) (elapsedTime gs)
-                     , ghostOrange = handleGhostTimers (ghostOrange gs) (elapsedTime gs) 
-                     , ghostPink   = handleGhostTimers (ghostPink gs) (elapsedTime gs) 
-                     , ghostCyan   = handleGhostTimers (ghostCyan gs) (elapsedTime gs) 
-                     }
-
+-- checks whehter or not the game is finished (when pacman has lost all his lives or when all the pickups are gone)
 checkEndOfGame :: GameState -> GameState
 checkEndOfGame gs@(GameState { pacMan = (PacMan { lives = Lives 0 }) }) = gs { finished = True }
 checkEndOfGame gs@(GameState { board = b })                             = gs { finished = not $ foldr (\rs x -> x || foldr (\(MkField _ f) y -> y || case f of

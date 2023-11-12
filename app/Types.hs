@@ -5,23 +5,19 @@ import Prelude
 import GHC.Natural (Natural)
 import System.Random (StdGen, mkStdGen)
 import Graphics.Gloss.Data.Color
+    ( azure, cyan, dark, orange, red, rose, Color )
 import Graphics.Gloss (Picture(Pictures))
-import Graphics.Gloss.Data.Picture
+import Graphics.Gloss.Data.Picture ()
 import Graphics.Gloss.Interface.IO.Game (KeyState)
 import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 
-data InfoToShow = ShowNothing
-                | ShowANumber Float
-                | ShowAnIntTuple (Int,Int)
-                | ShowAChar   Char
-                | ShowABoard  Board
-                | ShowAPosition Location
+data InfoToShow = ShowAChar   Char
                 | ShowPlayState
                 | ShowPauseState 
                 | ShowWinState
                 | ShowLostState
-                | ShowAMode GhostMode
 
+-- returns the initial state the game should be in when given a board
 initialState :: Board -> GameState
 initialState b = GameState 
                ShowPlayState
@@ -32,7 +28,7 @@ initialState b = GameState
                (13,19)
                (Score 0) 
                (PacMan (Location (104,124) Types.Right) (Location (104,124) Types.Right) Types.Right (Lives 3) 57 8 (-40, 40, 2, 4) Closing)
-               (Ghost (Location (112,140) Types.Up) (Location (112,140) Types.Up) (0,0) Chase 40 (0,300) False Red 8 red red Inside 0 20 Chase 0 True)
+               (Ghost (Location (112,140) Types.Up) (Location (112,140) Types.Up) (0,0) Chase 40 (0,300) False Red 8 red red Inside 1 20 Chase 0 True)
                (Ghost (Location (104,140) Types.Right) (Location (104,140) Types.Right) (0,0) Chase 40 (300,0) False Pink 8 rose rose Inside 10 20 Chase 0 True)
                (Ghost (Location (112,140) Types.Left) (Location (112,140) Types.Left) (0,0) Chase 40 (300,300) False Cyan 8 cyan cyan Inside 20 20 Chase 0 True)
                (Ghost (Location (120,140) Types.Up) (Location (120,140) Types.Up) (0,0) Chase 40 (0,0) False Orange 8 orange orange Inside 30 20 Chase 0 True)
