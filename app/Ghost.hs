@@ -70,7 +70,7 @@ moveGhost b g@(Ghost
 --"Normal" move
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c _)
-    }) et _ gen     = let nl = moveEntity (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g)
+    }) et _ gen     = let nl = moveEntity b (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g)
                           nh = case locationToField nl b of
                                Just (MkField _ GhostWall) -> Outside
                                _                          -> (ghostHouseStatus g)
