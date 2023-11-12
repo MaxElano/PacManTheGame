@@ -26,6 +26,7 @@ makeBoard = fmap (convertLine 0 . reverse)
         convertField x y (f:fs) = MkField (x,y) (chooseFieldType f) : convertField (x + 1) y fs
         chooseFieldType :: Char -> FieldType
         chooseFieldType 'W' = Wall
+        chooseFieldType 'G' = GhostWall
         chooseFieldType '+' = Pellet
         chooseFieldType 'P' = PowerUp
         chooseFieldType 'C' = Cherry

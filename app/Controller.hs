@@ -6,6 +6,9 @@ import Types as T
     ( initialState,
       GameState(..),
       InfoToShow(..),
+      GhostHouseStatus(..),
+      TotalTime,
+      Ghost(..),
       Orientation(Right, Up, Left, Down),
       PacMan (..), Location (Location), Field )
 import Graphics.Gloss ()
@@ -71,9 +74,23 @@ changePausedState ShowPlayState  = ShowPauseState
 changePausedState ShowPauseState = ShowPlayState
 changePausedState i              = i
 
+handleTimers :: GameState -> TotalTime -> GameState
+handleTimers gs t = gs { ghostRed    = handleGhostTimers (ghostRed gs) t
+                       , ghostOrange = handleGhostTimers (ghostOrange gs) t
+                       , ghostPink   = handleGhostTimers (ghostPink gs) t
+                       , ghostCyan   = handleGhostTimers (ghostCyan gs) t }
+
+handleGhostTimers :: Ghost -> TotalTime -> Ghost
+handleGhostTimers g t = g { ghostHouseStatus = changeGhostHouseStatus (leaveHouseTime g) (ghostHouseStatus g) t}
+
+changeGhostHouseStatus :: TotalTime -> GhostHouseStatus -> TotalTime -> GhostHouseStatus
+changeGhostHouseStatus lt Inside t | lt <= t   = MayLeave
+                                   | otherwise = Inside
+changeGhostHouseStatus _ g _       = g
 
 --Volgorde wordt:
---1. Move PacMan
+--1. Move PacMan1
+
 --2. Check dead?
 --3. Update Field if not empty
 --4. Update Score

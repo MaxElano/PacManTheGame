@@ -52,6 +52,8 @@ drawPure gs = case infoToShow gs of
   ShowABoard    b -> translate (-300) (-300) (scale 0.15 0.15 $ drawHelpBoard b)
   ShowFinishedState -> drawFinishedState $ score gs
 
+
+
 drawFinishedState :: Score -> Picture
 drawFinishedState s = color white $ translate (-330) 0 (scale 0.4 0.4 $ text ("You WON With " ++ show s ++ " Points!!"))
 
@@ -84,15 +86,16 @@ drawBoard b = let ls = helpDrawBoard
         helpDrawBoard = map (\(MkField c t) -> let (lx, ly) = fCordToLCord c
                                                    z = fromIntegral fieldSize
                                                  in case t of
-                                                    Wall -> ((lx, ly), translate lx ly (color blue (polygon [(-z/2,-z/2), (-z/2,z/2), (z/2,z/2), (z/2,-z/2)])))
-                                                    Pellet -> ((lx, ly), translate lx ly (color yellow (circleSolid $ z / 8)))
-                                                    Cherry -> ((lx, ly), translate lx ly (pictures [ color green (line [(-1.5, -1), (-1, 0), (0.3, 2)])
-                                                                                                    ,color green (line [(1.5, -1), (1, 0), (0.3, 2.5)])
-                                                                                                    ,translate (-1.5) (-1) (color red (circleSolid $ z / 6))
-                                                                                                    ,translate  1.5   (-1) (color red (circleSolid $ z / 6))
-                                                                                                   ]))
-                                                    PowerUp -> ((lx, ly), translate lx ly (color yellow (circleSolid $ z / 3)))
-                                                    _      -> ((lx, ly), blank)
+                                                    Wall      -> ((lx, ly), translate lx ly (color blue (polygon [(-z/2,-z/2), (-z/2,z/2), (z/2,z/2), (z/2,-z/2)])))
+                                                    GhostWall -> ((lx, ly), translate lx ly (color white (polygon [(-z/2,-z/4), (-z/2,z/4), (z/2,z/4), (z/2,-z/4)])))
+                                                    Pellet    -> ((lx, ly), translate lx ly (color yellow (circleSolid $ z / 8)))
+                                                    Cherry    -> ((lx, ly), translate lx ly (pictures [ color green (line [(-1.5, -1), (-1, 0), (0.3, 2)])
+                                                                                                       ,color green (line [(1.5, -1), (1, 0), (0.3, 2.5)])
+                                                                                                       ,translate (-1.5) (-1) (color red (circleSolid $ z / 6))
+                                                                                                       ,translate  1.5   (-1) (color red (circleSolid $ z / 6))
+                                                                                                      ]))
+                                                    PowerUp   -> ((lx, ly), translate lx ly (color yellow (circleSolid $ z / 3)))
+                                                    _         -> ((lx, ly), blank)
                              ) (concat b)
 
 drawPacMan :: PacMan -> Picture

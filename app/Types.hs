@@ -29,10 +29,10 @@ initialState b = GameState
                b 
                (Score 0) 
                (PacMan (Location (108,180) Types.Right) (Location (108,180) Types.Right) Types.Right (Lives 3) 24 8 (-30, 30, 2, 4) Closing)
-               (Ghost (Location (164,164) Types.Up) (Location (164,164) Types.Up) (0,0) 4 (0,300) False Red 8 red red)
-               (Ghost (Location (172,172) Types.Right) (Location (172,172) Types.Right) (0,0) 4 (300,0) False Pink 8 rose rose)
-               (Ghost (Location (204,204) Types.Left) (Location (204,204) Types.Left) (0,0) 4 (300,300) False Cyan 8 cyan cyan)
-               (Ghost (Location (196,196) Types.Up) (Location (196,196) Types.Up) (0,0) 4 (0,0) False Orange 8 orange orange)
+               (Ghost (Location (164,164) Types.Up) (Location (164,164) Types.Up) (0,0) 4 (0,300) False Red 8 red red Outside 0)
+               (Ghost (Location (172,172) Types.Right) (Location (172,172) Types.Right) (0,0) 4 (300,0) False Pink 8 rose rose Inside 10000)
+               (Ghost (Location (204,204) Types.Left) (Location (204,204) Types.Left) (0,0) 4 (300,300) False Cyan 8 cyan cyan Inside 20000)
+               (Ghost (Location (196,196) Types.Up) (Location (196,196) Types.Up) (0,0) 4 (0,0) False Orange 8 orange orange Inside 30000)
                Chase
                0
                0
@@ -84,22 +84,24 @@ instance Eq Field where
     (==) :: Field -> Field -> Bool
     MkField pos fieldType == MkField pos' fieldType' = pos == pos' && fieldType == fieldType'
 
-data FieldType = Wall | Pellet | PowerUp | Cherry | Empty
+data FieldType = Wall | GhostWall | Pellet | PowerUp | Cherry | Empty
 instance Show FieldType where 
     show :: FieldType -> String
-    show Wall    = "Wall"
-    show Pellet  = "Pellet"
-    show PowerUp = "PowerUp"
-    show Cherry  = "Cherry"
-    show Empty   = "Empty"
+    show Wall      = "Wall"
+    show GhostWall = "GhostWall"
+    show Pellet    = "Pellet"
+    show PowerUp   = "PowerUp"
+    show Cherry    = "Cherry"
+    show Empty     = "Empty"
 
 instance Eq FieldType where
     (==) :: FieldType -> FieldType -> Bool
-    Wall    == Wall    = True
-    Pellet  == Pellet  = True
-    PowerUp == PowerUp = True
-    Cherry  == Cherry  = True
-    Empty   == Empty   = True
+    Wall      == Wall      = True
+    GhostWall == GhostWall = True
+    Pellet    == Pellet    = True
+    PowerUp   == PowerUp   = True
+    Cherry    == Cherry    = True
+    Empty     == Empty     = True
 
 type IsWall = Bool
 
@@ -188,10 +190,14 @@ data Ghost = Ghost
     , ghostSize          :: Size
     , ghostColor         :: Color
     , ghostBaseColor     :: Color
+    , ghostHouseStatus   :: GhostHouseStatus
+    , leaveHouseTime     :: TotalTime
     }
+
 
 type GhostLocation = Location
 data GhostType     = Red | Pink | Cyan | Orange
+data GhostHouseStatus = Inside | MayLeave | Outside
 
 type MustReverse     = Bool
 type BaseField       = TargetFieldCord

@@ -15,6 +15,7 @@ import Types as T
       Field(MkField),
       Board,
       GhostMode(..),
+      GhostHouseStatus(..),
       GameState(GameState, ghostOrange, ghostMode, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
       ElapsedTime, Size, GhostColorTo (..), ghostDarkColor)
@@ -61,6 +62,15 @@ moveGhost b g@(Ghost
     , ghostSpeed    = s
     , ghostSize     = z
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l z)
+                           in (g { ghostLocation = moveEntity (Location c no) s et z }, ng)
+--Handles random direction, when inside of GhostHouse
+moveGhost b g@(Ghost
+    { ghostLocation    = l@(Location c _)
+    , targetField      = t
+    , ghostSpeed       = s
+    , ghostSize        = z
+    , ghostHouseStatus = Inside
+    }) et _ gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l z)
                            in (g { ghostLocation = moveEntity (Location c no) s et z }, ng)
 --"Normal" move
 moveGhost b g@(Ghost
