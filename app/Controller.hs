@@ -63,7 +63,6 @@ input (EventKey (Char 'd') _ _ _) gs = return gs { pacMan = (pacMan gs) { pacMan
 input (EventKey (Char 'p') _ _ _) gs@(GameState { infoToShow = drawState
                                                    , paused = pauseState
                                                    , keyStatePaused = KeyState.Up }) = return gs { infoToShow = changePausedState drawState, paused = not pauseState, keyStatePaused = KeyState.Down }
-inputKey (EventKey (Char 'n') _ _ _) gs = gs { infoToShow = ShowANumber 2 }
 input (EventKey (SpecialKey KeySpace) _ _ _) gs@(GameState 
     { infoToShow = ShowWinState
     , score = s 
