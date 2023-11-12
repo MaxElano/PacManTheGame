@@ -1,4 +1,4 @@
-module Ghost (moveAllGhosts, findAllTargetFields, changeAllGhostColor) where
+module Ghost (moveAllGhosts, findAllTargetFields, changeAllGhostColor, handleGhostTimers) where
 import Types as T
     ( TargetFieldCord,
       BaseField,
@@ -18,7 +18,7 @@ import Types as T
       GhostHouseStatus(..),
       GameState(GameState, ghostOrange, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
-      ElapsedTime, Size, GhostColorTo (..), ghostDarkColor)
+      ElapsedTime, Size, GhostColorTo (..), ghostDarkColor, Time)
 import Entity ( moveEntity, oppositeOrientation, boundaryCheck )
 import Board
     ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
@@ -192,3 +192,29 @@ changeAllGhostColor gs c = gs { ghostRed    = changeGhostColor (ghostRed gs)  c
 changeGhostColor :: Ghost -> GhostColorTo -> Ghost
 changeGhostColor g T.Normal = g {ghostColor = ghostBaseColor g}
 changeGhostColor g T.Dark   = g {ghostColor = ghostDarkColor}
+
+handleGhostTimers :: Ghost -> ElapsedTime -> Ghost
+handleGhostTimers g t = changeMode g 
+    { ghostHouseStatus = changeGhostHouseStatus (leaveHouseTime g - t) (ghostHouseStatus g) t
+    , leaveHouseTime   = leaveHouseTime g - t
+    , modeTime         = modeTime g - t
+    , frightenedTime   = frightenedTime g - t
+    }
+
+changeGhostHouseStatus :: Time -> GhostHouseStatus -> ElapsedTime -> GhostHouseStatus
+changeGhostHouseStatus lt Inside t | lt <= 0   = MayLeave
+                                   | otherwise = Inside
+changeGhostHouseStatus _ g _       = g
+
+changeMode :: Ghost -> Ghost
+changeMode g@(Ghost 
+    { ghostMode      = gm
+    , ghostBaseColor = gbc
+    , modeTime       = mt
+    , coreMode       = cm
+    , frightenedTime = ft
+    })
+    | gm == Frightened && ft <= 0 = g { ghostMode = cm, ghostColor = gbc }
+    | gm == Chase && mt <= 0      = g { ghostMode = Scatter, coreMode = Scatter, modeTime = 7 }
+    | gm == Scatter && mt <= 0    = g { ghostMode = Chase, coreMode = Chase, modeTime = 20 }
+    | otherwise = g
