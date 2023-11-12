@@ -17,6 +17,7 @@ data InfoToShow = ShowNothing
                 | ShowABoard  Board
                 | ShowAPosition Location
                 | ShowPlayState
+                | ShowPauseState 
 
 initialState :: Board -> GameState
 initialState b = GameState 

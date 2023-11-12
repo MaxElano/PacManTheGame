@@ -5,7 +5,7 @@ module Controller where
 import Types as T
     ( initialState,
       GameState(..),
-      InfoToShow(ShowABoard, ShowAChar, ShowPlayState, ShowANumber, ShowAPosition, ShowAnIntTuple),
+      InfoToShow(..),
       Orientation(Right, Up, Left, Down),
       PacMan (..), Location (Location), Field )
 import Graphics.Gloss ()
@@ -60,8 +60,16 @@ inputKey (EventKey (Char 'a') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutu
 inputKey (EventKey (Char 's') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Down } }
 inputKey (EventKey (Char 'd') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutureOrientation = T.Right } }
 inputKey (EventKey (Char 'b') _ _ _) gs = gs { infoToShow = ShowABoard (board gs) }
-inputKey (EventKey (Char 'p') _ _ _) gs@(GameState { paused = pauseState, keyStatePaused = KeyState.Up }) = gs { paused = not pauseState, keyStatePaused = KeyState.Down }
+inputKey (EventKey (Char 'p') _ _ _) gs@(GameState { infoToShow = drawState
+                                                   , paused = pauseState
+                                                   , keyStatePaused = KeyState.Up }) = gs { infoToShow = changePausedState drawState, paused = not pauseState, keyStatePaused = KeyState.Down }
 inputKey _ gs = gs { keyStatePaused = KeyState.Up} -- Otherwise keep the same
+
+changePausedState :: InfoToShow -> InfoToShow
+changePausedState ShowPlayState  = ShowPauseState
+changePausedState ShowPauseState = ShowPlayState
+changePausedState i              = i
+
 
 --Volgorde wordt:
 --1. Move PacMan
