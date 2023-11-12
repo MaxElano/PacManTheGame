@@ -3,7 +3,7 @@ import Prelude hiding (Right, Left)
 import Types
     ( Orientation(..), Location(..), Speed, ElapsedTime, LocationCord, Size, Board, IsWall )
 import qualified Types as T
-import Board (isWall, locationToField)
+import Board (isWall, locationToField, isGhostWall)
 
 moveEntity :: Board -> Location -> Speed -> ElapsedTime -> Size -> Location
 moveEntity b l@(Location cords o) speed t size
@@ -23,6 +23,10 @@ boundaryCheck :: Board -> LocationCord -> Orientation -> Size -> IsWall
 boundaryCheck b cords o s = let (l1,l2) = getCornerBoundaryLocations cords o s
                             in  maybe False isWall (locationToField l1 b) || maybe False isWall (locationToField l2 b)
 
+ghostWallBoundaryCheck :: Board -> LocationCord -> Orientation -> Size -> IsWall
+ghostWallBoundaryCheck b cords o s = let (l1,l2) = getCornerBoundaryLocations cords o s
+                                     in  maybe False isGhostWall (locationToField l1 b) && maybe False isGhostWall (locationToField l2 b)
+ 
 -- Gives the coordinates of the edge of pacman in the new location
 getFrontBoundaryLocation :: Location -> Size -> LocationCord
 getFrontBoundaryLocation (Location (x,y) Up)    size = (x, y + fromIntegral (size `div` 2))

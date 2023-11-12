@@ -1,6 +1,7 @@
 module Ghost (moveAllGhosts, findAllTargetFields, changeAllGhostColor, handleGhostTimers) where
 import Types as T
-    ( TargetFieldCord,
+    ( IsWall,
+      TargetFieldCord,
       BaseField,
       GhostType(Orange, Red, Pink, Cyan),
       GhostLocation,
@@ -17,11 +18,11 @@ import Types as T
       GhostMode(..),
       GhostHouseStatus(..),
       GameState(GameState, ghostOrange, generator, board,
-                elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan),
+                elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan, ghostHouseDoor),
       ElapsedTime, Size, GhostColorTo (..), ghostDarkColor, Time)
-import Entity ( moveEntity, oppositeOrientation, boundaryCheck )
+import Entity ( moveEntity, oppositeOrientation, boundaryCheck, ghostWallBoundaryCheck )
 import Board
-    ( locationToField, findFieldCordAhead, useRandom, lCordToFCord )
+    ( locationToField, findFieldCordAhead, useRandom, lCordToFCord)
 import System.Random ( StdGen )
 import GHC.Real (mkRationalBase10)
 import Graphics.Gloss.Data.Color as C
@@ -46,49 +47,41 @@ moveAllGhosts gs = let (ngr, ng1) = moveGhost (board gs) (ghostRed    gs) (elaps
 moveGhost :: Board -> Ghost -> ElapsedTime -> GhostMode -> StdGen -> (Ghost, StdGen)
 --Reverses the ghost if neccessary
 moveGhost b g@(Ghost
-    { ghostLocation = l@(Location c o)
-    , targetField   = t
-    , mustReverse   = True
-    , ghostSpeed    = s
-    , ghostSize     = z
+    { ghostLocation    = l@(Location c o)
+    , mustReverse      = True
+    , ghostHouseStatus = Outside
     }) et _ gen     = (g 
-        { ghostLocation = moveEntity b (Location c (oppositeOrientation o)) s et z
+        { ghostLocation = moveEntity b (Location c (oppositeOrientation o)) (ghostSpeed g) et (ghostSize g)
         , mustReverse   = False 
         }, gen)
 --Handles random direction, when inside of GhostHouse
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
-    , targetField      = t
-    , ghostSpeed       = s
-    , ghostSize        = z
     , ghostHouseStatus = Inside
-    }) et _ gen = let os = (tryAllOrientations b l z)
-                      (no, ng) = chooseRandomDirection gen $ case os of
-                                                             [] -> [oppositeOrientation o]
-                                                             _  -> os
-                  in (g { ghostLocation = moveEntity b (Location c no) s et z }, ng)
+    }) et _ gen = let os = (tryAllOrientations b l (ghostSize g) Inside)
+                      (no, ng) = chooseRandomDirection gen os
+                  in (g { ghostLocation = moveEntity b (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
-    { ghostLocation = l@(Location c _)
-    , targetField   = t
-    , ghostSpeed    = s
-    , ghostSize     = z
-    }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l z)
-                           in (g { ghostLocation = moveEntity b (Location c no) s et z }, ng)
+    { ghostLocation    = l@(Location c _)
+    , ghostHouseStatus = Outside
+    }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l (ghostSize g) Outside)
+                           in (g { ghostLocation = moveEntity b (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
 --"Normal" move
 moveGhost b g@(Ghost
-    { ghostLocation = l@(Location c _)
-    , targetField   = t
-    , ghostSpeed    = s
-    , ghostSize     = z
-    }) et _ gen     = (g { ghostLocation = moveEntity b (Location c (findOrientation b l t z)) s et z }, gen)
+    { ghostLocation    = l@(Location c _)
+    }) et _ gen     = let nl = moveEntity (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g)
+                          nh = case locationToField nl b of
+                               Just (MkField _ GhostWall) -> Outside
+                               _                          -> (ghostHouseStatus g)
+                      in (g { ghostLocation = nl, ghostHouseStatus = nh}, gen)
         where
             --Main function for finding the new orientation for the ghost
-            findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Size -> Orientation
-            findOrientation b gl@(Location gc oo) tf s = let ao = tryAllOrientations b gl s
-                                                        in case ao of
-                                                           [x] -> x
-                                                           xs  -> fromMaybe oo $ checkEveryLocation b tf (lCordToFCord gc) xs
+            findOrientation :: Board -> GhostLocation -> TargetFieldCord -> Size -> GhostHouseStatus -> Orientation
+            findOrientation b gl@(Location gc oo) tf s h = let ao = tryAllOrientations b gl s h
+                                                           in case ao of
+                                                              [x] -> x
+                                                              xs  -> fromMaybe oo $ checkEveryLocation b tf (lCordToFCord gc) xs
             --Checks which new field for the ghost is the closest to his TargetField
             checkEveryLocation :: Board -> TargetFieldCord -> FieldCord -> [Orientation] -> Maybe Orientation
             checkEveryLocation b t c [x1, x2] = let d1 = distanceFCToFloat t (findFieldCordAhead c x1 1)
@@ -114,22 +107,27 @@ moveGhost b g@(Ghost
 
 --Chooses random direction from list
 chooseRandomDirection :: StdGen -> [Orientation] -> (Orientation, StdGen)
+chooseRandomDirection g [] = (Up, g)
 chooseRandomDirection g xs = let (rn, ng) = useRandom g (0, length xs - 1)
                              in (xs !! rn, ng)
 
 --Finds all allowed new orientations for the ghost
-tryAllOrientations :: Board -> GhostLocation -> Size -> [Orientation]
-tryAllOrientations b gl@(Location _ o) s = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s
-    where
-        checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> [Orientation]
-        checkPossibility b gl@(Location l@(x,y) o) [] s     = []
-        checkPossibility b gl@(Location l@(x,y) o) (z:zs) s | boundaryCheck b l z s = checkPossibility b gl zs s
-                                                            | otherwise = z : checkPossibility b gl zs s
+tryAllOrientations :: Board -> GhostLocation -> Size -> GhostHouseStatus -> [Orientation]
+tryAllOrientations b gl@(Location _ o) s Inside   = let os = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s Inside []
+                                                    in case os of
+                                                       [] -> [oppositeOrientation o]
+                                                       _  -> os
+tryAllOrientations b gl@(Location _ o) s MayLeave = checkPossibility b gl [T.Up, T.Right, T.Down, T.Left] s MayLeave []
+tryAllOrientations b gl@(Location _ o) s Outside  = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s Outside []
 
-
-
-
-
+checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> GhostHouseStatus -> [Orientation] -> [Orientation]
+checkPossibility _ _                       [] _     _        acc = acc
+checkPossibility b gl@(Location l@(x,y) o) (z:zs) s MayLeave acc | ghostWallBoundaryCheck b l z s = [z]
+                                                                 | boundaryCheck b l z s          = checkPossibility b gl zs s MayLeave acc
+                                                                 | otherwise                      = checkPossibility b gl zs s MayLeave (z : acc)
+checkPossibility b gl@(Location l@(x,y) o) (z:zs) s h        acc | boundaryCheck b l z s = checkPossibility b gl zs s h acc
+                                                                 | otherwise             = checkPossibility b gl zs s h (z : acc)
+    
 
 --Main Function 2 for the entire module. Finds each target field and returns them inside the new GameState
 findAllTargetFields :: GameState -> GameState
@@ -141,10 +139,14 @@ findAllTargetFields gs = gs
     }
 
 assignTargetField :: GameState -> Ghost -> Ghost
-assignTargetField gs g@(Ghost { ghostMode = Chase })   = findTargetField g gs
-assignTargetField gs g@(Ghost { ghostMode = Scatter }) = g { targetField = baseField g }
-assignTargetField gs g@(Ghost { ghostMode = _ })       = g 
-
+assignTargetField _  g@(Ghost { ghostHouseStatus = Inside })   = g
+assignTargetField gs g@(Ghost { ghostHouseStatus = MayLeave }) = g { targetField = ghostHouseDoor gs } 
+assignTargetField gs g@(Ghost { ghostMode = Chase
+                              , ghostHouseStatus = Outside })  = findTargetField g gs
+assignTargetField gs g@(Ghost { ghostMode = Scatter
+                              , ghostHouseStatus = Outside })  = g { targetField = baseField g }
+assignTargetField _ g                                          = g 
+        
 --Decides which algorithm to use to chase PacMan, depends on ghostType
 findTargetField :: Ghost -> GameState -> Ghost
 findTargetField g@(Ghost { ghostType = Red })    (GameState { pacMan      = (PacMan { pacManLocation = pl }) }) = g { targetField = findTargetFieldRed pl }
