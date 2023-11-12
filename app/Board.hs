@@ -47,6 +47,11 @@ isWall (MkField _ Wall)      = True
 isWall (MkField _ GhostWall) = True
 isWall (MkField _ _)         = False
 
+isGhostWall :: Field -> IsWall
+isGhostWall (MkField _ GhostWall) = True
+isGhostWall (MkField _ _)         = False
+
+
 changeFieldType :: Board -> Field -> FieldType -> Board
 changeFieldType board f newType = map (fieldReplace f newType) board
 

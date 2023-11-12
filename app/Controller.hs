@@ -91,7 +91,6 @@ changeGhostHouseStatus _ g _       = g
 
 --Volgorde wordt:
 --1. Move PacMan1
-
 --2. Check dead?
 --3. Update Field if not empty
 --4. Update Score
