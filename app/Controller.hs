@@ -22,14 +22,6 @@ import Board (locationToField, lCordToFCord, setEndOfGame)
 import Ghost (moveAllGhosts, findAllTargetFields, handleGhostTimers)
 import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 
--- -- | Handle one iteration of the game
--- step :: Float -> GameState -> IO GameState
--- step secs gs =return gs
--- --    = let elapsedTime gs = elapsedTime gs + secs
--- --         do gs <- findAllTargetField gs
--- --            gs <- moveAllGhosts gs
--- --      return $ gs 
-
 step :: Float -> GameState -> IO GameState
 step secs gs@(GameState 
     { paused = False , 
@@ -69,7 +61,7 @@ inputKey (EventKey (Char 'd') _ _ _) gs = gs { pacMan = (pacMan gs) { pacManFutu
 inputKey (EventKey (Char 'p') _ _ _) gs@(GameState { infoToShow = drawState
                                                    , paused = pauseState
                                                    , keyStatePaused = KeyState.Up }) = gs { infoToShow = changePausedState drawState, paused = not pauseState, keyStatePaused = KeyState.Down }
-inputKey _ gs = gs { keyStatePaused = KeyState.Up} -- Otherwise keep the same
+inputKey _ gs = gs { keyStatePaused = KeyState.Up}
 
 changePausedState :: InfoToShow -> InfoToShow
 changePausedState ShowPlayState  = ShowPauseState
@@ -82,23 +74,3 @@ handleTimers gs = gs { ghostRed    = handleGhostTimers (ghostRed gs) (elapsedTim
                      , ghostPink   = handleGhostTimers (ghostPink gs) (elapsedTime gs) 
                      , ghostCyan   = handleGhostTimers (ghostCyan gs) (elapsedTime gs) 
                      }
-
---Volgorde wordt:
---1. Move PacMan1
---2. Check dead?
---3. Update Field if not empty
---4. Update Score
---5. Find Ghost Target Fields
---6. Move Ghosts
-
--- step :: Float -> GameState -> IO GameState
--- step secs gs
---   | elapsedTime gs + secs > nO_SECS_BETWEEN_CYCLES
---   = -- We show a new random number
-    -- do randomNumber <- randomIO
-    --    let newNumber = abs randomNumber `mod` 10
-    --    return $ GameState (ShowANumber newNumber) 0
---   | otherwise
---   = -- Just update the elapsed time
-    -- return $ gs { elapsedTime = elapsedTime gs + secs }
--- 
