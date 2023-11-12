@@ -51,6 +51,7 @@ drawPure gs = case infoToShow gs of
                      in color white $ translate (-200) 0 (scale 0.2 0.2 (text (show l ++ show f)))
   ShowABoard    b -> translate (-300) (-300) (scale 0.15 0.15 $ drawHelpBoard b)
   ShowFinishedState -> drawFinishedState $ score gs
+  ShowAMode m     -> color white (text (show m))
 
 
 

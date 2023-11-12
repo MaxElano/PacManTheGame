@@ -16,7 +16,7 @@ import Types as T
       Score(Score),
       ElapsedTime,
       NewOrientation,
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar), GhostColorTo (Dark) )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse, frightenedTime), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar), GhostColorTo (Dark) )
 import Board
     ( locationToField,
       isWall,
@@ -69,10 +69,10 @@ handleField f@(MkField _ Cherry) gs@(GameState
 
 handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = changeAllGhostColor gs 
     { board       = changeFieldType b f Empty 
-    , ghostRed    = (ghostRed gs)    { ghostMode = Frightened, mustReverse = True }
-    , ghostPink   = (ghostPink gs)   { ghostMode = Frightened, mustReverse = True }
-    , ghostCyan   = (ghostCyan gs)   { ghostMode = Frightened, mustReverse = True }
-    , ghostOrange = (ghostOrange gs) { ghostMode = Frightened, mustReverse = True }
+    , ghostRed    = (ghostRed gs)    { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
+    , ghostPink   = (ghostPink gs)   { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
+    , ghostCyan   = (ghostCyan gs)   { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
+    , ghostOrange = (ghostOrange gs) { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
     } Dark
 
 handleField f@(MkField _ _) gs = gs
@@ -181,4 +181,3 @@ pacManWakkaWakka gs@(GameState { pacMan =
                           | otherwise              = Closing
                    in gs {pacMan = p { pacManPictureValues = (nma, npa, nr, nt)
                                      , pacManAnimation = na}}
-
