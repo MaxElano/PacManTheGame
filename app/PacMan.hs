@@ -5,8 +5,8 @@ import Types as T
     ( Board,
       Field(..),
       FieldType(Empty, Pellet, Cherry, PowerUp),
-      GameState(GameState, board, elapsedTime, pacMan, score, ghostMode, ghostRed, ghostPink, ghostCyan, ghostOrange, infoToShow),
-      GhostMode(Frightened),
+      GameState(GameState, board, elapsedTime, pacMan, score, ghostRed, ghostPink, ghostCyan, ghostOrange, infoToShow),
+      GhostMode(Frightened, Chase),
       IsWall,
       Location(..),
       LocationCord,
@@ -16,7 +16,7 @@ import Types as T
       Score(Score),
       ElapsedTime,
       NewOrientation,
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar), GhostColorTo (Dark) )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar), GhostColorTo (Dark) )
 import Board
     ( locationToField,
       isWall,
@@ -27,15 +27,16 @@ import Data.Maybe (mapMaybe)
 
 -- Moves pac-man when given the gamestate, also checks for walls
 movePacMan :: GameState -> PacManLocation
-movePacMan gs@(GameState { elapsedTime = t
-                         , board       = b
-                         , pacMan      = p@(PacMan
-                            { pacManLocation = l@(Location cords o)
-                            , pacManFutureOrientation = fo
-                            , pacManSpeed    = speed
-                            , pacManSize     = size
-                            })
-                         }) 
+movePacMan gs@(GameState 
+    { elapsedTime = t
+    , board       = b
+    , pacMan      = p@(PacMan
+        { pacManLocation = l@(Location cords o)
+        , pacManFutureOrientation = fo
+        , pacManSpeed    = speed
+        , pacManSize     = size
+        })
+    }) 
     | o == fo && boundaryCheck b cords o size = snapToCenter l size 
     | o == fo                                 = moveEntity l speed t size
     | not (boundaryCheck b cords fo size)     = moveEntity (Location cords fo) speed t size
@@ -67,55 +68,30 @@ handleField f@(MkField _ Cherry) gs@(GameState
         }
 
 handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = changeAllGhostColor gs 
-    { ghostMode = Frightened
-    , board = changeFieldType b f Empty 
+    { board       = changeFieldType b f Empty 
+    , ghostRed    = (ghostRed gs)    { ghostMode = Frightened }
+    , ghostPink   = (ghostPink gs)   { ghostMode = Frightened }
+    , ghostCyan   = (ghostCyan gs)   { ghostMode = Frightened }
+    , ghostOrange = (ghostOrange gs) { ghostMode = Frightened }
     } Dark
 
 handleField f@(MkField _ _) gs = gs
 
--- Changes the gamestate depending on whether or not pac-man is in the same field as a ghost and the ghost mode, 
--- if they are and the ghost mode is frightened, reset the ghosts to their start position
 enemyCollision :: GameState -> GameState
 enemyCollision gs@(GameState 
-    { board       = b
-    , pacMan      = (PacMan 
-        { lives               = Lives lvs
-        , pacManLocation      = pacl
-        , pacManStartLocation = pacsl
-        })
-    , ghostRed    = ghostR
-    , ghostPink   = ghostP
-    , ghostCyan   = ghostC
-    , ghostOrange = ghostO
-    , ghostMode   = Frightened
+    { board = b
+    , pacMan =  (PacMan { pacManLocation = pacl })
     }) = let pacf = locationToField pacl b
-         in maybe gs (\pacf -> gs
-         { ghostRed    = maybe ghostR killGhost (isGhostInSameField pacf ghostR b)
-         , ghostPink   = maybe ghostP killGhost (isGhostInSameField pacf ghostP b)
-         , ghostCyan   = maybe ghostC killGhost (isGhostInSameField pacf ghostC b)
-         , ghostOrange = maybe ghostO killGhost (isGhostInSameField pacf ghostO b)  
-         }) pacf
+             collidingGhosts = maybe [] (getCollidingEnemies gs) pacf
+             isPacManDead = isOneNotFrightened collidingGhosts
+         in killEntities gs collidingGhosts isPacManDead
 
--- if pac-man and a ghost are in the same field and ghost mode is not frightened, then kill pac-man and reset all ghosts
-enemyCollision gs@(GameState 
-    { board       = b
-    , pacMan      = (PacMan 
-        { lives               = Lives lvs
-        , pacManLocation      = pacl
-        , pacManStartLocation = pacsl
-        })
-    , ghostRed    = (Ghost { ghostStartLocation = redsl })
-    , ghostPink   = (Ghost { ghostStartLocation = pinksl })
-    , ghostCyan   = (Ghost { ghostStartLocation = cyansl })
-    , ghostOrange = (Ghost { ghostStartLocation = orangesl })
-   , ghostMode   = _
-    }) = let pacf = locationToField pacl b
-         in maybe gs (checkCollidedGhosts gs . getCollidingEnemies gs) pacf
+killEntities :: GameState -> [Ghost] -> Bool -> GameState
+killEntities gs _ True = killPacMan gs
+killEntities gs ghosts _  = killGhosts gs ghosts
 
--- checks the list of ghosts given (this is the list of colliding ghosts with pac-man) and kills pac-man if it is not empty
-checkCollidedGhosts :: GameState -> [Ghost] -> GameState 
-checkCollidedGhosts gs []  = gs
-checkCollidedGhosts gs _   = killPacMan gs
+isOneNotFrightened :: [Ghost] -> Bool
+isOneNotFrightened = any (\g -> ghostMode g /= Frightened)
 
 -- kills pac-man and resets the ghosts, resulting in pac-man losing a life
 killPacMan :: GameState -> GameState
@@ -139,13 +115,28 @@ killPacMan gs@(GameState
         , ghostOrange = (ghostOrange gs) { ghostLocation = orangesl }
         }
 
+killGhosts :: GameState -> [Ghost] -> GameState
+killGhosts gs [] = gs
+killGhosts gs@(GameState 
+    { ghostRed    = gr@(Ghost { ghostType = gtr })
+    , ghostPink   = gp@(Ghost { ghostType = gtp })
+    , ghostCyan   = gc@(Ghost { ghostType = gtc })
+    , ghostOrange = go@(Ghost { ghostType = gto })
+    }) (ghost:ghosts)
+    | gtr == ghostType ghost = gs { ghostRed    = killGhost gr }
+    | gtp == ghostType ghost = gs { ghostPink   = killGhost gp }
+    | gtc == ghostType ghost = gs { ghostCyan   = killGhost gc }
+    | gto == ghostType ghost = gs { ghostOrange = killGhost go }
+    | otherwise   = gs
+
 -- kill a ghost, resets their position and color
 killGhost :: Ghost -> Ghost
 killGhost g@(Ghost 
     { ghostStartLocation = gsl 
     , ghostBaseColor     = gbc
     }) = g
-        { ghostLocation = gsl 
+        { ghostMode     = Chase
+        , ghostLocation = gsl 
         , ghostColor    = gbc
         }
 
