@@ -63,7 +63,6 @@ moveGhost b g@(Ghost
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c _)
-    , ghostHouseStatus = Outside
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l (ghostSize g) Outside)
                            in (g { ghostLocation = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g) }, ng)
 --"Normal" move
@@ -116,8 +115,8 @@ tryAllOrientations b gl@(Location _ o) s Inside   = let os = checkPossibility b 
                                                     in case os of
                                                        [] -> [oppositeOrientation o]
                                                        _  -> os
-tryAllOrientations b gl@(Location _ o) s MayLeave = checkPossibility b gl [T.Up, T.Right, T.Down, T.Left] s MayLeave []
 tryAllOrientations b gl@(Location _ o) s Outside  = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s Outside []
+tryAllOrientations b gl@(Location _ o) s MayLeave = checkPossibility b gl [T.Up, T.Right, T.Down, T.Left] s MayLeave []
 
 checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> GhostHouseStatus -> [Orientation] -> [Orientation]
 checkPossibility _ _                       [] _     _        acc = acc

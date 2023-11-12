@@ -55,7 +55,7 @@ halfSize :: Size -> Float
 halfSize size = fromIntegral size / 1.99
 
 almostHalfSize :: Size -> Float
-almostHalfSize size = fromIntegral size / 2.05
+almostHalfSize size = fromIntegral size / 2.01
 
 snapToCenter :: Location -> Size -> Location
 snapToCenter (Location (x,y) o) s = Location (center (truncate x, truncate y)) o

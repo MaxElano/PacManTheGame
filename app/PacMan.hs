@@ -11,6 +11,7 @@ import Types as T
       Location(..),
       LocationCord,
       Orientation(..),
+      leaveHouseTime,
       PacMan(..),
       PacManLocation,
       Score(Score),
@@ -136,9 +137,11 @@ killGhost g@(Ghost
     { ghostStartLocation = gsl 
     , ghostBaseColor     = gbc
     }) = g
-        { ghostMode     = Chase
-        , ghostLocation = gsl 
-        , ghostColor    = gbc
+        { ghostMode        = Chase
+        , ghostLocation    = gsl 
+        , ghostColor       = gbc
+        , ghostHouseStatus = Inside
+        , leaveHouseTime   = 5
         }
 
 -- goes through the list of ghosts and checks them one by one with pac-man and if they collide it puts them in a list
