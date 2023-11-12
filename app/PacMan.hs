@@ -5,7 +5,7 @@ import Types as T
     ( Board,
       Field(..),
       FieldType(Empty, Pellet, Cherry, PowerUp),
-      GameState(GameState, board, elapsedTime, pacMan, score, ghostRed, ghostPink, ghostCyan, ghostOrange, infoToShow),
+      GameState(GameState, board, elapsedTime, pacMan, score, ghostRed, ghostPink, ghostCyan, ghostOrange, infoToShow, finished),
       GhostMode(Frightened, Chase),
       IsWall,
       Location(..),
@@ -17,7 +17,7 @@ import Types as T
       ElapsedTime,
       NewOrientation,
       GhostHouseStatus(..),
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse, frightenedTime, ghostHouseStatus), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar), GhostColorTo (Dark) )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse, frightenedTime, ghostHouseStatus), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar, ShowLostState), GhostColorTo (Dark) )
 import Board
     ( locationToField,
       isWall,
@@ -157,12 +157,6 @@ isGhostInSameField pacf g@(Ghost { ghostLocation = ghostl }) b = let ghostf = lo
                                  in case ghostf of
                                     Just ghostf -> if ghostf == pacf then Just g else Nothing 
                                     Nothing     -> Nothing
-
--- checks if pac-man is dead or not, ends the game if he is
-deathCheck :: GameState -> GameState
-deathCheck gs@(GameState { pacMan = (PacMan { lives = l }) })
-    | l == Lives 0    = gs { infoToShow = ShowAChar 'L' }
-    | otherwise       = gs
 
 -- pac-mans animation code, returns different states of animation for pac-man
 pacManWakkaWakka :: GameState -> GameState

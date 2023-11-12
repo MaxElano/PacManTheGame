@@ -18,7 +18,8 @@ data InfoToShow = ShowNothing
                 | ShowAPosition Location
                 | ShowPlayState
                 | ShowPauseState 
-                | ShowFinishedState
+                | ShowWinState
+                | ShowLostState
                 | ShowAMode GhostMode
 
 initialState :: Board -> GameState
