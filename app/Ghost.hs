@@ -115,8 +115,8 @@ tryAllOrientations b gl@(Location _ o) s Inside   = let os = checkPossibility b 
                                                     in case os of
                                                        [] -> [oppositeOrientation o]
                                                        _  -> os
-tryAllOrientations b gl@(Location _ o) s MayLeave = checkPossibility b gl [T.Up, T.Right, T.Down, T.Left] s MayLeave []
 tryAllOrientations b gl@(Location _ o) s Outside  = checkPossibility b gl (filter (\d -> d /= oppositeOrientation o ) [T.Up, T.Right, T.Down, T.Left]) s Outside []
+tryAllOrientations b gl@(Location _ o) s MayLeave = checkPossibility b gl [T.Up, T.Right, T.Down, T.Left] s MayLeave []
 
 checkPossibility :: Board -> GhostLocation -> [Orientation] -> Size -> GhostHouseStatus -> [Orientation] -> [Orientation]
 checkPossibility _ _                       [] _     _        acc = acc
