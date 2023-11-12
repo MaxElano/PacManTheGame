@@ -12,7 +12,7 @@ import LevelLoader (loadLevel)
 import Graphics.Gloss
 -- 
 main :: IO ()
-main = do putStrLn "Choose level by inserting one of the following chars: '1', '2', '3', 'c' (c stands for the custom level)"
+main = do putStrLn "Choose level by inserting one of the following chars: '1', '2', 'c' (c stands for the custom level)"
           c <- getChar
           if (c == '1' || c == '2' || c == 'c')
             then (do b <- (loadLevel $ "app\\Level" ++ c : ".txt")

@@ -63,7 +63,6 @@ moveGhost b g@(Ghost
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c _)
-    , ghostHouseStatus = Outside
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l (ghostSize g) Outside)
                            in (g { ghostLocation = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g) }, ng)
 --"Normal" move

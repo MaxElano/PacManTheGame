@@ -22,14 +22,6 @@ import Board (locationToField, lCordToFCord, setEndOfGame)
 import Ghost (moveAllGhosts, findAllTargetFields, handleGhostTimers)
 import qualified Graphics.Gloss.Interface.IO.Game as KeyState
 
--- -- | Handle one iteration of the game
--- step :: Float -> GameState -> IO GameState
--- step secs gs =return gs
--- --    = let elapsedTime gs = elapsedTime gs + secs
--- --         do gs <- findAllTargetField gs
--- --            gs <- moveAllGhosts gs
--- --      return $ gs 
-
 step :: Float -> GameState -> IO GameState
 step secs gs@(GameState 
     { paused = False , 
