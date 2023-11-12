@@ -31,3 +31,4 @@ makeBoard = fmap (convertLine 0 . reverse)
         chooseFieldType 'P' = PowerUp
         chooseFieldType 'C' = Cherry
         chooseFieldType '.' = Empty
+        chooseFieldType _ = Empty
