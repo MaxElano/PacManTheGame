@@ -36,9 +36,6 @@ locationToField (Location lcords _) b = let (x,y) = lCordToFCord lcords in check
 lCordToFCord :: LocationCord -> FieldCord
 lCordToFCord (x,y) = (truncate x `div` fieldSize, truncate y `div` fieldSize)
 
-fieldToLocation :: Field -> Orientation -> Location
-fieldToLocation (MkField fcords _) = Location (fCordToLCord fcords)
-
 fCordToLCord :: FieldCord -> LocationCord
 fCordToLCord (x,y) = let size = fromIntegral fieldSize 
                      in (fromIntegral x * size + size / 2, fromIntegral y * size + size / 2)
