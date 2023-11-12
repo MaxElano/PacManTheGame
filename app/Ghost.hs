@@ -55,6 +55,18 @@ moveGhost b g@(Ghost
         { ghostLocation = moveEntity (Location c (oppositeOrientation o)) s et z
         , mustReverse   = False 
         }, gen)
+--Handles random direction, when inside of GhostHouse
+moveGhost b g@(Ghost
+    { ghostLocation    = l@(Location c o)
+    , targetField      = t
+    , ghostSpeed       = s
+    , ghostSize        = z
+    , ghostHouseStatus = Inside
+    }) et _ gen = let os = (tryAllOrientations b l z)
+                      (no, ng) = chooseRandomDirection gen $ case os of
+                                                             [] -> [oppositeOrientation o]
+                                                             _  -> os
+                  in (g { ghostLocation = moveEntity (Location c no) s et z }, ng)
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
     { ghostLocation = l@(Location c _)
@@ -62,15 +74,6 @@ moveGhost b g@(Ghost
     , ghostSpeed    = s
     , ghostSize     = z
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l z)
-                           in (g { ghostLocation = moveEntity (Location c no) s et z }, ng)
---Handles random direction, when inside of GhostHouse
-moveGhost b g@(Ghost
-    { ghostLocation    = l@(Location c _)
-    , targetField      = t
-    , ghostSpeed       = s
-    , ghostSize        = z
-    , ghostHouseStatus = Inside
-    }) et _ gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l z)
                            in (g { ghostLocation = moveEntity (Location c no) s et z }, ng)
 --"Normal" move
 moveGhost b g@(Ghost
