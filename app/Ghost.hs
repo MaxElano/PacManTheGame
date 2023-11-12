@@ -49,7 +49,6 @@ moveGhost :: Board -> Ghost -> ElapsedTime -> GhostMode -> StdGen -> (Ghost, Std
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , mustReverse      = True
-    , ghostHouseStatus = Outside
     }) et _ gen     = (g 
         { ghostLocation = moveEntity (Location c (oppositeOrientation o)) (ghostSpeed g) et (ghostSize g)
         , mustReverse   = False 

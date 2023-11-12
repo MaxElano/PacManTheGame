@@ -31,10 +31,10 @@ initialState b = GameState
                (13,21)
                (Score 0) 
                (PacMan (Location (108,180) Types.Right) (Location (108,180) Types.Right) Types.Right (Lives 3) 24 8 (-30, 30, 2, 4) Closing)
-               (Ghost (Location (164,164) Types.Up) (Location (164,164) Types.Up) (0,0) Chase 16 (0,300) False Red 8 red red Outside 0 20 Chase 0)
-               (Ghost (Location (100,156) Types.Right) (Location (96,160) Types.Right) (0,0) Chase 16 (300,0) False Pink 8 rose rose Inside 10 20 Chase 0)
-               (Ghost (Location (108,156) Types.Left) (Location (104,160) Types.Left) (0,0) Chase 16 (300,300) False Cyan 8 cyan cyan Inside 20 20 Chase 0)
-               (Ghost (Location (116,156) Types.Up) (Location (112,160) Types.Up) (0,0) Chase 16 (0,0) False Orange 8 orange orange Inside 30 20 Chase 0)
+               (Ghost (Location (168,164) Types.Up) (Location (164,164) Types.Up) (0,0) Chase 16 (0,300) False Red 8 red red Outside 0 20 Chase 0)
+               (Ghost (Location (104,156) Types.Right) (Location (96,160) Types.Right) (0,0) Chase 16 (300,0) False Pink 8 rose rose Inside 10 20 Chase 0)
+               (Ghost (Location (112,156) Types.Left) (Location (104,160) Types.Left) (0,0) Chase 16 (300,300) False Cyan 8 cyan cyan Inside 20 20 Chase 0)
+               (Ghost (Location (120,156) Types.Up) (Location (112,160) Types.Up) (0,0) Chase 16 (0,0) False Orange 8 orange orange Inside 30 20 Chase 0)
                0
                0
                (mkStdGen 42)
