@@ -1,7 +1,7 @@
 module Main where
 
 --import Controller
-import Types ( initialState, windowSize )
+import Types ( initialState, windowSize, Score (Score) )
 import Draw ( draw )
 import Controller ( step, input )
 import Prelude
@@ -10,6 +10,7 @@ import Graphics.Gloss.Interface.IO.Game
     ( black, Display(InWindow), playIO )
 import LevelLoader (loadLevel)
 import Graphics.Gloss
+import ScoreWriter (writeScore)
 -- 
 main :: IO ()
 main = do putStrLn "Choose level by inserting one of the following chars: '1', '2', 'c' (c stands for the custom level)"
