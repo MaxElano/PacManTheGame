@@ -5,7 +5,7 @@ import Types as T
     ( Board,
       Field(..),
       FieldType(Empty, Pellet, Cherry, PowerUp),
-      GameState(GameState, board, elapsedTime, pacMan, score, ghostRed, ghostPink, ghostCyan, ghostOrange, infoToShow),
+      GameState(GameState, board, elapsedTime, pacMan, score, ghostRed, ghostPink, ghostCyan, ghostOrange, infoToShow, finished),
       GhostMode(Frightened, Chase),
       IsWall,
       Location(..),
@@ -18,7 +18,7 @@ import Types as T
       ElapsedTime,
       NewOrientation,
       GhostHouseStatus(..),
-      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse, frightenedTime, ghostHouseStatus), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar), GhostColorTo (Dark) )
+      Size, Ghost (ghostLocation, Ghost, ghostStartLocation, ghostColor, ghostBaseColor, ghostMode, ghostType, mustReverse, frightenedTime, ghostHouseStatus), GhostLocation, Lives (Lives), PacManAnimation (..), pacManAnimationSpeed, pacManMouthSize, InfoToShow (ShowAChar, ShowLostState), GhostColorTo (Dark) )
 import Board
     ( locationToField,
       isWall,
@@ -57,7 +57,7 @@ handleField f@(MkField _ Pellet) gs@(GameState
     { score = (Score s)
     , board = b
     }) = gs 
-        { score = Score (s+1)    
+        { score = Score (s+10)    
         , board = changeFieldType b f Empty 
         }
 
@@ -65,12 +65,16 @@ handleField f@(MkField _ Cherry) gs@(GameState
     { score = (Score s)
     , board = b
     }) = gs 
-        { score = Score (s+5)
+        { score = Score (s+100)
         , board = changeFieldType b f Empty 
         }
 
-handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = changeAllGhostColor gs 
-    { board       = changeFieldType b f Empty 
+handleField f@(MkField _ PowerUp) gs@(GameState 
+    { score = (Score s)
+    , board = b 
+    }) = changeAllGhostColor gs 
+    { score       = Score (s+50)
+    , board       = changeFieldType b f Empty 
     , ghostRed    = (ghostRed gs)    { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
     , ghostPink   = (ghostPink gs)   { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
     , ghostCyan   = (ghostCyan gs)   { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
@@ -120,7 +124,8 @@ killPacMan gs@(GameState
 killGhosts :: GameState -> [Ghost] -> GameState
 killGhosts gs [] = gs
 killGhosts gs@(GameState 
-    { ghostRed    = gr@(Ghost { ghostType = gtr })
+    { score       = Score s
+    , ghostRed    = gr@(Ghost { ghostType = gtr })
     , ghostPink   = gp@(Ghost { ghostType = gtp })
     , ghostCyan   = gc@(Ghost { ghostType = gtc })
     , ghostOrange = go@(Ghost { ghostType = gto })
@@ -129,7 +134,7 @@ killGhosts gs@(GameState
     | gtp == ghostType ghost = gs { ghostPink   = killGhost gp }
     | gtc == ghostType ghost = gs { ghostCyan   = killGhost gc }
     | gto == ghostType ghost = gs { ghostOrange = killGhost go }
-    | otherwise   = killGhosts gs ghosts
+    | otherwise   = killGhosts gs { score = Score (s+200)} ghosts
 
 -- kill a ghost, resets their position and color
 killGhost :: Ghost -> Ghost
@@ -160,12 +165,6 @@ isGhostInSameField pacf g@(Ghost { ghostLocation = ghostl }) b = let ghostf = lo
                                  in case ghostf of
                                     Just ghostf -> if ghostf == pacf then Just g else Nothing 
                                     Nothing     -> Nothing
-
--- checks if pac-man is dead or not, ends the game if he is
-deathCheck :: GameState -> GameState
-deathCheck gs@(GameState { pacMan = (PacMan { lives = l }) })
-    | l == Lives 0    = gs { infoToShow = ShowAChar 'L' }
-    | otherwise       = gs
 
 -- pac-mans animation code, returns different states of animation for pac-man
 pacManWakkaWakka :: GameState -> GameState

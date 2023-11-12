@@ -13,14 +13,15 @@ import Types as T
       FieldType(..),
       Field(..),
       Row,
-      Board, 
+      Board,
       fieldSize,
-      FieldCord, 
+      FieldCord,
       LocationCord,
       Orientation(..),
       Finished,
-      GameState(..))
+      GameState(..), Lives (Lives), PacMan (lives))
 import Data.List
+import GHC.IO.Exception (ExitCode(ExitSuccess))
 
 locationToField :: Location -> Board -> Maybe Field
 locationToField (Location lcords _) b = let (x,y) = lCordToFCord lcords in checkY x y b
@@ -51,7 +52,6 @@ isGhostWall :: Field -> IsWall
 isGhostWall (MkField _ GhostWall) = True
 isGhostWall (MkField _ _)         = False
 
-
 changeFieldType :: Board -> Field -> FieldType -> Board
 changeFieldType board f newType = map (fieldReplace f newType) board
 
@@ -69,14 +69,3 @@ findFieldCordAhead (x,y) T.Left  i = (x - i, y)
 
 useRandom :: StdGen -> (Int, Int) -> (Int, StdGen)
 useRandom g r = uniformR r g
-
-setEndOfGame :: GameState -> GameState
-setEndOfGame gs | checkEndOfGame (board gs) = gs { finished = True, infoToShow = ShowFinishedState } 
-                | otherwise                 = gs
-    where 
-        checkEndOfGame :: Board -> Finished
-        checkEndOfGame b = not $ foldr (\rs x -> x || foldr (\(MkField _ f) y -> y || case f of
-                                                                                      Pellet  -> True
-                                                                                      Cherry  -> True
-                                                                                      PowerUp -> True
-                                                                                      _       -> False) False rs) False b 
