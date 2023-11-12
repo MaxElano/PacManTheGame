@@ -57,7 +57,7 @@ handleField f@(MkField _ Pellet) gs@(GameState
     { score = (Score s)
     , board = b
     }) = gs 
-        { score = Score (s+1)    
+        { score = Score (s+10)    
         , board = changeFieldType b f Empty 
         }
 
@@ -65,12 +65,16 @@ handleField f@(MkField _ Cherry) gs@(GameState
     { score = (Score s)
     , board = b
     }) = gs 
-        { score = Score (s+5)
+        { score = Score (s+100)
         , board = changeFieldType b f Empty 
         }
 
-handleField f@(MkField _ PowerUp) gs@(GameState { board = b }) = changeAllGhostColor gs 
-    { board       = changeFieldType b f Empty 
+handleField f@(MkField _ PowerUp) gs@(GameState 
+    { score = (Score s)
+    , board = b 
+    }) = changeAllGhostColor gs 
+    { score       = Score (s+50)
+    , board       = changeFieldType b f Empty 
     , ghostRed    = (ghostRed gs)    { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
     , ghostPink   = (ghostPink gs)   { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
     , ghostCyan   = (ghostCyan gs)   { ghostMode = Frightened, mustReverse = True, frightenedTime = 6 }
@@ -120,7 +124,8 @@ killPacMan gs@(GameState
 killGhosts :: GameState -> [Ghost] -> GameState
 killGhosts gs [] = gs
 killGhosts gs@(GameState 
-    { ghostRed    = gr@(Ghost { ghostType = gtr })
+    { score       = Score s
+    , ghostRed    = gr@(Ghost { ghostType = gtr })
     , ghostPink   = gp@(Ghost { ghostType = gtp })
     , ghostCyan   = gc@(Ghost { ghostType = gtc })
     , ghostOrange = go@(Ghost { ghostType = gto })
@@ -129,7 +134,7 @@ killGhosts gs@(GameState
     | gtp == ghostType ghost = gs { ghostPink   = killGhost gp }
     | gtc == ghostType ghost = gs { ghostCyan   = killGhost gc }
     | gto == ghostType ghost = gs { ghostOrange = killGhost go }
-    | otherwise   = killGhosts gs ghosts
+    | otherwise   = killGhosts gs { score = Score (s+200)} ghosts
 
 -- kill a ghost, resets their position and color
 killGhost :: Ghost -> Ghost
