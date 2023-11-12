@@ -20,7 +20,7 @@ import Types as T
       GameState(GameState, ghostOrange, generator, board,
                 elapsedTime, ghostCyan, ghostPink, ghostRed, pacMan, ghostHouseDoor),
       ElapsedTime, Size, GhostColorTo (..), ghostDarkColor, Time)
-import Entity ( moveEntity, oppositeOrientation, boundaryCheck, ghostWallBoundaryCheck )
+import Entity ( moveEntity, oppositeOrientation, boundaryCheck, ghostWallBoundaryCheck, moveEntityGhost )
 import Board
     ( locationToField, findFieldCordAhead, useRandom, lCordToFCord)
 import System.Random ( StdGen )
@@ -49,9 +49,8 @@ moveGhost :: Board -> Ghost -> ElapsedTime -> GhostMode -> StdGen -> (Ghost, Std
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , mustReverse      = True
-    , ghostHouseStatus = Outside
     }) et _ gen     = (g 
-        { ghostLocation = moveEntity b (Location c (oppositeOrientation o)) (ghostSpeed g) et (ghostSize g)
+        { ghostLocation = moveEntityGhost b (Location c (oppositeOrientation o)) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g)
         , mustReverse   = False 
         }, gen)
 --Handles random direction, when inside of GhostHouse
@@ -60,17 +59,17 @@ moveGhost b g@(Ghost
     , ghostHouseStatus = Inside
     }) et _ gen = let os = (tryAllOrientations b l (ghostSize g) Inside)
                       (no, ng) = chooseRandomDirection gen os
-                  in (g { ghostLocation = moveEntity b (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
+                  in (g { ghostLocation = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g) }, ng)
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c _)
     , ghostHouseStatus = Outside
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l (ghostSize g) Outside)
-                           in (g { ghostLocation = moveEntity b (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
+                           in (g { ghostLocation = moveEntityGhost b (Location c no) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g) }, ng)
 --"Normal" move
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c _)
-    }) et _ gen     = let nl = moveEntity b (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g)
+    }) et _ gen     = let nl = moveEntityGhost b (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g) (ghostHouseStatus g)
                           nh = case locationToField nl b of
                                Just (MkField _ GhostWall) -> Outside
                                _                          -> (ghostHouseStatus g)

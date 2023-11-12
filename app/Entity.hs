@@ -1,12 +1,23 @@
 module Entity where
 import Prelude hiding (Right, Left)
 import Types
-    ( Orientation(..), Location(..), Speed, ElapsedTime, LocationCord, Size, Board, IsWall )
+    ( Orientation(..), Location(..), Speed, ElapsedTime, LocationCord, Size, Board, IsWall, GhostHouseStatus(..) )
 import qualified Types as T
 import Board (isWall, locationToField, isGhostWall)
 
 moveEntity :: Board -> Location -> Speed -> ElapsedTime -> Size -> Location
 moveEntity b l@(Location cords o) speed t size
+    | boundaryCheck b cords o size = snapToCenter l size
+    | otherwise                    = nl
+    where nl = nextLocation l speed t size
+
+moveEntityGhost :: Board -> Location -> Speed -> ElapsedTime -> Size -> GhostHouseStatus -> Location
+moveEntityGhost b l@(Location cords o) speed t size MayLeave
+    | ghostWallBoundaryCheck b cords o size = nl
+    | boundaryCheck b cords o size = snapToCenter l size
+    | otherwise                    = nl
+    where nl = nextLocation l speed t size
+moveEntityGhost b l@(Location cords o) speed t size _
     | boundaryCheck b cords o size = snapToCenter l size
     | otherwise                    = nl
     where nl = nextLocation l speed t size
