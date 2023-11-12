@@ -50,7 +50,7 @@ moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c o)
     , mustReverse      = True
     }) et _ gen     = (g 
-        { ghostLocation = moveEntity (Location c (oppositeOrientation o)) (ghostSpeed g) et (ghostSize g)
+        { ghostLocation = moveEntity b (Location c (oppositeOrientation o)) (ghostSpeed g) et (ghostSize g)
         , mustReverse   = False 
         }, gen)
 --Handles random direction, when inside of GhostHouse
@@ -59,17 +59,17 @@ moveGhost b g@(Ghost
     , ghostHouseStatus = Inside
     }) et _ gen = let os = (tryAllOrientations b l (ghostSize g) Inside)
                       (no, ng) = chooseRandomDirection gen os
-                  in (g { ghostLocation = moveEntity (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
+                  in (g { ghostLocation = moveEntity b (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
 --Handles random direcion, when frightened
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c _)
     , ghostHouseStatus = Outside
     }) et Frightened gen = let (no, ng) = chooseRandomDirection gen (tryAllOrientations b l (ghostSize g) Outside)
-                           in (g { ghostLocation = moveEntity (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
+                           in (g { ghostLocation = moveEntity b (Location c no) (ghostSpeed g) et (ghostSize g) }, ng)
 --"Normal" move
 moveGhost b g@(Ghost
     { ghostLocation    = l@(Location c _)
-    }) et _ gen     = let nl = moveEntity (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g)
+    }) et _ gen     = let nl = moveEntity b (Location c $ findOrientation b l (targetField g) (ghostSize g) (ghostHouseStatus g)) (ghostSpeed g) et (ghostSize g)
                           nh = case locationToField nl b of
                                Just (MkField _ GhostWall) -> Outside
                                _                          -> (ghostHouseStatus g)
